@@ -6,7 +6,7 @@
     <title>📍 위치 안내 시스템</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; padding: 20px; background-color: #f4f6f9; margin: 0; }
-        .container { max-width: 480px; margin: 20px auto; background: white; padding: 30px 20px; border-radius: 16px; box-shadow: 0px 8px 24px rgba(0,0,0,0.05); }
+        .container { max-width: 480px; margin: 20px auto; background: white; padding: 30px 20px; border-radius: 16px; box-shadow: 0px 8px 24 rgba(0,0,0,0.05); }
         h1 { color: #1e293b; font-size: 1.5em; margin-bottom: 8px; }
         p { color: #64748b; font-size: 1em; line-height: 1.6; margin: 5px 0; }
         img { max-width: 100%; height: auto; border-radius: 10px; margin: 20px 0; border: 1px solid #e2e8f0; }
@@ -91,20 +91,35 @@
         }
     });
 
-    // 디스코드 알림 전송 공통 함수 (방문자 폰의 정확한 시간을 서버로 전달)
+    // 디스코드 알림 전송 공통 함수 (기기별 타임존 버그 완전 차단 버전)
     function sendDiscordNotification(statusMessage) {
         if (!currentPlace) {
             console.log("장소 데이터가 로드되지 않았습니다.");
             return Promise.resolve();
         }
 
-        // 방문자가 버튼을 누른 스마트폰의 현재 실시간 한국 시간을 획득합니다.
-        const visitorTime = new Date().toLocaleString('ko-KR');
+        // 현재 시각을 구한 뒤 년, 월, 일, 시, 분, 초를 각각 쪼갭니다.
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth() + 1;
+        const date = now.getDate();
+        
+        let hours = now.getHours();
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        
+        // 오전/오후 텍스트 처리 및 12시간제 변환
+        const ampm = hours >= 12 ? '오후' : '오전';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // 0시는 12시로 표시
+
+        // 한국인에게 익숙한 포맷으로 수동 조립
+        const visitorTime = `${year}. ${month}. ${date}. ${ampm} ${hours}:${minutes}:${seconds}`;
 
         const requestBody = {
             title: currentPlace.title,
             statusMessage: statusMessage,
-            time: visitorTime // 시간 데이터를 본문에 포함하여 서버로 전송
+            time: visitorTime
         };
 
         return fetch('/send-webhook', {
