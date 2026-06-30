@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📍 위치 안내 시스템</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; padding: 20px; background-color: #f4f6f9; margin: 0; }
+        .container { max-width: 480px; margin: 20px auto; background: white; padding: 30px 20px; border-radius: 16px; box-shadow: 0px 8px 24px rgba(0,0,0,0.05); }
+        h1 { color: #1e293b; font-size: 1.5em; margin-bottom: 8px; }
+        p { color: #64748b; font-size: 1em; line-height: 1.6; margin: 5px 0; }
+        img { max-width: 100%; height: auto; border-radius: 10px; margin: 20px 0; border: 1px solid #e2e8f0; }
+        .btn { display: block; width: 100%; max-width: 280px; margin: 12px auto; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 1.05em; text-decoration: none; cursor: pointer; border: none; box-sizing: border-box; }
+        .phone-btn { background-color: #10b981; color: white; }
+        .phone-btn:hover { background-color: #059669; }
+        .help-btn { background-color: #ef4444; color: white; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2); }
+        .help-btn:hover { background-color: #dc2626; }
+        .error-msg { color: #dc2626; font-weight: bold; }
+        hr { border: 0; height: 1px; background: #e2e8f0; margin: 25px 0; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 id="place-title">📍 장소 정보를 읽는 중...</h1>
+    <p id="place-desc">잠시만 기다려 주십시오.</p>
+    
+    <img id="place-img" src="" alt="위치 안내 이미지" style="display:none;">
+
+    <hr>
+
+    <h3>🚨 도움이 필요하신가요?</h3>
+    <p style="margin-bottom: 20px;">아래 버튼을 누르시면 현장 담당자에게 알림이 전송되거나 즉시 연결됩니다.</p>
+    
+    <button id="help-trigger-btn" class="btn help-btn" style="display:none;">⚠️ 직원의 도움이 필요합니다</button>
+    
+    <a id="contact-link" href="#" class="btn phone-btn" style="display:none;">📞 담당자 전화 연결</a>
+</div>
+
+<script src="data.js"></script>
+
+<script>
+    let currentPlace = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const placeId = urlParams.get('id');
+
+        const titleEl = document.getElementById('place-title');
+        const descEl = document.getElementById('place-desc');
+        const imgEl = document.getElementById('place-img');
+        const linkEl = document.getElementById('contact-link');
+        const helpBtnEl = document.getElementById('help-trigger-btn');
+
+        if (placeId && placeData[placeId]) {
+            currentPlace = placeData[placeId];
+
+            titleEl.innerText = "📍 " + currentPlace.title;
+            descEl.innerHTML = `현재 고객님의 위치는 <strong>${currentPlace.title}</strong> 입니다.`;
+            
+            imgEl.src = currentPlace.image_name;
+            imgEl.style.display = "block";
+            
+            linkEl.href = "tel:" + currentPlace.phone;
+            linkEl.style.display = "block";
+            helpBtnEl.style.display = "block";
+
+            helpBtnEl.addEventListener('click', () => {
+                helpBtnEl.disabled = true;
+                helpBtnEl.innerText = "⏳ 요청 전송 중...";
+                helpBtnEl.style.backgroundColor = "#94a3b8";
+
+                sendDiscordNotification("🚨 **[🚨 긴급 호출]** 방문자가 **'도움이 필요합니다'** 버튼을 클릭했습니다! 현장 확인 바랍니다.")
+                .then(() => {
+                    alert("⚠️ 현장 담당자에게 도움 요청 알림이 전송되었습니다. 잠시만 기다려주세요!");
+                    helpBtnEl.innerText = "✅ 요청 완료";
+                    helpBtnEl.style.backgroundColor = "#10b981";
+                })
+                .catch(() => {
+                    alert("전송에 실패했습니다. 담당자에게 유선으로 연락 바랍니다.");
+                    helpBtnEl.disabled = false;
+                    helpBtnEl.innerText = "⚠️ 직원의 도움이 필요합니다";
+                    helpBtnEl.style.backgroundColor = "#ef4444";
+                });
+            });
+
+        } else {
+            titleEl.innerText = "⚠️ 안내 오류";
+            titleEl.className = "error-msg";
+            descEl.innerText = "등록되지 않은 QR코드이거나 장소 ID가 올바르지 않습니다.";
+        }
+    });
+
+    // 디스코드 알림 전송 공통 함수 (Cloudflare Functions 중계)
+    function sendDiscordNotification(statusMessage) {
+        if (!currentPlace) {
+            console.log("장소 데이터가 로드되지 않았습니다.");
+            return Promise.resolve();
+        }
+
+        const requestBody = {
+            title: currentPlace.title,
+            statusMessage: statusMessage
+        };
+
+        return fetch('/send-webhook', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
+        }).then(res => {
+            if (!res.ok) throw new Error("전송 실패");
+            return res.json();
+        });
+    }
+</script>
+
+</body>
+</html>
