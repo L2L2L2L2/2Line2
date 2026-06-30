@@ -1,3 +1,5 @@
+// [자동 생성된 데이터 파일]
+// 총 48개의 장소 데이터가 포함되어 있습니다.
 const placeData = {
     "211ES001": {
         "title": "가정역 에스컬레이터 1호기",
@@ -90,24 +92,24 @@ const placeData = {
         "image_name": "211ZONE01.jpg"
     },
     "211EV001": {
-        "title": "가정역 엘리베이터 1호기(B3)",
+        "title": "가정역 엘리베이터 1호기(B1)",
         "phone": "032-451-4311",
-        "image_name": "211ZONE13.jpg"
+        "image_name": "211ZONE02.jpg"
     },
     "211EV002": {
-        "title": "가정역 엘리베이터 2호기(B3)",
+        "title": "가정역 엘리베이터 2호기(B1)",
         "phone": "032-451-4311",
-        "image_name": "211ZONE13.jpg"
+        "image_name": "211ZONE05.jpg"
     },
     "211EV003": {
-        "title": "가정역 엘리베이터 3호기(B3)",
+        "title": "가정역 엘리베이터 3호기(B1)",
         "phone": "032-451-4311",
-        "image_name": "211ZONE10.jpg"
+        "image_name": "211ZONE05.jpg"
     },
     "211EV004": {
-        "title": "가정역 엘리베이터 4호기(B3)",
+        "title": "가정역 엘리베이터 4호기(B1)",
         "phone": "032-451-4311",
-        "image_name": "211ZONE10.jpg"
+        "image_name": "211ZONE02.jpg"
     },
     "211EV005": {
         "title": "가정역 엘리베이터 5호기",
@@ -118,6 +120,26 @@ const placeData = {
         "title": "가정역 엘리베이터 6호기",
         "phone": "032-451-4311",
         "image_name": "211ZONE02.jpg"
+    },
+    "211EV007": {
+        "title": "가정역 엘리베이터 1호기(B3)",
+        "phone": "032-451-4311",
+        "image_name": "211ZONE13.jpg"
+    },
+    "211EV008": {
+        "title": "가정역 엘리베이터 2호기(B3)",
+        "phone": "032-451-4311",
+        "image_name": "211ZONE13.jpg"
+    },
+    "211EV009": {
+        "title": "가정역 엘리베이터 3호기(B3)",
+        "phone": "032-451-4311",
+        "image_name": "211ZONE10.jpg"
+    },
+    "211EV010": {
+        "title": "가정역 엘리베이터 4호기(B3)",
+        "phone": "032-451-4311",
+        "image_name": "211ZONE10.jpg"
     },
     "211EXIT001": {
         "title": "가정역 1번출구",
