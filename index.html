@@ -91,16 +91,20 @@
         }
     });
 
-    // 디스코드 알림 전송 공통 함수 (Cloudflare Functions 중계)
+    // 디스코드 알림 전송 공통 함수 (방문자 폰의 정확한 시간을 서버로 전달)
     function sendDiscordNotification(statusMessage) {
         if (!currentPlace) {
             console.log("장소 데이터가 로드되지 않았습니다.");
             return Promise.resolve();
         }
 
+        // 방문자가 버튼을 누른 스마트폰의 현재 실시간 한국 시간을 획득합니다.
+        const visitorTime = new Date().toLocaleString('ko-KR');
+
         const requestBody = {
             title: currentPlace.title,
-            statusMessage: statusMessage
+            statusMessage: statusMessage,
+            time: visitorTime // 시간 데이터를 본문에 포함하여 서버로 전송
         };
 
         return fetch('/send-webhook', {
