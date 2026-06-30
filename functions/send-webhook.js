@@ -1,6 +1,6 @@
 export async function onRequestPost(context) {
   try {
-    // 1단계에서 설정한 Cloudflare 환경 변수에서 안전하게 주소를 가져옵니다.
+    // Cloudflare 환경 변수에서 디스코드 웹훅 주소를 안전하게 가져옵니다.
     const webhookUrl = context.env.DISCORD_WEBHOOK_URL;
     
     if (!webhookUrl) {
@@ -10,17 +10,17 @@ export async function onRequestPost(context) {
       });
     }
 
-    // index.html에서 보낸 데이터(title, statusMessage)를 받습니다.
+    // index.html에서 보낸 데이터(title, statusMessage, time)를 해석합니다.
     const requestData = await context.request.json();
-    const { title, statusMessage } = requestData;
+    const { title, statusMessage, time } = requestData;
 
-    // 디스코드 포맷에 맞게 데이터 재구성
+    // 디스코드에 뿌려줄 최종 메시지 폼을 구성합니다. (서버 시간 대신 넘어온 정확한 한국 시간 사용)
     const discordMessage = {
       username: "[🚨 긴급 호출] QR코드 조회알림",
-      content: `==================================\n${statusMessage}\n📍 위치: **${title}**\n🕒 시간: ${new Date().toLocaleString('ko-KR')}\n==================================`
+      content: `==================================\n${statusMessage}\n📍 위치: **${title}**\n🕒 시간: ${time}\n==================================`
     };
 
-    // Cloudflare 서버가 디스코드로 진짜 요청을 보냄
+    // Cloudflare 백엔드에서 최종 디스코드 서버로 전달
     const response = await fetch(webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
