@@ -182,7 +182,7 @@
 
             // 3. 개별 장소 공지 처리 (additional_data)
             if (currentPlace.additional_data && currentPlace.additional_data.trim() !== "") {
-                additionalText.innerText = "📢 " + currentPlace.additional_data;
+                additionalText.innerText = `<span class="material-symbols-outlined text-[15px] inline-block align-text-bottom mr-1">campaign</span>` + currentPlace.additional_data;
                 additionalText.classList.remove('hidden');
                 hasLocalInfo = true;
             }
