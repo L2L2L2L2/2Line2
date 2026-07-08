@@ -6,14 +6,14 @@ const placeData = {
         "title": "가정역 에스컬레이터 1호기",
         "phone": "032-451-4311",
         "image_name": "211ZONE08.jpg",
-        "additional_data": "추가적인 안내문구를 작성하실 수 있습니다."
+        "additional_data": "1, 6, 7, 8번 출구와 2, 3, 4, 5번 출구는 승강장으로 내려가셔야 이동하실 수 있습니다."
     },
     "211ES002": {
         "station": "가정역",
         "title": "가정역 에스컬레이터 2호기",
         "phone": "032-451-4311",
         "image_name": "211ZONE14.jpg",
-        "additional_data": "현재 이 에스컬레이터는 하행 전용으로 운행 중입니다."
+        "additional_data": "1, 6, 7, 8번 출구와 2, 3, 4, 5번 출구는 승강장으로 내려가셔야 이동하실 수 있습니다."
     },
     "211ES003": {
         "station": "가정역",
