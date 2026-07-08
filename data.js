@@ -5,11 +5,13 @@ const placeData = {
         "title": "가정역 에스컬레이터 1호기",
         "phone": "032-451-4311",
         "image_name": "211ZONE08.jpg"
+        "additional_data": "추가적인 안내문구를 작성하실 수 있습니다." // 이 내용이 화면에 뜸
     },
     "211ES002": {
         "title": "가정역 에스컬레이터 2호기",
         "phone": "032-451-4311",
         "image_name": "211ZONE14.jpg"
+        "additional_data": "추가적인 안내문구를 작성하실 수 있습니다." // 이 내용이 화면에 뜸
     },
     "211ES003": {
         "title": "가정역 에스컬레이터 3호기",
