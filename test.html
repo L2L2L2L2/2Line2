@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+    <title>📍 위치 안내 시스템</title>
+    <!-- Tailwind & Google Fonts -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#091426",
+                        "on-primary-container": "#8590a6",
+                        "secondary-fixed-dim": "#4edea3",
+                        "background": "#f7f9fb",
+                        "primary-container": "#1e293b",
+                        "on-surface": "#191c1e",
+                        "on-tertiary-container": "#ff5250",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#c5c6cd",
+                    },
+                    "spacing": {
+                        "stack-gap-lg": "1.5rem",
+                        "container-padding": "1rem",
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body { -webkit-tap-highlight-color: transparent; font-family: 'Hanken Grotesk', sans-serif; background-color: #f7f9fb; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .fill-icon { font-variation-settings: 'FILL' 1; }
+        .loading-spinner { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>
+</head>
+
+<body class="min-h-screen text-on-surface">
+
+<!-- 상단 헤더 -->
+<header class="fixed top-0 left-0 w-full z-50 flex items-center px-4 h-14 bg-white/80 backdrop-blur-md shadow-sm transition-all">
+    <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary fill-icon">location_on</span>
+        <h1 class="font-bold text-lg text-primary" id="station-name">위치 안내</h1>
+    </div>
+</header>
+
+<main class="pt-20 pb-32 flex flex-col gap-stack-gap-lg px-container-padding">
+    
+    <!-- 위치 안내 카드 -->
+    <div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.08)] overflow-hidden border border-outline-variant/30">
+        <!-- 카드 제목 -->
+        <div class="p-4 bg-slate-50 flex flex-col gap-1 border-b border-outline-variant/10">
+            <div class="flex justify-between items-center">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-white">현위치</span>
+            </div>
+            <h2 id="place-title" class="text-xl font-bold text-primary mt-1">정보를 불러오는 중...</h2>
+        </div>
+        
+        <!-- 위치 이미지 -->
+        <div class="relative w-full aspect-[1.20] bg-slate-200 overflow-hidden">
+            <img id="place-img" alt="위치 지도" class="w-full h-full object-cover" src="">
+            <div class="absolute bottom-4 right-4 flex flex-col gap-2">
+                <button class="w-10 h-10 flex items-center justify-center bg-white/70 backdrop-blur-sm shadow-md rounded-lg text-primary border border-slate-200">
+                    <span class="material-symbols-outlined">zoom_in</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 정보 박스 -->
+    <div class="bg-primary-container text-white p-4 rounded-xl flex items-start gap-4">
+        <span class="material-symbols-outlined mt-1">info</span>
+        <p id="place-desc" class="text-md leading-relaxed">
+            데이터를 로드하고 있습니다. 잠시만 기다려 주세요.
+        </p>
+    </div>
+
+    <!-- 안내 메시지 -->
+    <section class="grid grid-cols-1 gap-4">
+        <div class="bg-white p-4 rounded-xl flex flex-col gap-1 border border-slate-100 shadow-sm">
+            <span class="font-bold text-primary">💡 안내</span>
+            <p class="text-sm text-slate-500">도움이 필요하시면 하단의 '도움요청' 버튼을 눌러주세요. 현장 담당자에게 알림이 즉시 전송됩니다.</p>
+        </div>
+    </section>
+</main>
+
+<!-- 하단 네비게이션/액션 바 -->
+<div class="fixed bottom-0 left-0 w-full z-50 bg-white rounded-t-2xl shadow-[0_-4px_16px_rgba(0,0,0,0.05)] border-t border-slate-100 px-container-padding">
+    <nav class="flex justify-around items-center h-20 max-w-lg mx-auto">
+        <!-- 지도(홈) -->
+        <div onclick="location.reload()" class="flex flex-col items-center justify-center px-4 cursor-pointer text-slate-400 hover:text-primary transition-all">
+            <span class="material-symbols-outlined !text-[28px]">map</span>
+            <span class="text-[11px] font-bold mt-1">새로고침</span>
+        </div>
+
+        <!-- 도움 요청 버튼 -->
+        <div id="help-trigger-btn" class="flex flex-col items-center justify-center px-6 py-2 rounded-2xl cursor-pointer text-on-tertiary-container hover:bg-red-50 transition-all">
+            <span id="help-icon" class="material-symbols-outlined !text-[32px]">emergency</span>
+            <span id="help-text" class="text-[11px] font-bold mt-1">도움요청</span>
+        </div>
+
+        <!-- 전화 연결 버튼 -->
+        <a id="contact-link" href="#" class="flex flex-col items-center justify-center px-4 cursor-pointer text-green-600 hover:bg-green-50 transition-all no-underline">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" class="-scale-x-100"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.56c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"></path></svg>
+            <span class="text-[11px] font-bold mt-1">전화연결</span>
+        </a>
+    </nav>
+</div>
+
+<!-- 기존 데이터 및 스크립트 연동 -->
+<script src="data.js"></script>
+<script>
+    let currentPlace = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const placeId = urlParams.get('id');
+
+        const titleEl = document.getElementById('place-title');
+        const descEl = document.getElementById('place-desc');
+        const imgEl = document.getElementById('place-img');
+        const linkEl = document.getElementById('contact-link');
+        const helpBtnEl = document.getElementById('help-trigger-btn');
+        const stationNameEl = document.getElementById('station-name');
+
+        if (placeId && placeData[placeId]) {
+            currentPlace = placeData[placeId];
+
+            // 데이터 적용
+            titleEl.innerText = currentPlace.title;
+            descEl.innerHTML = `현재 고객님의 위치는 <br><strong>${currentPlace.title}</strong> 입니다.`;
+            imgEl.src = currentPlace.image_name;
+            linkEl.href = "tel:" + currentPlace.phone;
+            
+            // 역 이름 설정 (데이터에 역 이름이 있다면 사용)
+            if(currentPlace.station) stationNameEl.innerText = currentPlace.station;
+
+            // 도움 요청 이벤트
+            helpBtnEl.addEventListener('click', () => {
+                if(confirm('직원에게 도움을 요청하시겠습니까? 현재 위치 정보가 전송됩니다.')) {
+                    const helpIcon = document.getElementById('help-icon');
+                    const helpText = document.getElementById('help-text');
+                    
+                    // UI 상태 변경 (로딩)
+                    helpBtnEl.style.pointerEvents = "none";
+                    helpIcon.innerText = "refresh";
+                    helpIcon.classList.add('loading-spinner');
+                    helpText.innerText = "전송 중...";
+
+                    sendDiscordNotification(" **[🚨 긴급 호출]** 방문자가 **'도움요청'** 버튼을 클릭했습니다!")
+                    .then(() => {
+                        alert("⚠️ 현장 담당자에게 알림이 전송되었습니다. 잠시만 기다려주세요!");
+                        helpIcon.innerText = "check_circle";
+                        helpIcon.classList.remove('loading-spinner');
+                        helpIcon.style.color = "#10b981";
+                        helpText.innerText = "요청완료";
+                    })
+                    .catch(() => {
+                        alert("전송에 실패했습니다. 담당자에게 유선 전화로 연락 바랍니다.");
+                        helpBtnEl.style.pointerEvents = "auto";
+                        helpIcon.innerText = "emergency";
+                        helpIcon.classList.remove('loading-spinner');
+                        helpText.innerText = "도움요청";
+                    });
+                }
+            });
+
+        } else {
+            titleEl.innerText = "⚠️ 안내 오류";
+            descEl.innerText = "등록되지 않은 QR코드이거나 정보가 올바르지 않습니다.";
+        }
+    });
+
+    function sendDiscordNotification(statusMessage) {
+        if (!currentPlace) return Promise.resolve();
+
+        const now = new Date();
+        const visitorTime = `${now.getFullYear()}. ${now.getMonth() + 1}. ${now.getDate()}. ${now.getHours() >= 12 ? '오후' : '오전'} ${now.getHours() % 12 || 12}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
+        const requestBody = {
+            title: currentPlace.title,
+            statusMessage: statusMessage,
+            time: visitorTime
+        };
+
+        return fetch('/send-webhook', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
+        }).then(res => {
+            if (!res.ok) throw new Error("전송 실패");
+            return res.json();
+        });
+    }
+</script>
+
+</body>
+</html>
