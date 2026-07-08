@@ -56,7 +56,7 @@
         <div id="global-notice-box" class="hidden bg-indigo-50 p-3 rounded-xl flex items-start gap-3 border border-indigo-100 shadow-sm">
             <span class="material-symbols-outlined text-indigo-600 text-[20px] mt-0.5">campaign</span>
             <div class="flex flex-col">
-                <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-tight">System Notice</span>
+                <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-tight">Notice</span>
                 <p id="global-notice-text" class="text-sm text-indigo-900 leading-tight font-medium"></p>
             </div>
         </div>
@@ -180,9 +180,10 @@
                 hasLocalInfo = true;
             }
 
-            // 3. 개별 장소 공지 처리 (additional_data)
+            // 3. 개별 장소 공지 처리 (additional_data) - 확성기 아이콘 적용 부분
             if (currentPlace.additional_data && currentPlace.additional_data.trim() !== "") {
-                additionalText.innerText = `<span class="material-symbols-outlined text-[15px] inline-block align-text-bottom mr-1">campaign</span>` + currentPlace.additional_data;
+                // innerHTML을 사용하여 Material Icon을 텍스트 앞에 삽입합니다.
+                additionalText.innerHTML = `<span class="material-symbols-outlined text-[15px] inline-block align-text-bottom mr-1">campaign</span>` + currentPlace.additional_data;
                 additionalText.classList.remove('hidden');
                 hasLocalInfo = true;
             }
