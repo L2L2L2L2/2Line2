@@ -17,17 +17,12 @@
                     "colors": {
                         "primary": "#091426",
                         "on-primary-container": "#8590a6",
-                        "secondary-fixed-dim": "#4edea3",
                         "background": "#f7f9fb",
                         "primary-container": "#1e293b",
                         "on-surface": "#191c1e",
                         "on-tertiary-container": "#ff5250",
                         "surface-container-lowest": "#ffffff",
                         "outline-variant": "#c5c6cd",
-                    },
-                    "spacing": {
-                        "stack-gap-lg": "1.5rem",
-                        "container-padding": "1rem",
                     }
                 },
             },
@@ -39,86 +34,108 @@
         .fill-icon { font-variation-settings: 'FILL' 1; }
         .loading-spinner { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 
 <body class="min-h-screen text-on-surface">
 
-<!-- 상단 헤더 (ID 수정됨) -->
-<header class="fixed top-0 left-0 w-full z-50 flex items-center px-4 h-14 bg-white/80 backdrop-blur-md shadow-sm transition-all">
+<!-- 1. 상단 헤더 -->
+<header class="fixed top-0 left-0 w-full z-50 flex items-center px-4 h-14 bg-white/80 backdrop-blur-md shadow-sm transition-all border-b border-slate-100">
     <div class="flex items-center gap-2">
         <span class="material-symbols-outlined text-primary fill-icon">location_on</span>
-        <!-- station-name ID 추가 -->
-        <h1 id="station-name" class="text-xl font-bold text-primary mt-1">인천2호선</h1>
+        <h1 id="station-name" class="text-xl font-bold text-primary mt-0.5">인천2호선</h1>
     </div>
 </header>
 
-<main class="pt-20 pb-32 flex flex-col gap-stack-gap-lg px-container-padding">
+<main class="pt-16 pb-32 flex flex-col gap-4 px-4">
     
-    <!-- 위치 안내 카드 -->
-    <div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.08)] overflow-hidden border border-outline-variant/30">
+    <!-- 2. 공지사항 섹션 (헤더와 지도 사이) -->
+    <section id="notice-section" class="flex flex-col gap-2 mt-2">
+        <!-- 2-1. 전체 공지 (Indigo 스타일) -->
+        <div id="global-notice-box" class="hidden bg-indigo-50 p-3 rounded-xl flex items-start gap-3 border border-indigo-100 shadow-sm">
+            <span class="material-symbols-outlined text-indigo-600 text-[20px] mt-0.5">campaign</span>
+            <div class="flex flex-col">
+                <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-tight">System Notice</span>
+                <p id="global-notice-text" class="text-sm text-indigo-900 leading-tight font-medium"></p>
+            </div>
+        </div>
+
+        <!-- 2-2. 지역 공지 (Station + Local 통합 / Amber 스타일) -->
+        <div id="local-notice-box" class="hidden bg-amber-50 p-3 rounded-xl flex items-start gap-3 border border-amber-100 shadow-sm">
+            <span class="material-symbols-outlined text-amber-600 text-[20px] mt-0.5">info</span>
+            <div class="flex flex-col w-full">
+                <span class="text-[10px] font-bold text-amber-500 uppercase tracking-tight">Station Info</span>
+                <!-- 역별 전체 공지 -->
+                <p id="station-notice-text" class="text-sm text-amber-900 leading-tight font-bold mb-1 hidden"></p>
+                <!-- 개별 장소 공지 -->
+                <p id="additional-text" class="text-xs text-amber-800 leading-tight opacity-90 hidden"></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. 위치 안내 카드 (이미지) -->
+    <div class="bg-surface-container-lowest rounded-2xl shadow-[0_4px_24px_rgba(30,41,59,0.06)] overflow-hidden border border-outline-variant/30">
         <div class="relative w-full aspect-[1.20] bg-slate-200 overflow-hidden">
             <img id="place-img" alt="위치 지도" class="w-full h-full object-cover" src="">
         </div>
     </div>
 
-    <!-- 정보 박스 -->
-    <div class="bg-primary-container text-white p-4 rounded-xl flex items-start gap-4">
-        <span class="material-symbols-outlined mt-1">info</span>
-        <p id="place-desc" class="text-md leading-relaxed">
-            데이터를 로드하고 있습니다...
+    <!-- 4. 현재 위치 정보 박스 -->
+    <div class="bg-primary-container text-white p-5 rounded-2xl flex items-start gap-4 shadow-md">
+        <span class="material-symbols-outlined mt-0.5">location_on</span>
+        <p id="place-desc" class="text-md leading-relaxed font-medium">
+            데이터를 불러오는 중입니다...
         </p>
     </div>
 
-    <!-- 안내 메시지 -->
-    <section class="grid grid-cols-1 gap-4">
-        
-        <!-- 추가 안내 사항 (데이터가 있을 때만 표시) -->
-        <div id="additional-box" class="hidden bg-amber-50 p-4 rounded-xl flex flex-col gap-1 border border-amber-100 shadow-sm">
-            <span class="font-bold text-amber-800 flex items-center gap-1">
-                <span class="material-symbols-outlined text-[18px]">campaign</span> 알려드립니다
-            </span>
-            <p id="additional-text" class="text-sm text-amber-900 leading-relaxed"></p>
-        </div>
-        
-        <div class="bg-white p-4 rounded-xl flex flex-col gap-1 border border-slate-100 shadow-sm">
-            <span class="font-bold text-primary">💡 안내</span>
-            <p class="text-sm text-slate-500 leading-relaxed">도움이 필요하시면 하단의 '도움요청' 버튼을 눌러주세요.</p>
-            <p class="text-sm text-slate-500 leading-relaxed">현장 담당자에게 알림이 즉시 전송됩니다.</p>
-        </div>
-    </section>
+    <!-- 5. 하단 기본 도움말 -->
+    <div class="bg-white p-4 rounded-xl border border-slate-100">
+        <p class="text-xs text-slate-400 leading-relaxed text-center">
+            💡 도움이 필요하시면 하단의 <strong>'도움요청'</strong> 버튼을 눌러주세요.<br>현장 담당자에게 알림이 즉시 전송됩니다.
+        </p>
+    </div>
 </main>
 
-<!-- 하단 네비게이션 (균형 최적화 버전) -->
-<div class="fixed bottom-0 left-0 w-full z-50 bg-white rounded-t-2xl shadow-[0_-4px_16px_rgba(0,0,0,0.05)] border-t border-slate-100 px-2 pb-safe">
+<!-- 6. 하단 네비게이션 액션 바 -->
+<div class="fixed bottom-0 left-0 w-full z-50 bg-white rounded-t-2xl shadow-[0_-8px_20px_rgba(0,0,0,0.05)] border-t border-slate-100 px-2 pb-safe">
     <nav class="flex items-center h-20 max-w-lg mx-auto">
+        
+        <!-- 왼쪽: 새창으로 지도보기 -->
         <div onclick="openMapNewWindow()" class="flex-1 flex flex-col items-center justify-center py-2 rounded-xl cursor-pointer text-slate-500 hover:bg-slate-50 hover:text-primary transition-all">
             <span class="material-symbols-outlined !text-[26px]">open_in_new</span>
             <span class="text-[10px] font-bold mt-1.5 whitespace-nowrap">새창으로 지도보기</span>
         </div>
 
+        <!-- 중앙: 도움 요청 버튼 -->
         <div id="help-trigger-btn" class="flex-1 flex flex-col items-center justify-center py-2 rounded-xl cursor-pointer text-on-tertiary-container hover:bg-red-50 transition-all">
             <span id="help-icon" class="material-symbols-outlined !text-[30px]">emergency</span>
             <span id="help-text" class="text-[10px] font-bold mt-1">도움요청</span>
         </div>
 
+        <!-- 오른쪽: 역무실 전화연결 -->
         <a id="contact-link" href="#" class="flex-1 flex flex-col items-center justify-center py-2 rounded-xl cursor-pointer text-green-600 hover:bg-green-50 transition-all no-underline">
-            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" class="-scale-x-100"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.56c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" class="-scale-x-100">
+                <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.56c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"></path>
+            </svg>
             <span class="text-[10px] font-bold mt-1">전화연결</span>
         </a>
+
     </nav>
 </div>
 
+<!-- 기존 데이터 및 스크립트 연동 -->
 <script src="data.js"></script>
 <script>
     let currentPlace = null;
 
+    // 새창으로 지도 이미지 열기 함수
     function openMapNewWindow() {
         const img = document.getElementById('place-img');
-        if (img && img.src && !img.src.endsWith('#')) {
+        if (img && img.src && !img.src.includes('undefined') && img.src !== window.location.href) {
             window.open(img.src, '_blank');
         } else {
-            alert('지도를 불러오는 중입니다.');
+            alert('지도를 불러오는 중입니다. 잠시만 기다려주세요.');
         }
     }
 
@@ -126,13 +143,24 @@
         const urlParams = new URLSearchParams(window.location.search);
         const placeId = urlParams.get('id');
 
+        // 엘리먼트 참조
         const stationNameEl = document.getElementById('station-name');
         const descEl = document.getElementById('place-desc');
         const imgEl = document.getElementById('place-img');
         const linkEl = document.getElementById('contact-link');
         const helpBtnEl = document.getElementById('help-trigger-btn');
-        const additionalBox = document.getElementById('additional-box');
+        
+        const globalBox = document.getElementById('global-notice-box');
+        const globalText = document.getElementById('global-notice-text');
+        const localBox = document.getElementById('local-notice-box');
+        const stationNoticeText = document.getElementById('station-notice-text');
         const additionalText = document.getElementById('additional-text');
+
+        // 1. 전체 공지 처리 (globalConfig.global_notice)
+        if (typeof globalConfig !== 'undefined' && globalConfig.global_notice && globalConfig.global_notice.trim() !== "") {
+            globalText.innerText = globalConfig.global_notice;
+            globalBox.classList.remove('hidden');
+        }
 
         if (placeId && placeData[placeId]) {
             currentPlace = placeData[placeId];
@@ -143,46 +171,67 @@
             imgEl.src = currentPlace.image_name;
             linkEl.href = "tel:" + currentPlace.phone;
 
-            // 추가 안내 사항 로직
-            if (currentPlace.additional_data && currentPlace.additional_data.trim() !== "") {
-                additionalText.innerText = currentPlace.additional_data;
-                additionalBox.classList.remove('hidden');
+            // 2. 역별 공지 처리 (globalConfig.station_notices[역이름])
+            let hasLocalInfo = false;
+            const stationName = currentPlace.station;
+            if (typeof globalConfig !== 'undefined' && globalConfig.station_notices && globalConfig.station_notices[stationName]) {
+                stationNoticeText.innerText = globalConfig.station_notices[stationName];
+                stationNoticeText.classList.remove('hidden');
+                hasLocalInfo = true;
             }
 
-            // 도움 요청 로직
+            // 3. 개별 장소 공지 처리 (additional_data)
+            if (currentPlace.additional_data && currentPlace.additional_data.trim() !== "") {
+                additionalText.innerText = "📍 알림: " + currentPlace.additional_data;
+                additionalText.classList.remove('hidden');
+                hasLocalInfo = true;
+            }
+
+            // 역별 또는 개별 공지가 하나라도 있으면 노란색 박스 노출
+            if (hasLocalInfo) {
+                localBox.classList.remove('hidden');
+            }
+
+            // 도움 요청 이벤트
             helpBtnEl.addEventListener('click', () => {
-                if(confirm('직원에게 도움을 요청하시겠습니까?')) {
+                if(confirm('직원에게 도움을 요청하시겠습니까? 현재 위치 정보가 전송됩니다.')) {
                     const helpIcon = document.getElementById('help-icon');
-                    const helpText = document.getElementById('help-text');
+                    const helpTextLabel = document.getElementById('help-text');
+                    
                     helpBtnEl.style.pointerEvents = "none";
                     helpIcon.innerText = "refresh";
                     helpIcon.classList.add('loading-spinner');
-                    helpText.innerText = "전송 중...";
+                    helpTextLabel.innerText = "전송 중...";
 
-                    sendDiscordNotification(" **[🚨 긴급 호출]** 방문자가 도움을 요청했습니다.")
+                    sendDiscordNotification(" **[🚨 긴급 호출]** 방문자가 도움을 요청했습니다!")
                     .then(() => {
-                        alert("알림이 전송되었습니다.");
+                        alert("⚠️ 현장 담당자에게 알림이 전송되었습니다. 잠시만 기다려주세요!");
                         helpIcon.innerText = "check_circle";
                         helpIcon.classList.remove('loading-spinner');
-                        helpText.innerText = "요청완료";
+                        helpIcon.style.color = "#10b981";
+                        helpTextLabel.innerText = "요청완료";
                     })
                     .catch(() => {
-                        alert("실패했습니다. 전화로 연락주세요.");
+                        alert("전송 실패. 전화 연결을 이용해 주세요.");
                         helpBtnEl.style.pointerEvents = "auto";
                         helpIcon.innerText = "emergency";
                         helpIcon.classList.remove('loading-spinner');
+                        helpTextLabel.innerText = "도움요청";
                     });
                 }
             });
+
         } else {
-            descEl.innerText = "정보를 찾을 수 없습니다.";
+            stationNameEl.innerText = "⚠️ 안내 오류";
+            descEl.innerText = "등록되지 않은 QR코드이거나 정보가 올바르지 않습니다.";
         }
     });
 
     function sendDiscordNotification(statusMessage) {
         if (!currentPlace) return Promise.resolve();
         const now = new Date();
-        const visitorTime = now.toLocaleString();
+        const visitorTime = `${now.getFullYear()}. ${now.getMonth() + 1}. ${now.getDate()}. ${now.getHours() >= 12 ? '오후' : '오전'} ${now.getHours() % 12 || 12}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
         return fetch('/send-webhook', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -194,5 +243,6 @@
         });
     }
 </script>
+
 </body>
 </html>
