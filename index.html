@@ -5,7 +5,7 @@
     <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
     <title>📍 인천2호선 위치 안내 시스템</title>
     <!-- Tailwind & Google Fonts -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     
@@ -38,6 +38,11 @@
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         .loading-spinner { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* Tailwind CDN 기본 유틸리티에는 pb-safe가 없어서 직접 정의 (iOS 홈 인디케이터 대응) */
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
     </style>
 </head>
 
@@ -72,15 +77,24 @@
         </div>
     </section>
 
+    <!-- 잘못된 접근(placeId 없음/데이터 없음) 안내 박스 -->
+    <div id="invalid-notice-box" class="hidden bg-red-50 p-4 rounded-xl flex items-start gap-3 border border-red-100 shadow-sm">
+        <span class="material-symbols-outlined text-red-500 text-[20px] mt-0.5">error</span>
+        <div class="flex flex-col">
+            <span class="text-[10px] font-bold text-red-400 uppercase tracking-tight">Error</span>
+            <p class="text-sm text-red-900 leading-tight font-medium">잘못된 접근입니다. QR코드를 다시 스캔해주시거나, 역무실로 문의해주세요.</p>
+        </div>
+    </div>
+
     <!-- 지도 이미지 -->
-    <div class="bg-surface-container-lowest rounded-2xl shadow-[0_4px_24px_rgba(30,41,59,0.06)] overflow-hidden border border-outline-variant/30">
+    <div id="map-box" class="bg-surface-container-lowest rounded-2xl shadow-[0_4px_24px_rgba(30,41,59,0.06)] overflow-hidden border border-outline-variant/30">
         <div class="relative w-full aspect-[1.20] bg-slate-200 overflow-hidden">
             <img id="place-img" alt="위치 지도" class="w-full h-full object-cover" src="">
         </div>
     </div>
 
     <!-- 위치 정보 박스 -->
-    <div class="bg-primary-container text-white p-5 rounded-2xl flex items-start gap-4 shadow-md">
+    <div id="place-desc-box" class="bg-primary-container text-white p-5 rounded-2xl flex items-start gap-4 shadow-md">
         <span class="material-symbols-outlined mt-0.5">location_on</span>
         <p id="place-desc" class="text-md leading-relaxed font-medium">데이터 로드 중...</p>
     </div>
@@ -138,9 +152,16 @@
 <script src="data.js"></script>
 <script>
     let currentPlace = null;
+    let imageLoadFailed = false; // 이미지 로드 실패 여부를 전역에서 추적 (openMapNewWindow에서도 참조)
 
     function openMapNewWindow() {
         const img = document.getElementById('place-img');
+
+        if (imageLoadFailed) {
+            alert('지도 이미지를 불러올 수 없습니다.');
+            return;
+        }
+
         if (img && img.src && img.src !== window.location.href) window.open(img.src, '_blank');
         else alert('지도를 불러오는 중입니다.');
     }
@@ -159,65 +180,85 @@
         const localBox = document.getElementById('local-notice-box');
         const stationNoticeText = document.getElementById('station-notice-text');
         const additionalText = document.getElementById('additional-text');
+        const invalidBox = document.getElementById('invalid-notice-box');
+        const mapBox = document.getElementById('map-box');
+        const placeDescBox = document.getElementById('place-desc-box');
 
         if (typeof globalConfig !== 'undefined' && globalConfig.global_notice) {
             globalText.innerText = globalConfig.global_notice;
             globalBox.classList.remove('hidden');
         }
 
-        if (placeId && placeData[placeId]) {
-            currentPlace = placeData[placeId];
-            if(currentPlace.station) stationNameEl.innerText = currentPlace.station;
-            descEl.innerHTML = `현재 고객님의 위치는 <br><strong>${currentPlace.title}</strong> 입니다.`;
-            
-            // 이미지 폴더 경로(map_img/) 적용
-            imgEl.src = "images/" + currentPlace.image_name;
-            
-            linkEl.href = "tel:" + currentPlace.phone;
-
-            let hasLocalInfo = false;
-            const stationName = currentPlace.station;
-            if (typeof globalConfig !== 'undefined' && globalConfig.station_notices && globalConfig.station_notices[stationName]) {
-                stationNoticeText.innerText = globalConfig.station_notices[stationName];
-                stationNoticeText.classList.remove('hidden');
-                hasLocalInfo = true;
-            }
-
-            if (currentPlace.additional_data && currentPlace.additional_data.trim() !== "") {
-                additionalText.innerText = currentPlace.additional_data; 
-                additionalText.classList.remove('hidden');
-                hasLocalInfo = true;
-            }
-
-            if (hasLocalInfo) localBox.classList.remove('hidden');
-
-            helpBtnEl.addEventListener('click', () => {
-                if(confirm('직원에게 도움을 요청하시겠습니까?')) {
-                    const helpIcon = document.getElementById('help-icon');
-                    const helpTextLabel = document.getElementById('help-text');
-                    helpBtnEl.style.pointerEvents = "none";
-                    helpIcon.innerText = "refresh";
-                    helpIcon.classList.add('loading-spinner');
-                    helpTextLabel.innerText = "전송 중...";
-
-                    sendDiscordNotification(" **[🚨 긴급 호출]** 방문자가 도움을 요청했습니다!")
-                    .then(() => {
-                        alert("⚠️ 현장 담당자에게 알림이 전송되었습니다.");
-                        helpIcon.innerText = "check_circle";
-                        helpIcon.classList.remove('loading-spinner');
-                        helpIcon.style.color = "#10b981";
-                        helpTextLabel.innerText = "요청완료";
-                    })
-                    .catch(() => {
-                        alert("전송 실패.");
-                        helpBtnEl.style.pointerEvents = "auto";
-                        helpIcon.innerText = "emergency";
-                        helpIcon.classList.remove('loading-spinner');
-                        helpTextLabel.innerText = "도움요청";
-                    });
-                }
-            });
+        // 1. placeId가 없거나 placeData에 존재하지 않는 경우 처리
+        if (!placeId || !placeData[placeId]) {
+            invalidBox.classList.remove('hidden');
+            mapBox.classList.add('hidden');
+            placeDescBox.classList.add('hidden');
+            helpBtnEl.style.pointerEvents = 'none';
+            helpBtnEl.classList.add('opacity-40');
+            linkEl.classList.add('opacity-40');
+            linkEl.removeAttribute('href');
+            return;
         }
+
+        currentPlace = placeData[placeId];
+        if (currentPlace.station) stationNameEl.innerText = currentPlace.station;
+        descEl.innerHTML = `현재 고객님의 위치는 <br><strong>${currentPlace.title}</strong> 입니다.`;
+
+        // 8. 이미지 alt 텍스트를 장소명에 맞게 동적으로 설정 (접근성)
+        imgEl.alt = `${currentPlace.title} 위치 지도`;
+
+        // 2. 이미지 로드 실패 시 지도 영역을 숨기고, openMapNewWindow가 참조할 플래그도 함께 갱신
+        imgEl.onerror = () => {
+            imageLoadFailed = true;
+            mapBox.classList.add('hidden');
+        };
+        imgEl.src = "images/" + currentPlace.image_name;
+
+        linkEl.href = "tel:" + currentPlace.phone;
+
+        let hasLocalInfo = false;
+        const stationName = currentPlace.station;
+        if (typeof globalConfig !== 'undefined' && globalConfig.station_notices && globalConfig.station_notices[stationName]) {
+            stationNoticeText.innerText = globalConfig.station_notices[stationName];
+            stationNoticeText.classList.remove('hidden');
+            hasLocalInfo = true;
+        }
+
+        if (currentPlace.additional_data && currentPlace.additional_data.trim() !== "") {
+            additionalText.innerText = currentPlace.additional_data; 
+            additionalText.classList.remove('hidden');
+            hasLocalInfo = true;
+        }
+
+        if (hasLocalInfo) localBox.classList.remove('hidden');
+
+        helpBtnEl.addEventListener('click', () => {
+            if(confirm('직원에게 도움을 요청하시겠습니까?')) {
+                const helpIcon = document.getElementById('help-icon');
+                const helpTextLabel = document.getElementById('help-text');
+                helpBtnEl.style.pointerEvents = "none";
+                helpIcon.innerText = "refresh";
+                helpIcon.classList.add('loading-spinner');
+                helpTextLabel.innerText = "전송 중...";
+
+                sendDiscordNotification(" **[🚨 긴급 호출]** 방문자가 도움을 요청했습니다!")
+                .then(() => {
+                    alert("⚠️ 현장 담당자에게 알림이 전송되었습니다.");
+                    helpIcon.innerText = "check_circle";
+                    helpIcon.classList.remove('loading-spinner');
+                    helpIcon.style.color = "#10b981";
+                    helpTextLabel.innerText = "요청완료";
+                })
+                .catch(() => {
+                    alert("전송 실패.");
+                    helpBtnEl.style.pointerEvents = "auto";
+                    helpIcon.innerText = "emergency";
+                    helpIcon.classList.remove('loading-spinner');
+                    helpTextLabel.innerText = "도움요청";
+                });
+            }
+        });
     });
 
     function sendDiscordNotification(statusMessage) {
