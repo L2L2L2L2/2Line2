@@ -15,6 +15,13 @@ const globalConfig = {
 };
 
 const placeData = {
+     "210ES001": {
+        "station": "서구청역",
+        "title": "서구청역 에스컬레이터 1호기",
+        "phone": "032-451-4310",
+        "image_name": "210ZONE08.jpg",
+        "additional_data": ""
+    },   
     "211ES001": {
         "station": "가정역",
         "title": "가정역 에스컬레이터 1호기",
