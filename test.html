@@ -72,17 +72,19 @@
 
     <!-- 안내 메시지 -->
     <section class="grid grid-cols-1 gap-4">
-        <div class="bg-white p-4 rounded-xl flex flex-col gap-1 border border-slate-100 shadow-sm">
-            <span class="font-bold text-primary">💡 안내</span>
-            <p class="text-sm text-slate-500 leading-relaxed">도움이 필요하시면 하단의 '도움요청' 버튼을 눌러주세요. 현장 담당자에게 알림이 즉시 전송됩니다.</p>
-        </div>
-
+        
         <!-- 추가 안내 사항 (데이터가 있을 때만 표시) -->
         <div id="additional-box" class="hidden bg-amber-50 p-4 rounded-xl flex flex-col gap-1 border border-amber-100 shadow-sm">
             <span class="font-bold text-amber-800 flex items-center gap-1">
                 <span class="material-symbols-outlined text-[18px]">campaign</span> 추가 확인 사항
             </span>
             <p id="additional-text" class="text-sm text-amber-900 leading-relaxed"></p>
+        </div>
+        
+        <div class="bg-white p-4 rounded-xl flex flex-col gap-1 border border-slate-100 shadow-sm">
+            <span class="font-bold text-primary">💡 안내</span>
+            <p class="text-sm text-slate-500 leading-relaxed">도움이 필요하시면 하단의 '도움요청' 버튼을 눌러주세요.</p>
+            <p class="text-sm text-slate-500 leading-relaxed">현장 담당자에게 알림이 즉시 전송됩니다.</p>
         </div>
     </section>
 </main>
