@@ -95,23 +95,27 @@
 <!-- 하단 네비게이션/액션 바 -->
 <div class="fixed bottom-0 left-0 w-full z-50 bg-white rounded-t-2xl shadow-[0_-4px_16px_rgba(0,0,0,0.05)] border-t border-slate-100 px-container-padding">
     <nav class="flex justify-around items-center h-20 max-w-lg mx-auto">
-        <!-- 지도(홈) -->
-        <div onclick="location.reload()" class="flex flex-col items-center justify-center px-4 cursor-pointer text-slate-400 hover:text-primary transition-all">
+        
+        <!-- 지도(홈/새로고침) -->
+        <div onclick="location.reload()" class="flex flex-col items-center justify-center px-6 py-2 rounded-2xl cursor-pointer text-slate-400 hover:bg-slate-50 hover:text-primary transition-all">
             <span class="material-symbols-outlined !text-[28px]">map</span>
             <span class="text-[11px] font-bold mt-1">새로고침</span>
         </div>
 
-        <!-- 도움 요청 버튼 -->
+        <!-- 도움 요청 버튼 (빨간색 계열) -->
         <div id="help-trigger-btn" class="flex flex-col items-center justify-center px-6 py-2 rounded-2xl cursor-pointer text-on-tertiary-container hover:bg-red-50 transition-all">
             <span id="help-icon" class="material-symbols-outlined !text-[32px]">emergency</span>
             <span id="help-text" class="text-[11px] font-bold mt-1">도움요청</span>
         </div>
 
-        <!-- 전화 연결 버튼 -->
-        <a id="contact-link" href="#" class="flex flex-col items-center justify-center px-4 cursor-pointer text-green-600 hover:bg-green-50 transition-all no-underline">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" class="-scale-x-100"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.56c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"></path></svg>
+        <!-- 전화 연결 버튼 (초록색 계열 - 사이즈 통일 완료) -->
+        <a id="contact-link" href="#" class="flex flex-col items-center justify-center px-6 py-2 rounded-2xl cursor-pointer text-green-600 hover:bg-green-50 transition-all no-underline">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" class="-scale-x-100">
+                <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.56c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"></path>
+            </svg>
             <span class="text-[11px] font-bold mt-1">전화연결</span>
         </a>
+
     </nav>
 </div>
 
