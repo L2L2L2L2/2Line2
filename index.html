@@ -134,13 +134,22 @@
             <span class="text-[10px] font-bold mt-1 text-center leading-[1.2] whitespace-nowrap tracking-tighter">인천교통공사<br>카카오톡채널</span>
         </a>
 
-        <!-- 3. 도움 요청 버튼 -->
+        <!-- 3. [임시] 유실물 조회 버튼 - 아래 '역무실 도움요청' 버튼은 잠시 주석 처리해둠 (복원 시 이 블록 지우고 주석 해제) -->
+        <a href="https://minwon24.police.go.kr/cvlcpt/cvlcptAply.do?cvlcptId=MW-201&keyword=" target="_blank" class="flex-1 flex flex-col items-center justify-center cursor-pointer text-slate-500 hover:bg-slate-50 transition-all no-underline">
+            <div class="h-7 flex items-center justify-center">
+                <span class="material-symbols-outlined !text-[26px]">inventory_2</span>
+            </div>
+            <span class="text-[10px] font-bold mt-1 text-center leading-[1.2] whitespace-nowrap tracking-tighter">유실물<br>조회</span>
+        </a>
+
+        <!--
         <div id="help-trigger-btn" class="flex-1 flex flex-col items-center justify-center cursor-pointer text-on-tertiary-container hover:bg-red-50 transition-all">
             <div class="h-7 flex items-center justify-center">
                 <span id="help-icon" class="material-symbols-outlined !text-[26px]">emergency</span>
             </div>
             <span id="help-text" class="text-[10px] font-bold mt-1 text-center leading-[1.2] whitespace-nowrap tracking-tighter">역무실<br>도움요청</span>
         </div>
+        -->
 
         <!-- 4. 전화 연결 버튼 -->
         <a id="contact-link" href="#" class="flex-1 flex flex-col items-center justify-center cursor-pointer text-green-600 hover:bg-green-50 transition-all no-underline">
@@ -200,8 +209,10 @@
             invalidBox.classList.remove('hidden');
             mapBox.classList.add('hidden');
             placeDescBox.classList.add('hidden');
-            helpBtnEl.style.pointerEvents = 'none';
-            helpBtnEl.classList.add('opacity-40');
+            if (helpBtnEl) {
+                helpBtnEl.style.pointerEvents = 'none';
+                helpBtnEl.classList.add('opacity-40');
+            }
             linkEl.classList.add('opacity-40');
             linkEl.removeAttribute('href');
             return;
@@ -239,32 +250,34 @@
 
         if (hasLocalInfo) localBox.classList.remove('hidden');
 
-        helpBtnEl.addEventListener('click', () => {
-            if(confirm('직원에게 도움을 요청하시겠습니까?')) {
-                const helpIcon = document.getElementById('help-icon');
-                const helpTextLabel = document.getElementById('help-text');
-                helpBtnEl.style.pointerEvents = "none";
-                helpIcon.innerText = "refresh";
-                helpIcon.classList.add('loading-spinner');
-                helpTextLabel.innerText = "전송 중...";
+        if (helpBtnEl) {
+            helpBtnEl.addEventListener('click', () => {
+                if(confirm('직원에게 도움을 요청하시겠습니까?')) {
+                    const helpIcon = document.getElementById('help-icon');
+                    const helpTextLabel = document.getElementById('help-text');
+                    helpBtnEl.style.pointerEvents = "none";
+                    helpIcon.innerText = "refresh";
+                    helpIcon.classList.add('loading-spinner');
+                    helpTextLabel.innerText = "전송 중...";
 
-                sendDiscordNotification(" **[🚨 긴급 호출]** 방문자가 도움을 요청했습니다!")
-                .then(() => {
-                    alert("⚠️ 현장 담당자에게 알림이 전송되었습니다.");
-                    helpIcon.innerText = "check_circle";
-                    helpIcon.classList.remove('loading-spinner');
-                    helpIcon.style.color = "#10b981";
-                    helpTextLabel.innerText = "요청완료";
-                })
-                .catch(() => {
-                    alert("전송 실패.");
-                    helpBtnEl.style.pointerEvents = "auto";
-                    helpIcon.innerText = "emergency";
-                    helpIcon.classList.remove('loading-spinner');
-                    helpTextLabel.innerText = "도움요청";
-                });
-            }
-        });
+                    sendDiscordNotification(" **[🚨 긴급 호출]** 방문자가 도움을 요청했습니다!")
+                    .then(() => {
+                        alert("⚠️ 현장 담당자에게 알림이 전송되었습니다.");
+                        helpIcon.innerText = "check_circle";
+                        helpIcon.classList.remove('loading-spinner');
+                        helpIcon.style.color = "#10b981";
+                        helpTextLabel.innerText = "요청완료";
+                    })
+                    .catch(() => {
+                        alert("전송 실패.");
+                        helpBtnEl.style.pointerEvents = "auto";
+                        helpIcon.innerText = "emergency";
+                        helpIcon.classList.remove('loading-spinner');
+                        helpTextLabel.innerText = "도움요청";
+                    });
+                }
+            });
+        }
     });
 
     function sendDiscordNotification(statusMessage) {
