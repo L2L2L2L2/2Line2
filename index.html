@@ -165,7 +165,7 @@
             currentPlace = placeData[placeId];
             if(currentPlace.station) stationNameEl.innerText = currentPlace.station;
             descEl.innerHTML = `현재 고객님의 위치는 <br><strong>${currentPlace.title}</strong> 입니다.`;
-            imgEl.src = currentPlace.image_name;
+            imgEl.src = "images/" + currentPlace.image_name;
             linkEl.href = "tel:" + currentPlace.phone;
 
             let hasLocalInfo = false;
