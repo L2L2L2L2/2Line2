@@ -47,21 +47,24 @@
 
 <body class="min-h-screen text-on-surface">
 
-<!-- 1. 상단 헤더 (로고 크기 20% 확대 적용) -->
+<!-- 1. 상단 헤더 (로고 h-7 유지, 역 이름 text-lg로 최적화) -->
 <header class="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-100 h-14">
     <div class="flex items-center justify-between w-full max-w-[800px] mx-auto px-4 h-full">
-        <!-- 로고 크기를 h-6에서 h-7로 약 20% 키웠습니다 -->
+        <!-- 로고 크기 h-7 (확대 유지) -->
         <img src="https://www.ictr.or.kr/main/img/main2025/logo.svg" alt="인천교통공사 로고" class="h-7 w-auto object-contain">
-        <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined text-primary fill-icon" style="font-variation-settings: 'FILL' 1;">location_on</span>
-            <h1 id="station-name" class="text-xl font-bold text-primary mt-0.5">인천2호선</h1>
+        
+        <div class="flex items-center gap-1.5">
+            <!-- 아이콘 크기를 글자 크기에 맞춰 text-[18px]로 조절 -->
+            <span class="material-symbols-outlined text-primary text-[18px] fill-icon" style="font-variation-settings: 'FILL' 1;">location_on</span>
+            <!-- 폰트 크기를 text-lg(18px)로 줄이고 자간을 tracking-tight로 설정 -->
+            <h1 id="station-name" class="text-lg font-bold text-primary tracking-tight mt-0.5">인천2호선</h1>
         </div>
     </div>
 </header>
 
 <main class="pt-20 pb-32 flex flex-col gap-4 px-4 w-full max-w-[800px] mx-auto">
     
-    <!-- 2. 공지사항 섹션 (notices.js 활용) -->
+    <!-- 공지사항 섹션 -->
     <section id="notice-section" class="flex flex-col gap-2 mt-2">
         <div id="global-notice-box" class="hidden bg-indigo-50 p-4 rounded-2xl flex items-start gap-3 border border-indigo-100 shadow-sm">
             <span class="material-symbols-outlined text-indigo-600 text-[22px] mt-0.5">campaign</span>
@@ -87,14 +90,14 @@
         <p class="text-sm text-red-900 leading-tight font-medium">잘못된 접근입니다. QR코드를 다시 스캔해주시거나 역무실로 문의해주세요.</p>
     </div>
 
-    <!-- 3. 지도 이미지 영역 -->
+    <!-- 지도 이미지 영역 -->
     <div id="map-box" class="bg-surface-container-lowest rounded-3xl shadow-[0_4px_24px_rgba(30,41,59,0.08)] overflow-hidden border border-outline-variant/30">
         <div class="relative w-full aspect-[1.20] bg-slate-200 overflow-hidden">
             <img id="place-img" alt="위치 지도" class="w-full h-full object-cover" src="">
         </div>
     </div>
 
-    <!-- 4. 현재 위치 정보 -->
+    <!-- 현재 위치 정보 -->
     <div id="place-desc-box" class="bg-primary-container text-white p-6 rounded-3xl flex items-start gap-4 shadow-lg">
         <span class="material-symbols-outlined text-[28px] mt-0.5">location_on</span>
         <div class="flex flex-col">
@@ -109,7 +112,7 @@
     </div>
 </main>
 
-<!-- 5. 하단 버튼 바 (아이콘 및 텍스트 시원하게 확대) -->
+<!-- 하단 버튼 바 -->
 <div class="fixed bottom-0 left-0 w-full z-50 bg-white rounded-t-3xl shadow-[0_-10px_30px_rgba(0,0,0,0.06)] border-t border-slate-100 px-2 pb-safe">
     <nav class="flex items-center h-24 max-w-[800px] mx-auto">
         
