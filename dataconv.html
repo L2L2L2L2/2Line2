@@ -2,133 +2,67 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 최신형 data.js 변환기 (장소명 자동결합)</title>
+    <title>📋 엑셀 ➡️ data.js 변환기 (v3)</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 40px 20px; max-width: 1000px; margin: 0 auto; background: #f1f5f9; color: #1e293b; }
-        .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); margin-bottom: 30px; }
-        h2 { color: #0f172a; margin-top: 0; display: flex; align-items: center; gap: 10px; }
-        textarea { width: 100%; height: 250px; margin: 15px 0; border: 1px solid #cbd5e1; padding: 15px; border-radius: 10px; font-family: 'Fira Code', monospace; font-size: 13px; outline: none; transition: border 0.2s; }
-        textarea:focus { border-color: #3b82f6; ring: 2px solid #3b82f6; }
-        .btn-group { display: flex; gap: 10px; }
-        button { flex: 1; padding: 15px; background: #2563eb; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
-        button:hover { background: #1d4ed8; transform: translateY(-1px); }
-        button.copy { background: #10b981; }
-        button.copy:hover { background: #059669; }
-        pre { background: #0f172a; color: #e2e8f0; padding: 25px; border-radius: 12px; overflow-x: auto; font-size: 13px; line-height: 1.6; position: relative; }
-        .status { font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #64748b; }
-        .step { background: #eff6ff; border-left: 5px solid #3b82f6; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-size: 14px; }
-        code { background: #dbeafe; padding: 2px 5px; border-radius: 4px; color: #1e40af; font-weight: bold; }
+        body { font-family: -apple-system, sans-serif; padding: 40px; background: #f1f5f9; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        textarea { width: 100%; height: 200px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: monospace; font-size: 13px; }
+        button { padding: 12px 24px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        pre { background: #0f172a; color: #e2e8f0; padding: 20px; border-radius: 8px; white-space: pre-wrap; font-size: 13px; }
     </style>
 </head>
 <body>
 
-<h2>📋 최신형 data.js 변환기 (장소명 자동결합)</h2>
+    <h2>📋 엑셀 ➡️ data.js 변환기</h2>
+    <p style="font-size: 14px; color: #64748b;">공지사항 기능이 빠진 순수 장소 데이터 전용 변환기입니다.</p>
 
-<div class="step">
-    <strong>💡 변환 로직 안내:</strong><br>
-    입력하신 <code>역이름</code>과 <code>장소명</code>을 자동으로 합쳐서 <code>"title"</code>을 생성합니다.<br>
-    예: <strong>가정역</strong> + <strong>에스컬레이터 1호기</strong> ➡️ <strong>가정역 에스컬레이터 1호기</strong>
-</div>
-
-<div class="card">
-    <div class="status" id="count-status">준비됨</div>
-    <textarea id="excel-input" placeholder="엑셀 데이터를 이곳에 붙여넣으세요. (역이름 | ID | 장소명 | 전화번호 | 이미지코드 | 추가안내)"></textarea>
-
-    <div class="btn-group">
-        <button onclick="convert()">⚡ 장소명 결합 및 변환</button>
-        <button class="copy" onclick="copyToClipboard()">📋 결과 복사하기</button>
+    <div class="card">
+        <label style="font-weight: bold; display: block; margin-bottom: 10px;">📥 엑셀 데이터 붙여넣기 (5개 열)</label>
+        <textarea id="excel-input" placeholder="아래와 같은 형식으로 복사해서 붙여넣으세요:
+가정역	211ES001	에스컬레이터 1호기	032-451-4311	211ZONE01
+가정역	211EV001	엘리베이터 1호기	032-451-4311	211ZONE02
+서구청역	212ES001	에스컬레이터 1호기	032-451-4312	212ZONE01"></textarea>
+        <button onclick="convert()">⚡ 변환하기</button>
     </div>
-</div>
 
-<div class="card" style="background:#0f172a;">
-    <h3 style="color:#38bdf8; margin-top:0;">📂 변환 결과</h3>
-    <pre id="output-result">결과가 여기에 표시됩니다.</pre>
-</div>
+    <div class="card" style="background: #0f172a;">
+        <pre id="output-result">결과가 여기에 표시됩니다.</pre>
+    </div>
 
 <script>
 function convert() {
     const input = document.getElementById("excel-input").value.trim();
-    if (!input) {
-        alert("데이터를 입력해주세요!");
-        return;
-    }
+    if (!input) return;
 
     const lines = input.split("\n");
     const resultObject = {};
-    const stationNotices = {};
-    let successCount = 0;
+    let count = 0;
 
     lines.forEach(line => {
         const cols = line.split("\t");
-
         if (cols.length >= 5) {
             const station = cols[0].trim();
             const id = cols[1].trim();
             const rawTitle = cols[2].trim();
             const phone = cols[3].trim();
             const zone = cols[4].trim();
-            const additional = cols[5] ? cols[5].trim() : "";
 
             if (id) {
-                // [수정 포인트] 역 이름이 이미 장소명 앞에 붙어있는지 확인 후 결합
-                let fullTitle = rawTitle;
-                if (!rawTitle.startsWith(station)) {
-                    fullTitle = station + " " + rawTitle;
-                }
-
+                let fullTitle = rawTitle.startsWith(station) ? rawTitle : station + " " + rawTitle;
                 resultObject[id] = {
                     station: station,
-                    title: fullTitle, // 결합된 제목 사용
+                    title: fullTitle,
                     phone: phone,
                     image_name: zone + ".jpg"
                 };
-
-                if (additional) {
-                    resultObject[id].additional_data = additional;
-                }
-
-                if (!stationNotices[station]) {
-                    stationNotices[station] = "";
-                }
-
-                successCount++;
+                count++;
             }
         }
     });
 
-    if (successCount === 0) {
-        alert("변환 실패. 엑셀에서 6개 열을 제대로 복사했는지 확인해주세요.");
-        return;
-    }
-
-    const configStr = JSON.stringify({
-        global_notice: "인천2호선 실내 위치 안내 시범 서비스 중입니다.",
-        station_notices: stationNotices
-    }, null, 4);
-
-    const dataStr = JSON.stringify(resultObject, null, 4);
-
-    const finalCode = `// [자동 생성된 데이터 파일]
-// 생성일: ${new Date().toLocaleString()}
-
-const globalConfig = ${configStr};
-
-const placeData = ${dataStr};`;
-
+    const finalCode = `// [장소 데이터] 총 ${count}건\nconst placeData = ${JSON.stringify(resultObject, null, 4)};`;
     document.getElementById("output-result").innerText = finalCode;
-    document.getElementById("count-status").innerText = `✅ 총 ${successCount}개의 장소명을 결합하여 변환 완료!`;
-}
-
-function copyToClipboard() {
-    const result = document.getElementById("output-result").innerText;
-    if (result.startsWith("결과가")) return;
-
-    navigator.clipboard.writeText(result).then(() => {
-        alert("복사되었습니다!");
-    });
 }
 </script>
-
 </body>
 </html>
