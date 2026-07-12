@@ -79,10 +79,12 @@
     </div>
 </header>
 
-<main class="pt-20 pb-36 flex flex-col gap-5 px-4 w-full max-w-[800px] mx-auto">
+<!-- 2. 메인 영역 (패딩을 pt-14로 조정하여 헤더 바로 아래부터 시작하게 설정) -->
+<main class="pt-14 pb-36 flex flex-col gap-5 px-4 w-full max-w-[800px] mx-auto">
     
-    <!-- 공지사항 섹션 -->
-    <section id="notice-section" class="flex flex-col gap-3 mt-2">
+    <!-- 공지사항 섹션 (mt-3을 주어 헤더와의 간격을 공지사항 간 간격과 동일한 12px로 설정) -->
+    <section id="notice-section" class="flex flex-col gap-3 mt-3">
+        <!-- 전체 공지 -->
         <div id="global-notice-box" class="hidden glass-card p-4 rounded-2xl flex items-start gap-3">
             <span class="material-symbols-outlined text-indigo-600 text-[24px]">campaign</span>
             <div class="flex flex-col">
@@ -90,6 +92,7 @@
                 <p id="global-notice-text" class="text-[15px] text-slate-900 leading-tight font-semibold"></p>
             </div>
         </div>
+        <!-- 지역 공지 -->
         <div id="local-notice-box" class="hidden glass-card p-4 rounded-2xl flex items-start gap-3">
             <span class="material-symbols-outlined text-amber-600 text-[24px]">info</span>
             <div class="flex flex-col w-full">
