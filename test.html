@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="light" lang="ko">
+<html lang="ko">
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
@@ -9,15 +9,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-    
+
     <script id="tailwind-config">
+        // [수정 7] 사용하지 않는 darkMode 설정 및 관련 death code 제거
         tailwind.config = {
-            darkMode: "class",
             theme: { extend: { "colors": { "primary": "#091426", "primary-container": "#1e293b" } } }
         }
     </script>
     <style>
-        /* [1. 애니메이티드 트리플 블렌드 배경] */
         body { 
             -webkit-tap-highlight-color: transparent; 
             font-family: 'Noto Sans KR', sans-serif; 
@@ -40,37 +39,42 @@
         }
 
         .glass-card {
-            background: rgba(255, 255, 255, 0.7); 
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            background: rgba(255, 255, 255, 0.2); 
+            backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
             border: 1px solid rgba(255, 255, 255, 0.5);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .location-gradient-glass {
-            background: linear-gradient(135deg, rgba(41, 128, 185, 0.9), rgba(39, 174, 96, 0.9));
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            background: linear-gradient(135deg, rgba(41, 128, 185, 0.3), rgba(39, 174, 96, 0.3));
+            backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         }
 
-        /* [한 줄 유지 핵심 설정] */
         .single-line-fit {
-            white-space: nowrap;      /* 줄바꿈 금지 */
-            overflow: hidden;         /* 넘치는 부분 숨김 */
-            display: block;           /* 너비 계산을 위해 블록화 */
-            width: 100%;              /* 부모 너비에 맞춤 */
+            white-space: nowrap;
+            overflow: hidden;
+            display: block;
+            width: 100%;
         }
 
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         .fill-icon { font-variation-settings: 'FILL' 1; }
+
+        /* [수정 6] 상단 헤더 safe-area 대응 추가 */
+        header.safe-header {
+            padding-top: env(safe-area-inset-top, 0px);
+            height: calc(3.5rem + env(safe-area-inset-top, 0px));
+        }
         .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
     </style>
 </head>
 
 <body class="min-h-screen text-slate-900">
 
-<header class="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 h-14">
-    <div class="flex items-center justify-between w-full max-w-[800px] mx-auto px-4 h-full">
+<header class="safe-header fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
+    <div class="flex items-center justify-between w-full max-w-[800px] mx-auto px-4 h-14">
         <img src="https://www.ictr.or.kr/main/img/main2025/logo.svg" alt="인천교통공사" class="h-7 w-auto object-contain">
         <div class="flex items-center gap-1.5">
             <span class="material-symbols-outlined text-primary text-[18px] fill-icon" style="font-variation-settings: 'FILL' 1;">location_on</span>
@@ -79,10 +83,10 @@
     </div>
 </header>
 
+<!-- [수정 6] 헤더 높이가 safe-area 만큼 늘어나므로 본문 상단 패딩을 여유있게 잡음 -->
 <main class="pt-20 pb-36 flex flex-col gap-5 px-4 w-full max-w-[800px] mx-auto">
     
-    <!-- 공지사항 섹션 -->
-    <section id="notice-section" class="flex flex-col gap-3 mt-2">
+    <section id="notice-section" class="flex flex-col gap-3 mt-3">
         <div id="global-notice-box" class="hidden glass-card p-4 rounded-2xl flex items-start gap-3">
             <span class="material-symbols-outlined text-indigo-600 text-[24px]">campaign</span>
             <div class="flex flex-col">
@@ -100,43 +104,38 @@
         </div>
     </section>
 
-    <!-- 지도 영역 -->
     <div id="map-box" class="bg-white/60 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden border border-white/40">
         <div class="relative w-full aspect-[1.15] bg-white/20 overflow-hidden">
             <img id="place-img" alt="위치 지도" class="w-full h-full object-cover scale-[1.01]" src="">
         </div>
     </div>
 
-    <!-- 4. 현재 위치 정보 (한 줄 자동 최적화 적용) -->
     <div id="place-desc-box" class="location-gradient-glass text-white p-6 rounded-3xl flex items-center shadow-lg">
         <div class="flex items-center gap-5 w-full overflow-hidden">
-            <!-- 좌측 아이콘 -->
             <div class="flex-shrink-0 bg-white/20 p-3 rounded-2xl flex items-center justify-center shadow-inner">
                 <span class="material-symbols-outlined text-[32px] text-white fill-icon" style="font-variation-settings: 'FILL' 1;">location_on</span>
             </div>
-            
-            <!-- 우측 텍스트 (여기가 핵심) -->
             <div class="flex flex-col gap-1 w-full overflow-hidden">
+                <p id="place-desc" class="single-line-fit text-[24px] leading-tight font-extrabold text-white tracking-tight my-0.5 auto-fit-text"></p>
                 <span class="single-line-fit text-[14px] text-white/80 font-medium tracking-tight auto-fit-text">현재 고객님의 위치를 알려드립니다.</span>
                 <span class="single-line-fit text-[14px] text-white/80 font-medium tracking-tight auto-fit-text">도움이 필요하시면 하단의 버튼을 이용해 주세요.</span>
-                <p id="place-desc" class="single-line-fit text-[24px] leading-tight font-extrabold text-white tracking-tight my-0.5 auto-fit-text"></p>    
             </div>
         </div>
     </div>
 </main>
 
-<!-- 하단 버튼 바 -->
 <div class="fixed bottom-0 left-0 w-full z-50 bg-white/85 backdrop-blur-lg rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.06)] border-t border-white/30 px-2 pb-safe">
     <nav class="flex items-center h-24 max-w-[800px] mx-auto">
         <div onclick="openMapNewWindow()" class="flex-1 flex flex-col items-center justify-center cursor-pointer text-slate-500">
             <div class="h-8 flex items-center justify-center"><span class="material-symbols-outlined !text-[28px]">open_in_new</span></div>
             <span class="text-[11.5px] font-bold mt-1.5 text-center leading-[1.2] whitespace-nowrap tracking-tighter">새창으로<br>지도열기</span>
         </div>
-        <a href="https://pf.kakao.com/_xexaiQj" target="_blank" class="flex-1 flex flex-col items-center justify-center text-slate-500 no-underline">
+        <!-- [수정 4] 외부 링크에 rel="noopener noreferrer" 추가 -->
+        <a href="https://pf.kakao.com/_xexaiQj" target="_blank" rel="noopener noreferrer" class="flex-1 flex flex-col items-center justify-center text-slate-500 no-underline">
             <div class="h-8 flex items-center justify-center"><img src="images/kakaoico.png" alt="Kakao" class="w-[26px] h-[26px] object-contain"></div>
             <span class="text-[11.5px] font-bold mt-1.5 text-center leading-[1.2] whitespace-nowrap tracking-tighter">인천교통공사<br>카카오톡채널</span>
         </a>
-        <a href="https://minwon24.police.go.kr/cvlcpt/cvlcptAply.do?cvlcptId=MW-201&keyword=" target="_blank" class="flex-1 flex flex-col items-center justify-center text-slate-500 no-underline">
+        <a href="https://minwon24.police.go.kr/cvlcpt/cvlcptAply.do?cvlcptId=MW-201&keyword=" target="_blank" rel="noopener noreferrer" class="flex-1 flex flex-col items-center justify-center text-slate-500 no-underline">
             <div class="h-8 flex items-center justify-center"><span class="material-symbols-outlined !text-[28px]">inventory_2</span></div>
             <span class="text-[11.5px] font-bold mt-1.5 text-center leading-[1.2] whitespace-nowrap tracking-tighter">유실물<br>조회</span>
         </a>
@@ -153,25 +152,34 @@
     let currentPlace = null;
     let imageLoadFailed = false;
 
-    // [폰트 크기 자동 조절 함수]
+    // [수정 8] scrollWidth 반복 측정을 이진 탐색으로 줄여 리플로우 횟수 감소
     function fitText() {
         const elements = document.querySelectorAll('.auto-fit-text');
         elements.forEach(el => {
-            let fontSize = parseInt(window.getComputedStyle(el).fontSize);
-            el.style.fontSize = fontSize + 'px';
+            const originalSize = parseInt(window.getComputedStyle(el).fontSize) || 16;
+            let lo = 8, hi = originalSize, best = lo;
 
-            // 텍스트가 부모 너비보다 넓으면 줄임 (최소 8px까지)
-            while (el.scrollWidth > el.clientWidth && fontSize > 8) {
-                fontSize--;
-                el.style.fontSize = fontSize + 'px';
+            el.style.fontSize = hi + 'px';
+            if (el.scrollWidth <= el.clientWidth) return; // 그대로 두어도 맞는 경우
+
+            while (lo <= hi) {
+                const mid = Math.floor((lo + hi) / 2);
+                el.style.fontSize = mid + 'px';
+                if (el.scrollWidth <= el.clientWidth) {
+                    best = mid;
+                    lo = mid + 1;
+                } else {
+                    hi = mid - 1;
+                }
             }
+            el.style.fontSize = best + 'px';
         });
     }
 
     function openMapNewWindow() {
         const img = document.getElementById('place-img');
         if (imageLoadFailed) { alert('지도 이미지를 불러올 수 없습니다.'); return; }
-        if (img && img.src && img.src !== window.location.href) window.open(img.src, '_blank');
+        if (img && img.src && img.src !== window.location.href) window.open(img.src, '_blank', 'noopener,noreferrer');
         else alert('지도를 불러오는 중입니다.');
     }
 
@@ -189,43 +197,65 @@
         const stationNoticeText = document.getElementById('station-notice-text');
         const additionalText = document.getElementById('additional-text');
         const mapBox = document.getElementById('map-box');
+        const placeDescBox = document.getElementById('place-desc-box');
 
+        // [수정 1] noticeData.js 로드 실패 대비 (기존에도 있었으나 안전하게 유지)
         if (typeof noticeData !== 'undefined' && noticeData.global && noticeData.global.trim() !== "") {
             globalText.innerText = noticeData.global;
             globalBox.classList.remove('hidden');
         }
 
-        if (!placeId || !placeData[placeId]) {
-            document.getElementById('place-desc-box').classList.add('hidden');
+        // [수정 1] data.js 로드 실패(placeData 미정의) 방어 코드 추가
+        if (typeof placeData === 'undefined') {
+            console.error('data.js 로드 실패: placeData를 찾을 수 없습니다.');
+            placeDescBox.classList.add('hidden');
+            mapBox.classList.add('hidden');
+            return;
+        }
+
+        // [수정 5] placeId가 __proto__ 등일 때 프로토타입 오염 방지 (hasOwnProperty 체크)
+        const hasPlace = placeId && Object.prototype.hasOwnProperty.call(placeData, placeId);
+
+        if (!hasPlace) {
+            placeDescBox.classList.add('hidden');
+            mapBox.classList.add('hidden');
             return;
         }
 
         currentPlace = placeData[placeId];
         if (currentPlace.station) stationNameEl.innerText = currentPlace.station;
-        descEl.innerText = `${currentPlace.title}`;
+        descEl.innerText = `${currentPlace.title || ''}`;
 
         imgEl.onerror = () => { imageLoadFailed = true; mapBox.classList.add('hidden'); };
         imgEl.src = "images/" + currentPlace.image_name;
-        linkEl.href = "tel:" + currentPlace.phone;
 
-        // 공지사항 연동
-        if (typeof noticeData !== 'undefined') {
-            if (noticeData.stations && noticeData.stations[currentPlace.station]) {
-                stationNoticeText.innerText = noticeData.stations[currentPlace.station];
-                stationNoticeText.classList.remove('hidden');
-            }
-            if (noticeData.places && noticeData.places[placeId]) {
-                additionalText.innerText = noticeData.places[placeId];
-                additionalText.classList.remove('hidden');
-            }
-            if (noticeData.stations[currentPlace.station] || noticeData.places[placeId]) localBox.classList.remove('hidden');
+        // [수정 3] phone 필드 없을 때 tel:undefined 방지
+        if (currentPlace.phone) {
+            linkEl.href = "tel:" + currentPlace.phone;
+        } else {
+            linkEl.removeAttribute('href');
+            linkEl.classList.add('opacity-40', 'pointer-events-none');
         }
 
-        // 데이터 로드 후 폰트 크기 조정 실행
+        // [수정 2] noticeData.stations / noticeData.places 서브키 부재 시 안전하게 처리 (옵셔널 체이닝)
+        if (typeof noticeData !== 'undefined') {
+            const stationNotice = noticeData.stations?.[currentPlace.station];
+            const placeNotice = noticeData.places?.[placeId];
+
+            if (stationNotice) {
+                stationNoticeText.innerText = stationNotice;
+                stationNoticeText.classList.remove('hidden');
+            }
+            if (placeNotice) {
+                additionalText.innerText = placeNotice;
+                additionalText.classList.remove('hidden');
+            }
+            if (stationNotice || placeNotice) localBox.classList.remove('hidden');
+        }
+
         setTimeout(fitText, 50);
     });
 
-    // 화면 크기가 변할 때(회전 등) 다시 조정
     window.addEventListener('resize', fitText);
 </script>
 </body>
