@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
     <title>📍 인천2호선 위치 안내 시스템</title>
-    <!-- Tailwind & Google Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +18,7 @@
                     "colors": {
                         "primary": "#091426",
                         "on-primary-container": "#8590a6",
-                        "background": "#f7f9fb",
+                        "background": "#ffffff",
                         "primary-container": "#1e293b",
                         "on-surface": "#191c1e",
                         "on-tertiary-container": "#ff5250",
@@ -31,17 +30,17 @@
         }
     </script>
     <style>
-        /* [Triple Blend Background 구현] */
+        /* [Triple Blend Background 강화 버전] */
         body { 
             -webkit-tap-highlight-color: transparent; 
             font-family: 'Noto Sans KR', sans-serif; 
             overflow-x: hidden;
-            background-color: #f7f9fb;
-            /* 세 가지 색상을 부드럽게 섞는 블렌드 효과 */
+            background-color: #ffffff;
+            /* 더 선명하고 확실한 3색 블렌드 그라데이션 */
             background-image: 
-                radial-gradient(at 0% 0%, rgba(219, 234, 254, 0.5) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(254, 243, 199, 0.4) 0px, transparent 50%),
-                radial-gradient(at 50% 100%, rgba(224, 231, 255, 0.4) 0px, transparent 50%);
+                radial-gradient(at 0% 0%, #e0f2fe 0%, transparent 50%),  /* 연파랑 (좌상단) */
+                radial-gradient(at 100% 0%, #fef3c7 0%, transparent 50%), /* 연황색 (우상단) */
+                radial-gradient(at 50% 100%, #f5f3ff 0%, transparent 50%); /* 연보라 (하단) */
             background-attachment: fixed;
         }
 
@@ -55,7 +54,7 @@
 
 <body class="min-h-screen text-on-surface">
 
-<!-- 1. 상단 헤더 -->
+<!-- 상단 헤더 -->
 <header class="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-100 h-14">
     <div class="flex items-center justify-between w-full max-w-[800px] mx-auto px-4 h-full">
         <img src="https://www.ictr.or.kr/main/img/main2025/logo.svg" alt="인천교통공사 로고" class="h-7 w-auto object-contain">
@@ -68,17 +67,17 @@
 
 <main class="pt-20 pb-32 flex flex-col gap-4 px-4 w-full max-w-[800px] mx-auto">
     
-    <!-- 2. 공지사항 섹션 -->
+    <!-- 공지사항 섹션 -->
     <section id="notice-section" class="flex flex-col gap-2 mt-2">
-        <div id="global-notice-box" class="hidden bg-indigo-50 p-4 rounded-2xl flex items-start gap-3 border border-indigo-100 shadow-sm">
+        <div id="global-notice-box" class="hidden bg-indigo-50/80 backdrop-blur-sm p-4 rounded-2xl flex items-start gap-3 border border-indigo-100 shadow-sm">
             <span class="material-symbols-outlined text-indigo-600 text-[22px] mt-0.5">campaign</span>
             <div class="flex flex-col">
-                <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-tight">Notice</span>
+                <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-tight">System Notice</span>
                 <p id="global-notice-text" class="text-[15px] text-indigo-900 leading-tight font-medium"></p>
             </div>
         </div>
 
-        <div id="local-notice-box" class="hidden bg-amber-50 p-4 rounded-2xl flex items-start gap-3 border border-amber-100 shadow-sm">
+        <div id="local-notice-box" class="hidden bg-amber-50/80 backdrop-blur-sm p-4 rounded-2xl flex items-start gap-3 border border-amber-100 shadow-sm">
             <span class="material-symbols-outlined text-amber-600 text-[22px] mt-0.5">info</span>
             <div class="flex flex-col w-full">
                 <span class="text-[10px] font-bold text-amber-500 uppercase tracking-tight">Station Info</span>
@@ -88,38 +87,31 @@
         </div>
     </section>
 
-    <!-- 에러 알림 -->
-    <div id="invalid-notice-box" class="hidden bg-red-50 p-5 rounded-2xl flex items-start gap-3 border border-red-100 shadow-sm">
-        <span class="material-symbols-outlined text-red-500 text-[22px] mt-0.5">error</span>
-        <p class="text-sm text-red-900 leading-tight font-medium">잘못된 접근입니다. QR코드를 다시 스캔해주세요.</p>
-    </div>
-
-    <!-- 3. 지도 이미지 -->
-    <div id="map-box" class="bg-white rounded-3xl shadow-[0_4px_24px_rgba(0,0,0,0.06)] overflow-hidden border border-slate-100">
+    <!-- 지도 이미지 (카드 배경에 약간의 투명도 부여하여 배경 비치게 설정) -->
+    <div id="map-box" class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-[0_4px_24px_rgba(0,0,0,0.06)] overflow-hidden border border-slate-100">
         <div class="relative w-full aspect-[1.20] bg-slate-50 overflow-hidden">
             <img id="place-img" alt="위치 지도" class="w-full h-full object-cover" src="">
         </div>
     </div>
 
-    <!-- 4. 현재 위치 정보 -->
+    <!-- 현재 위치 정보 -->
     <div id="place-desc-box" class="bg-primary-container text-white p-6 rounded-3xl flex items-start gap-4 shadow-lg">
         <span class="material-symbols-outlined text-[28px] mt-0.5">location_on</span>
         <div class="flex flex-col">
             <span class="text-sm opacity-80 mb-1">현재 고객님의 위치는</span>
-            <p id="place-desc" class="text-[19px] leading-tight font-bold text-white">데이터 로드 중...</p>
+            <p id="place-desc" class="text-[19px] leading-tight font-bold text-white"></p>
         </div>
     </div>
 
     <!-- 하단 도움말 -->
-    <div class="bg-white/60 backdrop-blur-sm p-4 rounded-2xl border border-slate-200/50 text-center shadow-sm">
+    <div class="bg-white/60 backdrop-blur-md p-4 rounded-2xl border border-slate-200/50 text-center shadow-sm">
         <p class="text-sm text-slate-400">💡 도움이 필요하시면 하단의 버튼을 이용해 주세요.</p>
     </div>
 </main>
 
-<!-- 5. 하단 버튼 바 -->
+<!-- 하단 버튼 바 -->
 <div class="fixed bottom-0 left-0 w-full z-50 bg-white/90 backdrop-blur-md rounded-t-3xl shadow-[0_-10px_30px_rgba(0,0,0,0.05)] border-t border-slate-100 px-2 pb-safe">
     <nav class="flex items-center h-24 max-w-[800px] mx-auto">
-        
         <div onclick="openMapNewWindow()" class="flex-1 flex flex-col items-center justify-center cursor-pointer text-slate-500 hover:bg-slate-50 transition-all">
             <div class="h-8 flex items-center justify-center">
                 <span class="material-symbols-outlined !text-[28px]">open_in_new</span>
@@ -141,13 +133,14 @@
             <span class="text-[11.5px] font-bold mt-1.5 text-center leading-[1.2] whitespace-nowrap tracking-tighter">유실물<br>조회</span>
         </a>
 
-        <a id="contact-link" href="#" class="flex-1 flex flex-col items-center justify-center cursor-pointer text-green-600 hover:bg-green-50 transition-all no-underline">
+        <a id="contact-link" href="#" class="flex-1 flex flex-col items-center justify-center py-2 rounded-xl cursor-pointer text-green-600 hover:bg-green-50 transition-all no-underline">
             <div class="h-8 flex items-center justify-center">
-                <span class="material-symbols-outlined !text-[30px]" style="font-variation-settings: 'FILL' 1;">phone_in_talk</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" class="-scale-x-100">
+                    <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.56c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"></path>
+                </svg>
             </div>
             <span class="text-[11.5px] font-bold mt-1.5 text-center leading-[1.2] whitespace-nowrap tracking-tighter text-green-600">역무실<br>전화연결</span>
         </a>
-
     </nav>
 </div>
 
@@ -181,23 +174,18 @@
         const additionalText = document.getElementById('additional-text');
         const mapBox = document.getElementById('map-box');
 
-        // 1. 전체 공지 처리
         if (typeof noticeData !== 'undefined' && noticeData.global && noticeData.global.trim() !== "") {
             globalText.innerText = noticeData.global;
             globalBox.classList.remove('hidden');
         }
 
-        // 2. 잘못된 파라미터 체크
         if (!placeId || !placeData[placeId]) {
-            document.getElementById('invalid-notice-box').classList.remove('hidden');
-            mapBox.classList.add('hidden');
             document.getElementById('place-desc-box').classList.add('hidden');
+            alert('잘못된 접근입니다.');
             return;
         }
 
         currentPlace = placeData[placeId];
-
-        // 3. 데이터 로드 (경로: images/)
         if (currentPlace.station) stationNameEl.innerText = currentPlace.station;
         descEl.innerText = `${currentPlace.title} 입니다.`;
 
@@ -205,7 +193,6 @@
         imgEl.src = "images/" + currentPlace.image_name;
         linkEl.href = "tel:" + currentPlace.phone;
 
-        // 4. 역별 및 장소별 공지 결합
         let hasLocalNotice = false;
         if (typeof noticeData !== 'undefined') {
             if (noticeData.stations && noticeData.stations[currentPlace.station]) {
@@ -222,6 +209,5 @@
         if (hasLocalNotice) localBox.classList.remove('hidden');
     });
 </script>
-
 </body>
 </html>
