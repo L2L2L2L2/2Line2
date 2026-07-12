@@ -36,13 +36,13 @@
             /* 배경을 화면보다 크게 설정하여 움직일 여백을 만듭니다 */
             background-size: 200% 200%;
             background-image: 
-                radial-gradient(at 0% 0%, #e0f2fe 0%, transparent 50%),   /* 연파랑 */
-                radial-gradient(at 100% 0%, #fef3c7 0%, transparent 50%),  /* 연황색 */
-                radial-gradient(at 50% 100%, #f5f3ff 0%, transparent 50%); /* 연보라 */
+                radial-gradient(at 0% 0%, #6EB329 0%, transparent 20%),   
+                radial-gradient(at 100% 0%, #E94817 0%, transparent 20%), 
+                radial-gradient(at 50% 100%, #0090D4 0%, transparent 20%); /* #6EB329 #E94817 #0090D4 */
             background-attachment: fixed;
             
-            /* 부드럽게 일렁이는 애니메이션 (20초 주기) */
-            animation: moveGradient 20s ease infinite alternate;
+            /* 부드럽게 일렁이는 애니메이션 (10초 주기) */
+            animation: moveGradient 10s ease infinite alternate;
         }
 
         @keyframes moveGradient {
