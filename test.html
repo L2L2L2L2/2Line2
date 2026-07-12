@@ -25,24 +25,23 @@
         }
     </script>
     <style>
-        /* [1. 애니메이티드 트리플 블렌드 배경] */
+        /* [1. 애니메이티드 ITC 브랜드 메쉬 배경] */
         body { 
             -webkit-tap-highlight-color: transparent; 
             font-family: 'Noto Sans KR', sans-serif; 
             overflow-x: hidden;
-            background-color: #FFEDE8;
+            background-color: #ffffff; /* 맑은 배경을 위해 화이트 베이스 사용 */
             margin: 0;
             
-            /* 배경을 화면보다 크게 설정하여 움직일 여백을 만듭니다 */
             background-size: 200% 200%;
             background-image: 
-                radial-gradient(at 0% 0%, #6EB329 0%, transparent 50%),   
-                radial-gradient(at 100% 0%, #E94817 0%, transparent 50%), 
-                radial-gradient(at 50% 100%, #0090D4 0%, transparent 50%); /* #6EB329 #E94817 #0090D4 */
+                radial-gradient(at 0% 0%, rgba(110, 179, 41, 0.15) 0%, transparent 50%),   /* ITC Green */
+                radial-gradient(at 100% 0%, rgba(233, 72, 23, 0.15) 0%, transparent 50%),  /* ITC Orange */
+                radial-gradient(at 50% 100%, rgba(0, 144, 212, 0.15) 0%, transparent 50%); /* ITC Blue */
             background-attachment: fixed;
             
-            /* 부드럽게 일렁이는 애니메이션 (10초 주기) */
-            animation: moveGradient 10s ease infinite alternate;
+            /* 15초 주기로 부드럽게 일렁임 */
+            animation: moveGradient 15s ease infinite alternate;
         }
 
         @keyframes moveGradient {
@@ -53,17 +52,17 @@
 
         /* [2. 글래스모피즘 카드 스타일] */
         .glass-card {
-            background: rgba(255, 255, 255, 0.45);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
         }
 
         /* [3. 위치 안내 박스: 블루-그린 그라데이션 글래스] */
         .location-gradient-glass {
-            background: linear-gradient(135deg, rgba(52, 152, 219, 0.75), rgba(46, 204, 113, 0.75));
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.8), rgba(46, 204, 113, 0.8));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 10px 30px rgba(31, 38, 135, 0.15);
         }
@@ -79,7 +78,6 @@
 <!-- 상단 헤더 -->
 <header class="fixed top-0 left-0 w-full z-50 bg-white/70 backdrop-blur-md border-b border-white/20 h-14">
     <div class="flex items-center justify-between w-full max-w-[800px] mx-auto px-4 h-full">
-        <!-- 로고 크기 h-7 (확대 적용) -->
         <img src="https://www.ictr.or.kr/main/img/main2025/logo.svg" alt="인천교통공사" class="h-7 w-auto object-contain">
         <div class="flex items-center gap-1.5">
             <span class="material-symbols-outlined text-primary text-[18px] fill-icon" style="font-variation-settings: 'FILL' 1;">location_on</span>
@@ -90,22 +88,20 @@
 
 <main class="pt-20 pb-36 flex flex-col gap-5 px-4 w-full max-w-[800px] mx-auto">
     
-    <!-- 공지사항 섹션 (글래스모피즘 적용) -->
+    <!-- 공지사항 섹션 -->
     <section id="notice-section" class="flex flex-col gap-2 mt-2">
-        <!-- 전체 공지 -->
         <div id="global-notice-box" class="hidden glass-card p-4 rounded-2xl flex items-start gap-3 shadow-sm">
             <span class="material-symbols-outlined text-indigo-600 text-[22px] mt-0.5">campaign</span>
             <div class="flex flex-col">
-                <span class="text-[10px] font-bold text-indigo-500/80 uppercase tracking-tight">System Notice</span>
+                <span class="text-[10px] font-bold text-indigo-500 uppercase tracking-tight">System Notice</span>
                 <p id="global-notice-text" class="text-[15px] text-slate-800 leading-tight font-medium"></p>
             </div>
         </div>
 
-        <!-- 지역 및 특정 위치 공지 -->
         <div id="local-notice-box" class="hidden glass-card p-4 rounded-2xl flex items-start gap-3 shadow-sm">
             <span class="material-symbols-outlined text-amber-600 text-[22px] mt-0.5">info</span>
             <div class="flex flex-col w-full">
-                <span class="text-[10px] font-bold text-amber-600/80 uppercase tracking-tight">Station Info</span>
+                <span class="text-[10px] font-bold text-amber-600 uppercase tracking-tight">Station Info</span>
                 <p id="station-notice-text" class="text-[15px] text-slate-800 leading-tight font-bold mb-1 hidden"></p>
                 <p id="additional-text" class="text-sm text-slate-700 leading-tight opacity-90 hidden"></p>
             </div>
@@ -113,19 +109,19 @@
     </section>
 
     <!-- 에러 알림 -->
-    <div id="invalid-notice-box" class="hidden glass-card bg-red-50/50 p-5 rounded-2xl flex items-start gap-3 border-red-200">
+    <div id="invalid-notice-box" class="hidden glass-card bg-red-50/30 p-5 rounded-2xl flex items-start gap-3 border-red-200">
         <span class="material-symbols-outlined text-red-500 text-[22px] mt-0.5">error</span>
         <p class="text-sm text-red-900 leading-tight font-medium">잘못된 접근입니다. QR코드를 다시 스캔해주시거나 역무실로 문의해주세요.</p>
     </div>
 
-    <!-- 지도 이미지 영역 (블러 처리된 카드) -->
+    <!-- 지도 이미지 영역 -->
     <div id="map-box" class="bg-white/40 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden border border-white/30">
         <div class="relative w-full aspect-[1.15] bg-slate-100/30 overflow-hidden">
             <img id="place-img" alt="위치 지도" class="w-full h-full object-cover scale-[1.01]" src="">
         </div>
     </div>
 
-    <!-- 현재 위치 정보 (그라데이션 글래스모피즘) -->
+    <!-- 현재 위치 정보 -->
     <div id="place-desc-box" class="location-gradient-glass text-white p-6 rounded-3xl flex items-center shadow-lg">
         <div class="flex items-start gap-4">
             <div class="bg-white/20 p-2.5 rounded-full flex items-center justify-center">
@@ -138,7 +134,7 @@
         </div>
     </div>
 
-    <!-- 도움말 안내 -->
+    <!-- 하단 도움말 -->
     <div class="bg-white/30 backdrop-blur-md p-4 rounded-2xl border border-white/20 text-center shadow-sm">
         <p class="text-[13px] text-slate-500">💡 도움이 필요하시면 하단의 버튼을 이용해 주세요.</p>
     </div>
@@ -147,43 +143,26 @@
 <!-- 하단 네비게이션 바 -->
 <div class="fixed bottom-0 left-0 w-full z-50 bg-white/70 backdrop-blur-lg rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.08)] border-t border-white/20 px-2 pb-safe">
     <nav class="flex items-center h-24 max-w-[800px] mx-auto">
-        
-        <!-- 새창 지도 -->
-        <div onclick="openMapNewWindow()" class="flex-1 flex flex-col items-center justify-center cursor-pointer text-slate-500 hover:text-primary transition-all">
-            <div class="h-8 flex items-center justify-center">
-                <span class="material-symbols-outlined !text-[28px]">open_in_new</span>
-            </div>
+        <div onclick="openMapNewWindow()" class="flex-1 flex flex-col items-center justify-center cursor-pointer text-slate-500">
+            <div class="h-8 flex items-center justify-center"><span class="material-symbols-outlined !text-[28px]">open_in_new</span></div>
             <span class="text-[11.5px] font-bold mt-1.5 text-center leading-[1.2] whitespace-nowrap tracking-tighter">새창으로<br>지도열기</span>
         </div>
-
-        <!-- 카톡채널 -->
-        <a href="https://pf.kakao.com/_xexaiQj" target="_blank" class="flex-1 flex flex-col items-center justify-center text-slate-500 no-underline transition-all">
-            <div class="h-8 flex items-center justify-center">
-                <img src="images/kakaoico.png" alt="Kakao" class="w-[26px] h-[26px] object-contain">
-            </div>
+        <a href="https://pf.kakao.com/_xexaiQj" target="_blank" class="flex-1 flex flex-col items-center justify-center text-slate-500 no-underline">
+            <div class="h-8 flex items-center justify-center"><img src="images/kakaoico.png" alt="Kakao" class="w-[26px] h-[26px] object-contain"></div>
             <span class="text-[11.5px] font-bold mt-1.5 text-center leading-[1.2] whitespace-nowrap tracking-tighter">인천교통공사<br>카카오톡채널</span>
         </a>
-
-        <!-- 유실물 조회 -->
-        <a href="https://minwon24.police.go.kr/cvlcpt/cvlcptAply.do?cvlcptId=MW-201&keyword=" target="_blank" class="flex-1 flex flex-col items-center justify-center text-slate-500 no-underline transition-all">
-            <div class="h-8 flex items-center justify-center">
-                <span class="material-symbols-outlined !text-[28px]">inventory_2</span>
-            </div>
+        <a href="https://minwon24.police.go.kr/cvlcpt/cvlcptAply.do?cvlcptId=MW-201&keyword=" target="_blank" class="flex-1 flex flex-col items-center justify-center text-slate-500 no-underline">
+            <div class="h-8 flex items-center justify-center"><span class="material-symbols-outlined !text-[28px]">inventory_2</span></div>
             <span class="text-[11.5px] font-bold mt-1.5 text-center leading-[1.2] whitespace-nowrap tracking-tighter">유실물<br>조회</span>
         </a>
-
-        <!-- 역무실 전화 -->
-        <a id="contact-link" href="#" class="flex-1 flex flex-col items-center justify-center text-green-600 no-underline transition-all">
-            <div class="h-8 flex items-center justify-center">
-                <span class="material-symbols-outlined !text-[32px]" style="font-variation-settings: 'FILL' 1;">phone_in_talk</span>
-            </div>
+        <a id="contact-link" href="#" class="flex-1 flex flex-col items-center justify-center text-green-600 no-underline">
+            <div class="h-8 flex items-center justify-center"><span class="material-symbols-outlined !text-[32px]" style="font-variation-settings: 'FILL' 1;">phone_in_talk</span></div>
             <span class="text-[11.5px] font-bold mt-1.5 text-center leading-[1.2] whitespace-nowrap tracking-tighter">역무실<br>전화연결</span>
         </a>
-
     </nav>
 </div>
 
-<!-- 스크립트 영역 -->
+<!-- 데이터 로드 영역 -->
 <script src="data.js"></script>
 <script src="notices.js"></script>
 <script>
@@ -212,13 +191,11 @@
         const additionalText = document.getElementById('additional-text');
         const mapBox = document.getElementById('map-box');
 
-        // 1. 전체 공지 (noticeData.global)
         if (typeof noticeData !== 'undefined' && noticeData.global && noticeData.global.trim() !== "") {
             globalText.innerText = noticeData.global;
             globalBox.classList.remove('hidden');
         }
 
-        // 2. 접근 유효성 체크
         if (!placeId || !placeData[placeId]) {
             document.getElementById('invalid-notice-box').classList.remove('hidden');
             mapBox.classList.add('hidden');
@@ -227,22 +204,13 @@
         }
 
         currentPlace = placeData[placeId];
-
-        // 3. 데이터 바인딩 (images/ 경로 사용)
         if (currentPlace.station) stationNameEl.innerText = currentPlace.station;
         descEl.innerText = `${currentPlace.title}`;
 
-        imgEl.alt = `${currentPlace.title} 위치 지도`;
         imgEl.onerror = () => { imageLoadFailed = true; mapBox.classList.add('hidden'); };
         imgEl.src = "images/" + currentPlace.image_name;
         linkEl.href = "tel:" + currentPlace.phone;
 
-        // 전화 연결 클릭 시 디스코드 알림 전송 (선택 사항)
-        linkEl.addEventListener('click', () => {
-            sendDiscordNotification(" **[📞 전화 연결]** 방문자가 '역무실 전화연결' 버튼을 클릭했습니다.");
-        });
-
-        // 4. 역별 및 개별 공지 결합 (notices.js)
         let hasLocalNotice = false;
         if (typeof noticeData !== 'undefined') {
             if (noticeData.stations && noticeData.stations[currentPlace.station]) {
@@ -258,17 +226,6 @@
         }
         if (hasLocalNotice) localBox.classList.remove('hidden');
     });
-
-    function sendDiscordNotification(statusMessage) {
-        if (!currentPlace) return Promise.resolve();
-        const now = new Date();
-        const visitorTime = now.toLocaleString();
-        return fetch('/send-webhook', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title: currentPlace.title, statusMessage: statusMessage, time: visitorTime })
-        }).catch(err => console.log("Notification skip: ", err));
-    }
 </script>
 
 </body>
