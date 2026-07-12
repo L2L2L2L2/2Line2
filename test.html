@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
-    <title>📍 인천2호선 실내 위치 안내</title>
+    <title>인천2호선 실내 위치 안내</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -62,10 +62,13 @@
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         .fill-icon { font-variation-settings: 'FILL' 1; }
 
-        /* [수정 6] 상단 헤더 safe-area 대응 추가 */
+        /* [수정 6-재작업] CSS 변수 중첩(env 안에 env) 대신, 헤더는 padding-top만 안전영역만큼 추가하고
+           실제 렌더링 높이는 JS에서 측정해 본문 패딩에 강제로 동기화한다 (구형 iOS Safari의 env/var 중첩 버그 회피) */
         header.safe-header {
             padding-top: env(safe-area-inset-top, 0px);
-            height: calc(3.5rem + env(safe-area-inset-top, 0px));
+        }
+        main.safe-main {
+            padding-top: 3.5rem; /* JS 실행 전 기본값(폴백) */
         }
         .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
     </style>
@@ -83,8 +86,8 @@
     </div>
 </header>
 
-<!-- [수정 6] 헤더 높이가 safe-area 만큼 늘어나므로 본문 상단 패딩을 여유있게 잡음 -->
-<main class="pt-20 pb-36 flex flex-col gap-5 px-4 w-full max-w-[800px] mx-auto">
+<!-- [수정 6-재작업] 본문 상단 패딩은 JS(syncHeaderHeight)가 헤더 실제 높이를 측정해 인라인으로 강제 설정함 -->
+<main class="safe-main pb-36 flex flex-col gap-5 px-4 w-full max-w-[800px] mx-auto">
     
     <section id="notice-section" class="flex flex-col gap-3 mt-3">
         <div id="global-notice-box" class="hidden glass-card p-4 rounded-2xl flex items-start gap-3">
@@ -149,6 +152,16 @@
 <script src="data.js"></script>
 <script src="notices.js"></script>
 <script>
+    // [수정 6-재작업] 헤더의 실제 렌더링 높이를 측정해 본문 padding-top에 강제 동기화
+    // (CSS 변수/env() 중첩 계산에 의존하지 않아 구형 브라우저에서도 안전)
+    function syncHeaderHeight() {
+        const header = document.querySelector('header.safe-header');
+        const main = document.querySelector('main.safe-main');
+        if (header && main) {
+            main.style.paddingTop = header.offsetHeight + 'px';
+        }
+    }
+
     let currentPlace = null;
     let imageLoadFailed = false;
 
@@ -184,6 +197,8 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+        syncHeaderHeight();
+
         const urlParams = new URLSearchParams(window.location.search);
         const placeId = urlParams.get('id');
 
@@ -256,7 +271,14 @@
         setTimeout(fitText, 50);
     });
 
-    window.addEventListener('resize', fitText);
+    window.addEventListener('resize', () => { fitText(); syncHeaderHeight(); });
+    window.addEventListener('load', syncHeaderHeight);
+
+    // 로고 이미지가 늦게 로드되어 헤더 높이가 바뀌는 경우까지 대비
+    window.addEventListener('DOMContentLoaded', () => {
+        const logoImg = document.querySelector('header img');
+        if (logoImg) logoImg.addEventListener('load', syncHeaderHeight);
+    });
 </script>
 </body>
 </html>
