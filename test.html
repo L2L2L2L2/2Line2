@@ -93,6 +93,17 @@
                 <p id="global-notice-text" class="text-[15px] text-slate-900 leading-tight font-semibold"></p>
             </div>
         </div>
+        <!-- 데이터 오류 알림 글래스카드 영역 추가 -->
+        <div id="error-notice-box" class="hidden glass-card p-4 rounded-2xl flex items-start gap-3">
+            <span class="material-symbols-outlined text-rose-600 text-[24px]">error</span>
+            <div class="flex flex-col w-full">
+                <span class="text-[10px] font-bold text-rose-600 uppercase tracking-widest">오류</span>
+                <p class="text-[15px] text-slate-900 leading-tight font-bold mb-1">위치코드가 정확하지 않습니다.</p>
+                <p class="text-sm text-slate-700 leading-tight">
+                    문의사항이 있으시면 <a href="tel:032-451-4446" class="text-indigo-600 underline font-semibold">032-451-4446</a>으로 연락하여 주십시오.
+                </p>
+            </div>
+        </div>
         <div id="local-notice-box" class="hidden glass-card p-4 rounded-2xl flex items-start gap-3">
             <span class="material-symbols-outlined text-amber-600 text-[24px]">info</span>
             <div class="flex flex-col w-full">
@@ -175,7 +186,8 @@
         mapBox: '#map-box',
         mapPlaceholder: '#map-placeholder',
         placeDescBox: '#place-desc-box',
-        btnOpenMap: '#btn-open-map'
+        btnOpenMap: '#btn-open-map',
+        errorNoticeBox: '#error-notice-box'
     };
 
     const AppState = {
@@ -283,7 +295,12 @@
 
         if (UI.logoImg) UI.logoImg.addEventListener('load', scheduleLayout);
         if (UI.placeImg) {
-            UI.placeImg.addEventListener('load', scheduleLayout);
+            UI.placeImg.addEventListener('load', () => {
+                AppState.imageLoadFailed = false;
+                DOM.show(UI.placeImg);
+                DOM.hide(UI.mapPlaceholder);
+                scheduleLayout();
+            });
             UI.placeImg.onerror = handleImageError;
         }
         if (UI.btnOpenMap) UI.btnOpenMap.addEventListener('click', openMapNewWindow);
@@ -305,12 +322,15 @@
     }
 
     function render() {
+        // 비정상 위치 정보 혹은 데이터 로드 실패 시 예외 뷰 전환
         if (!AppState.currentPlace) {
             DOM.hide(UI.placeDescBox);
             DOM.hide(UI.mapBox);
+            DOM.show(UI.errorNoticeBox);
             return;
         }
 
+        DOM.hide(UI.errorNoticeBox);
         renderPlace();
         renderMap();
         renderNotice();
