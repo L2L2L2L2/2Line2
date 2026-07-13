@@ -3,31 +3,30 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
-    <title>인천2호선 실내 위치 안내</title>
+    <title>📍 인천2호선 실내 위치 안내</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@400,0..1&display=swap" rel="stylesheet">
 
     <script id="tailwind-config">
-        // [수정 7] 사용하지 않는 darkMode 설정 및 관련 death code 제거
         tailwind.config = {
             theme: { extend: { "colors": { "primary": "#091426", "primary-container": "#1e293b" } } }
         }
     </script>
     <style>
-        body { 
-            -webkit-tap-highlight-color: transparent; 
-            font-family: 'Noto Sans KR', sans-serif; 
+        body {
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Noto Sans KR', sans-serif;
             overflow-x: hidden;
             background-color: #f2f5f8;
             margin: 0;
             background-size: 200% 200%;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(110, 179, 41, 0.35) 0%, transparent 50%),   
-                radial-gradient(at 100% 0%, rgba(233, 72, 23, 0.3) 0%, transparent 50%),  
-                radial-gradient(at 50% 100%, rgba(0, 144, 212, 0.35) 0%, transparent 50%); 
+            background-image:
+                radial-gradient(at 0% 0%, rgba(110, 179, 41, 0.35) 0%, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(233, 72, 23, 0.3) 0%, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(0, 144, 212, 0.35) 0%, transparent 50%);
             background-attachment: fixed;
             animation: moveGradient 18s ease infinite alternate;
         }
@@ -38,39 +37,45 @@
             100% { background-position: 0% 100%; }
         }
 
+        @media (prefers-reduced-motion: reduce) {
+            body { animation: none; background-position: 50% 50%; }
+        }
+
+        /* [개선] 블러와 글래스 효과를 하나로 통합하여 CSS 최적화 */
         .glass-card {
-            background: rgba(255, 255, 255, 0.2); 
-            backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.5);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .location-gradient-glass {
-            background: linear-gradient(135deg, rgba(41, 128, 185, 0.3), rgba(39, 174, 96, 0.3));
-            backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+            background: linear-gradient(135deg, rgba(41, 128, 185, 0.4), rgba(39, 174, 96, 0.4));
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         }
 
-        .single-line-fit {
-            white-space: nowrap;
-            overflow: hidden;
-            display: block;
-            width: 100%;
-        }
-
+        .single-line-fit { white-space: nowrap; overflow: hidden; display: block; width: 100%; }
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         .fill-icon { font-variation-settings: 'FILL' 1; }
 
-        /* [수정 6-재작업] CSS 변수 중첩(env 안에 env) 대신, 헤더는 padding-top만 안전영역만큼 추가하고
-           실제 렌더링 높이는 JS에서 측정해 본문 패딩에 강제로 동기화한다 (구형 iOS Safari의 env/var 중첩 버그 회피) */
-        header.safe-header {
-            padding-top: env(safe-area-inset-top, 0px);
-        }
-        main.safe-main {
-            padding-top: 3.5rem; /* JS 실행 전 기본값(폴백) */
-        }
+        header.safe-header { padding-top: env(safe-area-inset-top, 0px); }
         .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+        #toast {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        #toast.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+        #toast:not(.is-visible) { opacity: 0; transform: translateX(-50%) translateY(-8px); pointer-events: none; }
     </style>
 </head>
 
@@ -80,25 +85,24 @@
     <div class="flex items-center justify-between w-full max-w-[800px] mx-auto px-4 h-14">
         <img src="https://www.ictr.or.kr/main/img/main2025/logo.svg" alt="인천교통공사" class="h-7 w-auto object-contain">
         <div class="flex items-center gap-1.5">
-            <span class="material-symbols-outlined text-primary text-[18px] fill-icon" style="font-variation-settings: 'FILL' 1;">location_on</span>
+            <span class="material-symbols-outlined text-primary text-[18px] fill-icon" style="font-variation-settings: 'FILL' 1;" aria-hidden="true">location_on</span>
             <h1 id="station-name" class="text-lg font-bold text-primary tracking-tight mt-0.5">인천2호선</h1>
         </div>
     </div>
 </header>
 
-<!-- [수정 6-재작업] 본문 상단 패딩은 JS(syncHeaderHeight)가 헤더 실제 높이를 측정해 인라인으로 강제 설정함 -->
 <main class="safe-main pb-36 flex flex-col gap-5 px-4 w-full max-w-[800px] mx-auto">
-    
+
     <section id="notice-section" class="flex flex-col gap-3 mt-3">
         <div id="global-notice-box" class="hidden glass-card p-4 rounded-2xl flex items-start gap-3">
-            <span class="material-symbols-outlined text-indigo-600 text-[24px]">campaign</span>
+            <span class="material-symbols-outlined text-indigo-600 text-[24px]" aria-hidden="true">campaign</span>
             <div class="flex flex-col">
                 <span class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">NOTICE</span>
                 <p id="global-notice-text" class="text-[15px] text-slate-900 leading-tight font-semibold"></p>
             </div>
         </div>
         <div id="local-notice-box" class="hidden glass-card p-4 rounded-2xl flex items-start gap-3">
-            <span class="material-symbols-outlined text-amber-600 text-[24px]">info</span>
+            <span class="material-symbols-outlined text-amber-600 text-[24px]" aria-hidden="true">info</span>
             <div class="flex flex-col w-full">
                 <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest">알려드립니다</span>
                 <p id="station-notice-text" class="text-[15px] text-slate-900 leading-tight font-bold mb-1 hidden"></p>
@@ -107,16 +111,32 @@
         </div>
     </section>
 
-    <div id="map-box" class="bg-white/60 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden border border-white/40">
-        <div class="relative w-full aspect-[1.15] bg-white/20 overflow-hidden">
-            <img id="place-img" alt="위치 지도" class="w-full h-full object-cover scale-[1.01]" src="">
+    <!-- 에러 상태 박스 -->
+    <div id="empty-state-box" class="hidden glass-card p-6 rounded-3xl flex items-start gap-4 shadow-lg">
+        <span class="material-symbols-outlined text-slate-500 text-[32px] flex-shrink-0" aria-hidden="true">error_outline</span>
+        <div class="flex flex-col gap-1">
+            <p id="empty-state-text" class="text-[16px] text-slate-800 leading-snug font-bold"></p>
+            <p class="text-sm text-slate-600 leading-snug">도움이 필요하시면 하단의 역무실 전화연결 버튼을 이용해 주세요.</p>
         </div>
     </div>
 
+    <!-- 지도 영역 -->
+    <div id="map-box" class="bg-white/60 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden border border-white/40">
+        <div class="relative w-full aspect-[1.15] bg-white/20 overflow-hidden">
+            <!-- [개선] 초기 hidden 상태로 설정하여 이전 이미지 깜빡임 방지 -->
+            <img id="place-img" alt="위치 지도" class="hidden w-full h-full object-cover scale-[1.01]" loading="lazy" decoding="async">
+            <div id="map-error-card" class="hidden absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 glass-card text-center">
+                <span class="material-symbols-outlined text-slate-500 text-[40px]" aria-hidden="true">map</span>
+                <p class="text-[15px] text-slate-700 leading-snug font-semibold">지도를 불러올 수 없습니다.<br>역무실로 문의해 주세요.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 위치 설명 박스 -->
     <div id="place-desc-box" class="location-gradient-glass text-white p-6 rounded-3xl flex items-center shadow-lg">
         <div class="flex items-center gap-5 w-full overflow-hidden">
             <div class="flex-shrink-0 bg-white/20 p-3 rounded-2xl flex items-center justify-center shadow-inner">
-                <span class="material-symbols-outlined text-[32px] text-white fill-icon" style="font-variation-settings: 'FILL' 1;">location_on</span>
+                <span class="material-symbols-outlined text-[32px] text-white fill-icon" style="font-variation-settings: 'FILL' 1;" aria-hidden="true">location_on</span>
             </div>
             <div class="flex flex-col gap-1 w-full overflow-hidden">
                 <p id="place-desc" class="single-line-fit text-[24px] leading-tight font-extrabold text-white tracking-tight my-0.5 auto-fit-text"></p>
@@ -127,23 +147,24 @@
     </div>
 </main>
 
+<div id="toast" class="fixed top-20 left-1/2 z-[60] max-w-[90%] px-5 py-3 rounded-2xl text-sm font-semibold text-slate-800" role="status" aria-live="polite"></div>
+
 <div class="fixed bottom-0 left-0 w-full z-50 bg-white/85 backdrop-blur-lg rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.06)] border-t border-white/30 px-2 pb-safe">
     <nav class="flex items-center h-24 max-w-[800px] mx-auto">
-        <div onclick="openMapNewWindow()" class="flex-1 flex flex-col items-center justify-center cursor-pointer text-slate-500">
-            <div class="h-8 flex items-center justify-center"><span class="material-symbols-outlined !text-[28px]">open_in_new</span></div>
+        <button type="button" id="open-map-btn" class="flex-1 flex flex-col items-center justify-center cursor-pointer text-slate-500 bg-transparent border-0 p-0">
+            <div class="h-8 flex items-center justify-center"><span class="material-symbols-outlined !text-[28px]" aria-hidden="true">open_in_new</span></div>
             <span class="text-[11.5px] font-bold mt-1.5 text-center leading-[1.2] whitespace-nowrap tracking-tighter">새창으로<br>지도열기</span>
-        </div>
-        <!-- [수정 4] 외부 링크에 rel="noopener noreferrer" 추가 -->
+        </button>
         <a href="https://pf.kakao.com/_xexaiQj" target="_blank" rel="noopener noreferrer" class="flex-1 flex flex-col items-center justify-center text-slate-500 no-underline">
-            <div class="h-8 flex items-center justify-center"><img src="images/kakaoico.png" alt="Kakao" class="w-[26px] h-[26px] object-contain"></div>
+            <div class="h-8 flex items-center justify-center"><img src="images/kakaoico.png" alt="Kakao" class="w-[26px] h-[26px] object-contain" loading="lazy"></div>
             <span class="text-[11.5px] font-bold mt-1.5 text-center leading-[1.2] whitespace-nowrap tracking-tighter">인천교통공사<br>카카오톡채널</span>
         </a>
         <a href="https://minwon24.police.go.kr/cvlcpt/cvlcptAply.do?cvlcptId=MW-201&keyword=" target="_blank" rel="noopener noreferrer" class="flex-1 flex flex-col items-center justify-center text-slate-500 no-underline">
-            <div class="h-8 flex items-center justify-center"><span class="material-symbols-outlined !text-[28px]">inventory_2</span></div>
+            <div class="h-8 flex items-center justify-center"><span class="material-symbols-outlined !text-[28px]" aria-hidden="true">inventory_2</span></div>
             <span class="text-[11.5px] font-bold mt-1.5 text-center leading-[1.2] whitespace-nowrap tracking-tighter">유실물<br>조회</span>
         </a>
         <a id="contact-link" href="#" class="flex-1 flex flex-col items-center justify-center text-green-600 no-underline">
-            <div class="h-8 flex items-center justify-center"><span class="material-symbols-outlined !text-[32px]" style="font-variation-settings: 'FILL' 1;">phone_in_talk</span></div>
+            <div class="h-8 flex items-center justify-center"><span class="material-symbols-outlined !text-[32px]" style="font-variation-settings: 'FILL' 1;" aria-hidden="true">phone_in_talk</span></div>
             <span class="text-[11.5px] font-bold mt-1.5 text-center leading-[1.2] whitespace-nowrap tracking-tighter">역무실<br>전화연결</span>
         </a>
     </nav>
@@ -152,133 +173,204 @@
 <script src="data.js"></script>
 <script src="notices.js"></script>
 <script>
-    // [수정 6-재작업] 헤더의 실제 렌더링 높이를 측정해 본문 padding-top에 강제 동기화
-    // (CSS 변수/env() 중첩 계산에 의존하지 않아 구형 브라우저에서도 안전)
+(function () {
+    'use strict';
+
+    var FALLBACK_PHONE = '032-451-4311';
+    var state = { currentPlace: null, placeId: null, imageLoadFailed: false, loadError: null };
+    var ui = {};
+    var toastTimer = null;
+    var lastToastMessage = null;
+    var headerResizeObserver = null;
+
+    function cacheDom() {
+        ui.header = document.querySelector('header.safe-header');
+        ui.main = document.querySelector('main.safe-main');
+        ui.logoImg = document.querySelector('header img');
+        ui.stationName = document.getElementById('station-name');
+        ui.placeDesc = document.getElementById('place-desc');
+        ui.placeImg = document.getElementById('place-img');
+        ui.contactLink = document.getElementById('contact-link');
+        ui.globalNoticeBox = document.getElementById('global-notice-box');
+        ui.globalNoticeText = document.getElementById('global-notice-text');
+        ui.localNoticeBox = document.getElementById('local-notice-box');
+        ui.stationNoticeText = document.getElementById('station-notice-text');
+        ui.additionalText = document.getElementById('additional-text');
+        ui.mapBox = document.getElementById('map-box');
+        ui.mapErrorCard = document.getElementById('map-error-card');
+        ui.placeDescBox = document.getElementById('place-desc-box');
+        ui.emptyStateBox = document.getElementById('empty-state-box');
+        ui.emptyStateText = document.getElementById('empty-state-text');
+        ui.openMapBtn = document.getElementById('open-map-btn');
+        ui.toast = document.getElementById('toast');
+        ui.autoFitTexts = document.querySelectorAll('.auto-fit-text');
+    }
+
     function syncHeaderHeight() {
-        const header = document.querySelector('header.safe-header');
-        const main = document.querySelector('main.safe-main');
-        if (header && main) {
-            main.style.paddingTop = header.offsetHeight + 'px';
+        if (ui.header && ui.main) {
+            ui.main.style.paddingTop = ui.header.offsetHeight + 'px';
         }
     }
 
-    let currentPlace = null;
-    let imageLoadFailed = false;
+    function setupHeaderSync() {
+        syncHeaderHeight();
+        if (typeof ResizeObserver !== 'undefined' && ui.header) {
+            headerResizeObserver = new ResizeObserver(syncHeaderHeight);
+            headerResizeObserver.observe(ui.header);
+        }
+    }
 
-    // [수정 8] scrollWidth 반복 측정을 이진 탐색으로 줄여 리플로우 횟수 감소
     function fitText() {
-        const elements = document.querySelectorAll('.auto-fit-text');
-        elements.forEach(el => {
-            const originalSize = parseInt(window.getComputedStyle(el).fontSize) || 16;
-            let lo = 8, hi = originalSize, best = lo;
-
+        if (state.loadError) return; // [개선] 에러 상태에선 실행 방지
+        ui.autoFitTexts.forEach(function (el) {
+            var originalSize = parseInt(window.getComputedStyle(el).fontSize, 10) || 16;
+            var lo = 8, hi = originalSize, best = lo;
             el.style.fontSize = hi + 'px';
-            if (el.scrollWidth <= el.clientWidth) return; // 그대로 두어도 맞는 경우
-
+            if (el.scrollWidth <= el.clientWidth) return;
             while (lo <= hi) {
-                const mid = Math.floor((lo + hi) / 2);
+                var mid = Math.floor((lo + hi) / 2);
                 el.style.fontSize = mid + 'px';
-                if (el.scrollWidth <= el.clientWidth) {
-                    best = mid;
-                    lo = mid + 1;
-                } else {
-                    hi = mid - 1;
-                }
+                if (el.scrollWidth <= el.clientWidth) { best = mid; lo = mid + 1; }
+                else { hi = mid - 1; }
             }
             el.style.fontSize = best + 'px';
         });
     }
 
-    function openMapNewWindow() {
-        const img = document.getElementById('place-img');
-        if (imageLoadFailed) { alert('지도 이미지를 불러올 수 없습니다.'); return; }
-        if (img && img.src && img.src !== window.location.href) window.open(img.src, '_blank', 'noopener,noreferrer');
-        else alert('지도를 불러오는 중입니다.');
+    function scheduleFitText() {
+        // [개선] RAF 1회로 단축
+        requestAnimationFrame(fitText);
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-        syncHeaderHeight();
+    function showToast(message) {
+        if (!ui.toast) return;
+        if (message === lastToastMessage && ui.toast.classList.contains('is-visible')) return;
+        lastToastMessage = message;
+        ui.toast.innerText = message;
+        ui.toast.classList.add('is-visible');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () {
+            ui.toast.classList.remove('is-visible');
+            lastToastMessage = null;
+        }, 3000);
+    }
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const placeId = urlParams.get('id');
+    function renderEmptyState(message) {
+        ui.placeDescBox.classList.add('hidden');
+        ui.mapBox.classList.add('hidden');
+        ui.emptyStateBox.classList.remove('hidden');
+        ui.emptyStateText.innerText = message;
+        renderPhone(true);
+    }
 
-        const stationNameEl = document.getElementById('station-name');
-        const descEl = document.getElementById('place-desc');
-        const imgEl = document.getElementById('place-img');
-        const linkEl = document.getElementById('contact-link');
-        const globalBox = document.getElementById('global-notice-box');
-        const globalText = document.getElementById('global-notice-text');
-        const localBox = document.getElementById('local-notice-box');
-        const stationNoticeText = document.getElementById('station-notice-text');
-        const additionalText = document.getElementById('additional-text');
-        const mapBox = document.getElementById('map-box');
-        const placeDescBox = document.getElementById('place-desc-box');
-
-        // [수정 1] noticeData.js 로드 실패 대비 (기존에도 있었으나 안전하게 유지)
-        if (typeof noticeData !== 'undefined' && noticeData.global && noticeData.global.trim() !== "") {
-            globalText.innerText = noticeData.global;
-            globalBox.classList.remove('hidden');
-        }
-
-        // [수정 1] data.js 로드 실패(placeData 미정의) 방어 코드 추가
-        if (typeof placeData === 'undefined') {
-            console.error('data.js 로드 실패: placeData를 찾을 수 없습니다.');
-            placeDescBox.classList.add('hidden');
-            mapBox.classList.add('hidden');
-            return;
-        }
-
-        // [수정 5] placeId가 __proto__ 등일 때 프로토타입 오염 방지 (hasOwnProperty 체크)
-        const hasPlace = placeId && Object.prototype.hasOwnProperty.call(placeData, placeId);
-
-        if (!hasPlace) {
-            placeDescBox.classList.add('hidden');
-            mapBox.classList.add('hidden');
-            return;
-        }
-
-        currentPlace = placeData[placeId];
-        if (currentPlace.station) stationNameEl.innerText = currentPlace.station;
-        descEl.innerText = `${currentPlace.title || ''}`;
-
-        imgEl.onerror = () => { imageLoadFailed = true; mapBox.classList.add('hidden'); };
-        imgEl.src = "images/" + currentPlace.image_name;
-
-        // [수정 3] phone 필드 없을 때 tel:undefined 방지
-        if (currentPlace.phone) {
-            linkEl.href = "tel:" + currentPlace.phone;
+    function renderPhone(useFallback) {
+        var phone = useFallback ? FALLBACK_PHONE : (state.currentPlace?.phone);
+        if (phone) {
+            ui.contactLink.href = 'tel:' + phone;
+            ui.contactLink.classList.remove('opacity-40', 'pointer-events-none');
         } else {
-            linkEl.removeAttribute('href');
-            linkEl.classList.add('opacity-40', 'pointer-events-none');
+            ui.contactLink.removeAttribute('href');
+            ui.contactLink.classList.add('opacity-40', 'pointer-events-none');
         }
+    }
 
-        // [수정 2] noticeData.stations / noticeData.places 서브키 부재 시 안전하게 처리 (옵셔널 체이닝)
-        if (typeof noticeData !== 'undefined') {
-            const stationNotice = noticeData.stations?.[currentPlace.station];
-            const placeNotice = noticeData.places?.[placeId];
-
-            if (stationNotice) {
-                stationNoticeText.innerText = stationNotice;
-                stationNoticeText.classList.remove('hidden');
-            }
-            if (placeNotice) {
-                additionalText.innerText = placeNotice;
-                additionalText.classList.remove('hidden');
-            }
-            if (stationNotice || placeNotice) localBox.classList.remove('hidden');
+    function renderNotice() {
+        if (typeof noticeData === 'undefined') return;
+        if (noticeData.global?.trim()) {
+            ui.globalNoticeText.innerText = noticeData.global;
+            ui.globalNoticeBox.classList.remove('hidden');
         }
+        if (!state.currentPlace) return;
+        var sNotice = noticeData.stations?.[state.currentPlace.station];
+        var pNotice = noticeData.places?.[state.placeId];
+        if (sNotice) { ui.stationNoticeText.innerText = sNotice; ui.stationNoticeText.classList.remove('hidden'); }
+        if (pNotice) { ui.additionalText.innerText = pNotice; ui.additionalText.classList.remove('hidden'); }
+        if (sNotice || pNotice) ui.localNoticeBox.classList.remove('hidden');
+    }
 
-        setTimeout(fitText, 50);
-    });
+    function handleImageError() {
+        state.imageLoadFailed = true;
+        ui.placeImg.classList.add('hidden');
+        ui.mapErrorCard.classList.remove('hidden');
+    }
 
-    window.addEventListener('resize', () => { fitText(); syncHeaderHeight(); });
-    window.addEventListener('load', syncHeaderHeight);
+    function handleImageLoad() {
+        state.imageLoadFailed = false;
+        ui.placeImg.classList.remove('hidden');
+        ui.mapErrorCard.classList.add('hidden');
+        scheduleFitText();
+    }
 
-    // 로고 이미지가 늦게 로드되어 헤더 높이가 바뀌는 경우까지 대비
-    window.addEventListener('DOMContentLoaded', () => {
-        const logoImg = document.querySelector('header img');
-        if (logoImg) logoImg.addEventListener('load', syncHeaderHeight);
-    });
+    function renderPlace() {
+        var place = state.currentPlace;
+        if (!place) return;
+        ui.emptyStateBox.classList.add('hidden');
+        ui.placeDescBox.classList.remove('hidden');
+        ui.mapBox.classList.remove('hidden');
+        if (place.station) ui.stationName.innerText = place.station;
+        ui.placeDesc.innerText = place.title || '';
+        
+        // [개선] 로드 시작 전 숨김 처리하여 이전 이미지 잔상 제거
+        ui.placeImg.classList.add('hidden');
+        ui.placeImg.alt = (place.title || '위치') + ' 위치 지도';
+        ui.placeImg.onload = handleImageLoad;
+        ui.placeImg.onerror = handleImageError;
+        
+        if (!place.image_name) { handleImageError(); return; }
+        ui.placeImg.src = 'images/' + place.image_name;
+
+        // [개선] 캐시된 이미지 즉시 처리
+        if (ui.placeImg.complete) handleImageLoad();
+    }
+
+    function loadData() {
+        var urlParams = new URLSearchParams(window.location.search);
+        state.placeId = urlParams.get('id');
+        if (typeof placeData === 'undefined') { state.loadError = 'data'; return; }
+        if (!state.placeId) { state.loadError = 'no-id'; return; }
+        if (!Object.prototype.hasOwnProperty.call(placeData, state.placeId)) { state.loadError = 'invalid-id'; return; }
+        state.currentPlace = placeData[state.placeId];
+    }
+
+    function render() {
+        var errs = { 'data': '데이터를 불러올 수 없습니다.', 'no-id': '올바르지 않은 QR 코드입니다.', 'invalid-id': '존재하지 않는 위치입니다.' };
+        if (state.loadError) { renderEmptyState(errs[state.loadError]); renderNotice(); return; }
+        renderNotice();
+        renderPlace();
+        renderPhone(false);
+    }
+
+    function init() {
+        cacheDom();
+        ui.openMapBtn.addEventListener('click', openMapNewWindow);
+        window.addEventListener('resize', debounce(fitText, 150));
+        if (ui.logoImg) ui.logoImg.addEventListener('load', syncHeaderHeight);
+        
+        setupHeaderSync();
+        loadData();
+        render();
+
+        // 폰트 로드 후 텍스트 조정
+        if (document.fonts) document.fonts.ready.then(scheduleFitText);
+    }
+
+    function openMapNewWindow() {
+        if (state.imageLoadFailed) { showToast('지도 이미지를 불러올 수 없습니다.'); return; }
+        if (!ui.placeImg.complete || !ui.placeImg.src) { showToast('지도를 불러오는 중입니다.'); return; }
+        window.open(ui.placeImg.src, '_blank', 'noopener,noreferrer');
+    }
+
+    function debounce(fn, wait) {
+        var t;
+        return function () {
+            clearTimeout(t);
+            var a = arguments, s = this;
+            t = setTimeout(function () { fn.apply(s, a); }, wait);
+        };
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+})();
 </script>
 </body>
 </html>
