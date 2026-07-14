@@ -1,40 +1,25 @@
 // [자동 생성된 데이터 파일]
 // 총 48개의 장소 데이터가 포함되어 있습니다.
-
-// [전체 및 역별 공지 설정]
-const globalConfig = {
-    // 1. 전체 공지 (내용이 없으면 "" 로 비워두세요)
-    "global_notice": "인천2호선 위치 안내 시범 서비스 중입니다.", 
-    
-    // 2. 역별 공지 (해당 역에 속한 모든 장소에 공통으로 뜹니다)
-    "station_notices": {
-        "가정역": "",
-        "서구청역": "싸이콘서트가 7/11(토) 예정되어 있습니다.",
-        "가정중앙시장역": ""
-    }
-};
+// 전체 및 역별 공지 설정은 notices.js에서 하실 수 있습니다.
 
 const placeData = {
      "210ES001": {
         "station": "서구청역",
         "title": "서구청역 에스컬레이터 1호기",
         "phone": "032-451-4310",
-        "image_name": "210ZONE08.jpg",
-        "additional_data": ""
+        "image_name": "210ZONE08.jpg"        
     },   
     "211ES001": {
         "station": "가정역",
         "title": "가정역 에스컬레이터 1호기",
         "phone": "032-451-4311",
-        "image_name": "211ZONE08.jpg",
-        "additional_data": ""
+        "image_name": "211ZONE08.jpg"
     },
     "211ES002": {
         "station": "가정역",
         "title": "가정역 에스컬레이터 2호기",
         "phone": "032-451-4311",
-        "image_name": "211ZONE14.jpg",
-        "additional_data": "1, 6, 7, 8번 출구와 2, 3, 4, 5번 출구는 승강장으로 내려가셔야 이동하실 수 있습니다."
+        "image_name": "211ZONE14.jpg"
     },
     "211ES003": {
         "station": "가정역",
