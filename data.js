@@ -3,6 +3,12 @@
 // 전체 및 역별 공지 설정은 notices.js에서 하실 수 있습니다.
 
 const placeData = {
+     "212ES001": {
+        "station": "가정중앙시장역",
+        "title": "가정중앙시장역 에스컬레이터 1호기",
+        "phone": "032-451-4312",
+        "image_name": "212ZONE08.jpg"        
+    },
      "210ES001": {
         "station": "서구청역",
         "title": "서구청역 에스컬레이터 1호기",
