@@ -1,20 +1,5 @@
-// [자동 생성된 데이터 파일]
-// 총 48개의 장소 데이터가 포함되어 있습니다.
-// 전체 및 역별 공지 설정은 notices.js에서 하실 수 있습니다.
-
+// [장소 데이터] 총 74건
 const placeData = {
-     "212ES001": {
-        "station": "가정중앙시장역",
-        "title": "가정중앙시장역 에스컬레이터 1호기",
-        "phone": "032-451-4312",
-        "image_name": "212ZONE08.jpg"        
-    },
-     "210ES001": {
-        "station": "서구청역",
-        "title": "서구청역 에스컬레이터 1호기",
-        "phone": "032-451-4310",
-        "image_name": "210ZONE08.jpg"        
-    },   
     "211ES001": {
         "station": "가정역",
         "title": "가정역 에스컬레이터 1호기",
@@ -123,61 +108,61 @@ const placeData = {
         "phone": "032-451-4311",
         "image_name": "211ZONE01.jpg"
     },
-    "211EV001": {
+    "211EL001": {
         "station": "가정역",
         "title": "가정역 엘리베이터 1호기(B1)",
         "phone": "032-451-4311",
         "image_name": "211ZONE02.jpg"
     },
-    "211EV002": {
+    "211EL002": {
         "station": "가정역",
         "title": "가정역 엘리베이터 2호기(B1)",
         "phone": "032-451-4311",
         "image_name": "211ZONE05.jpg"
     },
-    "211EV003": {
+    "211EL003": {
         "station": "가정역",
         "title": "가정역 엘리베이터 3호기(B1)",
         "phone": "032-451-4311",
         "image_name": "211ZONE05.jpg"
     },
-    "211EV004": {
+    "211EL004": {
         "station": "가정역",
         "title": "가정역 엘리베이터 4호기(B1)",
         "phone": "032-451-4311",
         "image_name": "211ZONE02.jpg"
     },
-    "211EV005": {
+    "211EL005": {
         "station": "가정역",
         "title": "가정역 엘리베이터 5호기",
         "phone": "032-451-4311",
         "image_name": "211ZONE02.jpg"
     },
-    "211EV006": {
+    "211EL006": {
         "station": "가정역",
         "title": "가정역 엘리베이터 6호기",
         "phone": "032-451-4311",
         "image_name": "211ZONE02.jpg"
     },
-    "211EV007": {
+    "211EL007": {
         "station": "가정역",
         "title": "가정역 엘리베이터 1호기(B3)",
         "phone": "032-451-4311",
         "image_name": "211ZONE13.jpg"
     },
-    "211EV008": {
+    "211EL008": {
         "station": "가정역",
         "title": "가정역 엘리베이터 2호기(B3)",
         "phone": "032-451-4311",
         "image_name": "211ZONE13.jpg"
     },
-    "211EV009": {
+    "211EL009": {
         "station": "가정역",
         "title": "가정역 엘리베이터 3호기(B3)",
         "phone": "032-451-4311",
         "image_name": "211ZONE10.jpg"
     },
-    "211EV010": {
+    "211EL010": {
         "station": "가정역",
         "title": "가정역 엘리베이터 4호기(B3)",
         "phone": "032-451-4311",
@@ -185,49 +170,49 @@ const placeData = {
     },
     "211EXIT001": {
         "station": "가정역",
-        "title": "가정역 1번출구",
+        "title": "가정역 1번 출구",
         "phone": "032-451-4311",
         "image_name": "211ZONE03.jpg"
     },
     "211EXIT002": {
         "station": "가정역",
-        "title": "가정역 2번출구",
+        "title": "가정역 2번 출구",
         "phone": "032-451-4311",
         "image_name": "211ZONE06.jpg"
     },
     "211EXIT003": {
         "station": "가정역",
-        "title": "가정역 3번출구",
+        "title": "가정역 3번 출구",
         "phone": "032-451-4311",
         "image_name": "211ZONE06.jpg"
     },
     "211EXIT004": {
         "station": "가정역",
-        "title": "가정역 4번출구",
+        "title": "가정역 4번 출구",
         "phone": "032-451-4311",
         "image_name": "211ZONE04.jpg"
     },
     "211EXIT005": {
         "station": "가정역",
-        "title": "가정역 5번출구",
+        "title": "가정역 5번 출구",
         "phone": "032-451-4311",
         "image_name": "211ZONE04.jpg"
     },
     "211EXIT006": {
         "station": "가정역",
-        "title": "가정역 6번출구",
+        "title": "가정역 6번 출구",
         "phone": "032-451-4311",
         "image_name": "211ZONE01.jpg"
     },
     "211EXIT007": {
         "station": "가정역",
-        "title": "가정역 7번출구",
+        "title": "가정역 7번 출구",
         "phone": "032-451-4311",
         "image_name": "211ZONE01.jpg"
     },
     "211EXIT008": {
         "station": "가정역",
-        "title": "가정역 8번출구",
+        "title": "가정역 8번 출구",
         "phone": "032-451-4311",
         "image_name": "211ZONE03.jpg"
     },
@@ -302,5 +287,113 @@ const placeData = {
         "title": "가정역 대합실(2, 3, 4, 5번 출구 방면)",
         "phone": "032-451-4311",
         "image_name": "211ZONE05.jpg"
+    },
+    "209ES001": {
+        "station": "아시아드경기장역",
+        "title": "아시아드경기장역 에스컬레이터 1호기",
+        "phone": "032-451-4309",
+        "image_name": "209ZONE05.jpg"
+    },
+    "209ES002": {
+        "station": "아시아드경기장역",
+        "title": "아시아드경기장역 에스컬레이터 2호기",
+        "phone": "032-451-4309",
+        "image_name": "209ZONE03.jpg"
+    },
+    "209ES003": {
+        "station": "아시아드경기장역",
+        "title": "아시아드경기장역 에스컬레이터 3호기",
+        "phone": "032-451-4309",
+        "image_name": "209ZONE07.jpg"
+    },
+    "209ES004": {
+        "station": "아시아드경기장역",
+        "title": "아시아드경기장역 에스컬레이터 4호기",
+        "phone": "032-451-4309",
+        "image_name": "209ZONE03.jpg"
+    },
+    "209ES005": {
+        "station": "아시아드경기장역",
+        "title": "아시아드경기장역 에스컬레이터 5호기",
+        "phone": "032-451-4309",
+        "image_name": "209ZONE01.jpg"
+    },
+    "209ES006": {
+        "station": "아시아드경기장역",
+        "title": "아시아드경기장역 에스컬레이터 6호기",
+        "phone": "032-451-4309",
+        "image_name": "209ZONE01.jpg"
+    },
+    "209ES007": {
+        "station": "아시아드경기장역",
+        "title": "아시아드경기장역 에스컬레이터 7호기",
+        "phone": "032-451-4309",
+        "image_name": "209ZONE02.jpg"
+    },
+    "209ES008": {
+        "station": "아시아드경기장역",
+        "title": "아시아드경기장역 에스컬레이터 8호기",
+        "phone": "032-451-4309",
+        "image_name": "209ZONE02.jpg"
+    },
+    "209TOILET4M": {
+        "station": "아시아드경기장역",
+        "title": "아시아드경기장역 4번 출구 방면 남자화장실",
+        "phone": "032-451-4309",
+        "image_name": "209ZONE02.jpg"
+    },
+    "209TOILET4W": {
+        "station": "아시아드경기장역",
+        "title": "아시아드경기장역 4번 출구 방면 여자화장실",
+        "phone": "032-451-4309",
+        "image_name": "209ZONE02.jpg"
+    },
+    "209EL001": {
+        "station": "아시아드경기장역",
+        "title": "아시아드경기장역 엘리베이터 1호기(상선승강장)",
+        "phone": "032-451-4309",
+        "image_name": "209ZONE04.jpg"
+    },
+    "209EL002": {
+        "station": "아시아드경기장역",
+        "title": "아시아드경기장역 엘리베이터 2호기(하선승강장)",
+        "phone": "032-451-4309",
+        "image_name": "209ZONE06.jpg"
+    },
+    "209EL003": {
+        "station": "아시아드경기장역",
+        "title": "아시아드경기장역 엘리베이터 3호기(1, 2번 출구)",
+        "phone": "032-451-4309",
+        "image_name": "209ZONE01.jpg"
+    },
+    "209EL004": {
+        "station": "아시아드경기장역",
+        "title": "아시아드경기장역 엘리베이터 4호기(3, 4번 출구)",
+        "phone": "032-451-4309",
+        "image_name": "209ZONE02.jpg"
+    },
+    "209EXIT001": {
+        "station": "아시아드경기장역",
+        "title": "아시아드경기장역 1번 출구",
+        "phone": "032-451-4309",
+        "image_name": "209ZONE01.jpg"
+    },
+    "209EXIT002": {
+        "station": "아시아드경기장역",
+        "title": "아시아드경기장역 2번 출구",
+        "phone": "032-451-4309",
+        "image_name": "209ZONE01.jpg"
+    },
+    "209EXIT003": {
+        "station": "아시아드경기장역",
+        "title": "아시아드경기장역 3번 출구",
+        "phone": "032-451-4309",
+        "image_name": "209ZONE02.jpg"
+    },
+    "209EXIT004": {
+        "station": "아시아드경기장역",
+        "title": "아시아드경기장역 4번 출구",
+        "phone": "032-451-4309",
+        "image_name": "209ZONE02.jpg"
     }
 };
