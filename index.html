@@ -68,6 +68,18 @@
             padding-top: 3.5rem;
         }
         .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+        
+        /* Chrome, Safari, Opera, Edge에서 스크롤바 숨기기 */
+        html::-webkit-scrollbar, 
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* IE 및 Firefox에서 스크롤바 숨기기 */
+        html, body {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
     </style>
 </head>
 
