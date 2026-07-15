@@ -115,8 +115,8 @@
     </section>
 
     <div id="map-box" class="bg-white/60 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden border border-white/40">
-        <div class="relative w-full aspect-[1.15] bg-white/20 overflow-hidden">
-            <img id="place-img" alt="위치 지도" class="w-full h-full object-cover scale-[1.01]" src="">
+        <div id="map-aspect-box" class="relative w-full aspect-[1.15] bg-white/20 overflow-hidden">
+            <img id="place-img" alt="위치 지도" class="w-full h-full object-contain scale-[1.01]" src="">
             <!-- 지도 로딩 실패 대처 영역 -->
             <div id="map-placeholder" class="hidden absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-slate-50/80">
                 <span class="material-symbols-outlined text-slate-400 !text-[44px] mb-2">broken_image</span>
@@ -184,6 +184,7 @@
         additionalText: '#additional-text',
         mapBox: '#map-box',
         mapPlaceholder: '#map-placeholder',
+        mapAspectBox: '#map-aspect-box',
         placeDescBox: '#place-desc-box',
         btnOpenMap: '#btn-open-map',
         errorNoticeBox: '#error-notice-box'
@@ -264,6 +265,7 @@
         AppState.imageLoadFailed = true;
         DOM.hide(UI.placeImg);
         DOM.show(UI.mapPlaceholder);
+        if (UI.mapAspectBox) UI.mapAspectBox.style.aspectRatio = '';
     }
 
     function openMapNewWindow() {
@@ -278,6 +280,13 @@
         }
     }
 
+    function adjustMapAspectRatio() {
+        const img = UI.placeImg;
+        const box = UI.mapAspectBox;
+        if (!img || !box || !img.naturalWidth || !img.naturalHeight) return;
+        box.style.aspectRatio = `${img.naturalWidth} / ${img.naturalHeight}`;
+    }
+    
     function cacheElements() {
         Object.keys(SELECTORS).forEach(key => {
             const sel = SELECTORS[key];
@@ -298,6 +307,7 @@
                 AppState.imageLoadFailed = false;
                 DOM.show(UI.placeImg);
                 DOM.hide(UI.mapPlaceholder);
+                adjustMapAspectRatio(); // 추가
                 scheduleLayout();
             });
             UI.placeImg.onerror = handleImageError;
