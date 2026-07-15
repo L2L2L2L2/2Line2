@@ -54,10 +54,10 @@
         <!-- 좌측 제어 패널 -->
         <section class="md:col-span-7 flex flex-col gap-6">
             <div class="flex flex-col gap-2">
-                <span class="text-xs font-extrabold text-indigo-600 tracking-wider uppercase">미리보기</span>
-                <h2 class="text-3xl font-extrabold tracking-tight text-slate-800">역별 목록선택</h2>
+                <span class="text-xs font-extrabold text-indigo-600 tracking-wider uppercase">데모 시나리오</span>
+                <h2 class="text-3xl font-extrabold tracking-tight text-slate-800">지하철역별 기기 선택기</h2>
                 <p class="text-sm text-slate-500 leading-relaxed max-w-[540px]">
-                    역별 필터를 선택하면 data.js 파일에 포함된 목록이 하단에 자동으로 나타납니다. 각 목록을 클릭하면 우측 화면에 실시간 로드됩니다.
+                    지하철역 필터를 선택하면 데이터에 포함된 기기 목록이 하단에 자동으로 구조화되어 나타납니다. 각 목록을 클릭하면 우측 모의 화면에 실시간 로드됩니다.
                 </p>
             </div>
 
@@ -287,11 +287,13 @@
             const icon = icons[item.type] || 'location_on';
             const colorClass = colors[item.type] || 'text-slate-500';
             const isActive = item.id === AppState.activeId;
-            const cardActiveClass = 'border-indigo-500 bg-indigo-50/40 ring-2 ring-indigo-500/10';
-            const cardInactiveClass = 'border-slate-200/60 bg-white/70';
+            
+            // [높이 제어 최적화] 활성화 여부와 관계없이 h-[88px] 고정 높이를 주어 균형감 형성
+            const cardActiveClass = 'border-indigo-500 bg-indigo-50/40 ring-2 ring-indigo-500/10 h-[88px]';
+            const cardInactiveClass = 'border-slate-200/60 bg-white/70 h-[88px]';
 
             return `
-                <div onclick="selectItem('${item.id}')" id="item-${item.id}" class="group flex items-center justify-between p-4 rounded-2xl border cursor-pointer hover:border-indigo-400 hover:shadow-md transition-all duration-300 ${isActive ? cardActiveClass : cardInactiveClass}">
+                <div onclick="selectItem('${item.id}')" id="item-${item.id}" class="group flex items-center justify-between px-4 rounded-2xl border cursor-pointer hover:border-indigo-400 hover:shadow-md transition-all duration-300 ${isActive ? cardActiveClass : cardInactiveClass}">
                     <div class="flex items-center gap-4 overflow-hidden">
                         <div class="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-xl border ${colorClass} transition-transform group-hover:scale-105">
                             <span class="material-symbols-outlined !text-[24px]">${icon}</span>
@@ -302,7 +304,7 @@
                         </div>
                     </div>
                     
-                    <!-- 우측 상호작용 영역 (아이템이 활성화되었을 때만 QR코드 렌더링) -->
+                    <!-- 우측 상호작용 영역 (h-[88px] 내에서 세로로 완전 수직정렬) -->
                     <div class="flex items-center">
                         ${isActive ? `
                         <div class="flex-shrink-0 w-16 h-16 mr-3 border border-slate-200/80 rounded-xl overflow-hidden bg-white p-1 shadow-sm transition-all duration-300">
