@@ -76,7 +76,7 @@
 
         </section>
 
-        <!-- 우측 시뮬레이터 패널 (세로 정렬 flex-col 적용 및 정밀한 위치 고정) -->
+        <!-- 우측 시뮬레이터 패널 (md:sticky 적용) -->
         <section class="md:col-span-5 md:sticky md:top-6 flex flex-col items-center gap-4 py-6">
             
             <!-- 목업 기기 영역 -->
@@ -140,7 +140,7 @@
                 </div>
             </div> 
 
-            <!-- [위치 이동 및 조율] 기기 가로폭(w-[320px])에 일치시켜 목업 바로 밑에 뜨도록 수정 -->
+            <!-- 기기 가로폭(w-[320px])에 일치시켜 목업 바로 밑에 뜨도록 조율 -->
             <div class="w-[320px] p-5 bg-slate-100 border border-slate-200 rounded-2xl flex flex-col gap-3 shadow-sm shrink-0">
                 <div class="flex flex-col gap-1 overflow-hidden">
                     <span class="text-[11px] font-bold text-slate-400 tracking-wider uppercase">로드된 파일 경로 및 파라미터</span>
@@ -265,12 +265,14 @@
         if (AppState.activeStation === station) return;
         AppState.activeStation = station;
         renderTabs();
-        renderPlaces();
         
-        // 해당 역의 첫 번째 아이템 기본 선택 작동
+        // 해당 역의 첫 번째 아이템 기본 선택 작동하도록 간소화
         const places = AppState.itemsByStation[station] || [];
         if (places.length > 0) {
             selectItem(places[0].id);
+        } else {
+            AppState.activeId = null;
+            renderPlaces();
         }
     }
 
@@ -299,30 +301,28 @@
                             <h3 class="text-sm font-semibold text-slate-800 truncate">${item.title}</h3>
                         </div>
                     </div>
-                    <span class="material-symbols-outlined text-slate-300 group-hover:text-indigo-500 transition-colors">chevron_right</span>
+                    
+                    <!-- 우측 상호작용 영역 (아이템이 활성화되었을 때만 QR코드 렌더링) -->
+                    <div class="flex items-center">
+                        ${isActive ? `
+                        <div class="flex-shrink-0 w-16 h-16 mr-3 border border-slate-200/80 rounded-xl overflow-hidden bg-white p-1 shadow-sm transition-all duration-300">
+                            <img src="./qrcode/${item.id}.png" alt="QR Code" class="w-full h-full object-contain" onerror="this.parentElement.style.display='none'">
+                        </div>
+                        ` : ''}
+                        <span class="material-symbols-outlined text-slate-300 group-hover:text-indigo-500 transition-colors">chevron_right</span>
+                    </div>
                 </div>
             `;
         }).join('');
     }
 
-    // 특정 특정 아이템을 누를 시 시뮬레이션
+    // 특정 특정 아이템을 누를 시 시뮬레이션 (re-render 통합 적용으로 스케일링 안정화)
     function selectItem(id) {
         if (AppState.activeId === id) return;
-
-        if (AppState.activeId) {
-            const prevEl = document.getElementById(`item-${AppState.activeId}`);
-            if (prevEl) {
-                prevEl.classList.remove('border-indigo-500', 'bg-indigo-50/40', 'ring-2', 'ring-indigo-500/10');
-                prevEl.classList.add('border-slate-200/60', 'bg-white/70');
-            }
-        }
-
         AppState.activeId = id;
-        const activeEl = document.getElementById(`item-${id}`);
-        if (activeEl) {
-            activeEl.classList.remove('border-slate-200/60', 'bg-white/70');
-            activeEl.classList.add('border-indigo-500', 'bg-indigo-50/40', 'ring-2', 'ring-indigo-500/10');
-        }
+        
+        // QR코드 렌더링 동적 갱신을 위해 리스트 영역을 다시 그림
+        renderPlaces();
 
         const iframe = document.getElementById('mockup-frame');
         const url = `${CONFIG.BASE_FILE}?id=${id}`;
@@ -350,7 +350,6 @@
 
         // 렌더 패스
         renderTabs();
-        renderPlaces();
         
         // 1초 단위로 상태표시줄 실시간 시계 동기화
         updateMockupTime();
@@ -362,7 +361,11 @@
             const places = AppState.itemsByStation[firstStation] || [];
             if (places.length > 0) {
                 selectItem(places[0].id);
+            } else {
+                renderPlaces();
             }
+        } else {
+            renderPlaces();
         }
 
         // 새창 열기 버튼 바인딩 보조
