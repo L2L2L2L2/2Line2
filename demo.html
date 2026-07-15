@@ -39,12 +39,12 @@
         <div class="flex items-center gap-3">
             <span class="material-symbols-outlined text-indigo-600 !text-[32px]">devices</span>
             <div class="flex flex-col">
-                <h1 class="text-lg font-extrabold tracking-tight text-slate-800">인천2호선 실내 위치 안내</h1>
-                <span class="text-xs text-slate-400 font-medium">Interactive Demo Showcase</span>
+                <h1 class="text-lg font-extrabold tracking-tight text-slate-800">QRCODE를 이용한 역사 내 위치 안내</h1>
+                <span class="text-xs text-slate-400 font-medium">Location guide within the station using QR code</span>
             </div>
         </div>
         <div class="flex items-center gap-2">
-            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">Prototype v2.0</span>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">가정역 박경태</span>
         </div>
     </header>
 
@@ -54,10 +54,10 @@
         <!-- 좌측 제어 패널 -->
         <section class="md:col-span-7 flex flex-col gap-6">
             <div class="flex flex-col gap-2">
-                <span class="text-xs font-extrabold text-indigo-600 tracking-wider uppercase">데모 시나리오</span>
-                <h2 class="text-3xl font-extrabold tracking-tight text-slate-800">지하철역별 기기 선택기</h2>
+                <span class="text-xs font-extrabold text-indigo-600 tracking-wider uppercase">Data status</span>
+                <h2 class="text-3xl font-extrabold tracking-tight text-slate-800">역사별 데이터 현황</h2>
                 <p class="text-sm text-slate-500 leading-relaxed max-w-[540px]">
-                    지하철역 필터를 선택하면 데이터에 포함된 기기 목록이 하단에 자동으로 구조화되어 나타납니다. 각 목록을 클릭하면 우측 모의 화면에 실시간 로드됩니다.
+                    역명을 선택하면 data.js에 포함된 목록이 하단에 자동으로 나타납니다. <br>각 목록을 클릭하면 우측 모의 화면에 실시간 로드됩니다.
                 </p>
             </div>
 
@@ -157,9 +157,9 @@
     </main>
 
     <!-- 하단 카피라이트 -->
-    <footer class="w-full max-w-[1200px] mx-auto px-6 py-6 border-t border-slate-200/60 relative z-10">
-        <p class="text-xs text-slate-400 text-center">© 2026 인천교통공사 실내 위치 안내 시뮬레이터 쇼케이스 도구</p>
-    </footer>
+    <!-- <footer class="w-full max-w-[1200px] mx-auto px-6 py-6 border-t border-slate-200/60 relative z-10">
+        <p class="text-xs text-slate-400 text-center">제안자 박경태</p>
+    </footer> -->
 
     <!-- 글로벌 마우스 추적식 대형 QR코드 미리보기 오버레이 장치 -->
     <div id="qr-preview-layer" class="hidden fixed z-50 bg-white border border-slate-200/80 rounded-2xl p-2.5 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.2)] pointer-events-none transition-opacity duration-200 w-[220px] h-[220px]">
@@ -302,6 +302,12 @@
             const cardActiveClass = 'border-indigo-500 bg-indigo-50/40 ring-2 ring-indigo-500/10 h-[88px]';
             const cardInactiveClass = 'border-slate-200/60 bg-white/70 h-[88px]';
 
+            // [추가] notices.js 로딩 유효성 검사 및 개별 장소 공지 검색
+            const placeNotice = (typeof noticeData !== 'undefined' && noticeData.places)
+                ? noticeData.places[item.id]
+                : null;
+            const hasNotice = placeNotice && placeNotice.trim() !== "";
+
             return `
                 <div onclick="selectItem('${item.id}')" id="item-${item.id}" class="group flex items-center justify-between px-4 rounded-2xl border cursor-pointer hover:border-indigo-400 hover:shadow-md transition-all duration-300 ${isActive ? cardActiveClass : cardInactiveClass}">
                     <div class="flex items-center gap-4 overflow-hidden">
@@ -311,6 +317,8 @@
                         <div class="flex flex-col overflow-hidden">
                             <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">${item.station}</span>
                             <h3 class="text-sm font-semibold text-slate-800 truncate">${item.title}</h3>
+                            <!-- 장소별 추가 공지가 존재할 때만 3번째 라인 생성 -->
+                            ${hasNotice ? `<span class="text-[11px] text-slate-500 mt-0.5 truncate">${placeNotice}</span>` : ''}
                         </div>
                     </div>
                     
