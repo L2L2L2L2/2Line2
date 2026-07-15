@@ -103,28 +103,29 @@
                                 <div class="w-2 h-2 rounded-full bg-slate-900 border border-slate-800/40"></div>
                             </div>
 
-                            <!-- 상태 표시줄 (Status Bar) -->
-                            <div class="w-full h-[44px] px-6 pt-3 flex items-center justify-between text-slate-900 select-none bg-white relative z-30 shrink-0">
-                                <!-- 실시간 모바일 동기화 시계 -->
-                                <div id="mockup-time" class="text-[13px] font-bold tracking-tight">-</div>
+                            <!-- 상태 표시줄 (Status Bar - 시인성 확보를 위해 축소 비율 역계산 규격 보정 적용) -->
+                            <div class="w-full h-[46px] px-6 pt-2.5 flex items-center justify-between text-slate-900 select-none bg-white relative z-30 shrink-0">
+                                <!-- 실시간 모바일 동기화 시계 (글자 크기 역보정 적용) -->
+                                <div id="mockup-time" class="text-[17px] font-bold tracking-tight">-</div>
                                 
                                 <!-- Dynamic Island 간격 유지를 위한 가상 공간 -->
                                 <div class="w-[110px] h-full"></div>
                                 
                                 <!-- 네트워크 상태 및 배터리 아이콘 -->
-                                <div class="flex items-center gap-1.5 text-slate-900">
-                                    <!-- 안테나 수신 감도 -->
-                                    <div class="flex items-end gap-[1.5px] h-[10px]">
-                                        <div class="w-[2.5px] h-[3px] bg-slate-900 rounded-[0.5px]"></div>
-                                        <div class="w-[2.5px] h-[5px] bg-slate-900 rounded-[0.5px]"></div>
-                                        <div class="w-[2.5px] h-[7px] bg-slate-900 rounded-[0.5px]"></div>
-                                        <div class="w-[2.5px] h-[9px] bg-slate-900 rounded-[0.5px]"></div>
+                                <div class="flex items-center gap-2 text-slate-900">
+                                    <!-- 안테나 수신 감도 규격 보정 -->
+                                    <div class="flex items-end gap-[2px] h-[14px] mb-[1px]">
+                                        <div class="w-[3px] h-[4px] bg-slate-900 rounded-[0.5px]"></div>
+                                        <div class="w-[3px] h-[7px] bg-slate-900 rounded-[0.5px]"></div>
+                                        <div class="w-[3px] h-[10px] bg-slate-900 rounded-[0.5px]"></div>
+                                        <div class="w-[3px] h-[13px] bg-slate-900 rounded-[0.5px]"></div>
                                     </div>
-                                    <span class="material-symbols-outlined !text-[15px] font-bold">wifi</span>
-                                    <!-- 배터리 바 장식 -->
-                                    <div class="w-[21px] h-2.5 border border-slate-900 rounded-[3.5px] p-[1.2px] flex items-center relative">
-                                        <div class="h-full w-[13px] bg-slate-900 rounded-[1.5px]"></div>
-                                        <div class="w-[1px] h-1 bg-slate-900 absolute -right-[3px] top-1/2 -translate-y-1/2 rounded-r-[1.2px]"></div>
+                                    <!-- 와이파이 심볼 스케일 보정 -->
+                                    <span class="material-symbols-outlined !text-[20px] font-bold">wifi</span>
+                                    <!-- 배터리 바 장식 크기 및 내부 채움 보정 -->
+                                    <div class="w-[28px] h-3.5 border-[1.5px] border-slate-900 rounded-[4.5px] p-[1.5px] flex items-center relative mb-[0.5px]">
+                                        <div class="h-full w-[18px] bg-slate-900 rounded-[1.5px]"></div>
+                                        <div class="w-[1.5px] h-1.5 bg-slate-900 absolute -right-[4px] top-1/2 -translate-y-1/2 rounded-r-[1px]"></div>
                                     </div>
                                 </div>
                             </div>
@@ -155,16 +156,6 @@
         </section>
         
     </main>
-
-    <!-- 하단 카피라이트 -->
-    <!-- <footer class="w-full max-w-[1200px] mx-auto px-6 py-6 border-t border-slate-200/60 relative z-10">
-        <p class="text-xs text-slate-400 text-center">제안자 박경태</p>
-    </footer> -->
-
-    <!-- 글로벌 마우스 추적식 대형 QR코드 미리보기 오버레이 장치 -->
-    <div id="qr-preview-layer" class="hidden fixed z-50 bg-white border border-slate-200/80 rounded-2xl p-2.5 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.2)] pointer-events-none transition-opacity duration-200 w-[220px] h-[220px]">
-        <img id="qr-preview-img" src="" alt="QR Preview" class="w-full h-full object-contain">
-    </div>
 
     <!-- 외부 데이터 스크립트 연결 -->
     <script src="data.js"></script>
@@ -302,7 +293,7 @@
             const cardActiveClass = 'border-indigo-500 bg-indigo-50/40 ring-2 ring-indigo-500/10 h-[88px]';
             const cardInactiveClass = 'border-slate-200/60 bg-white/70 h-[88px]';
 
-            // [추가] notices.js 로딩 유효성 검사 및 개별 장소 공지 검색
+            // notices.js 로딩 유효성 검사 및 개별 장소 공지 검색
             const placeNotice = (typeof noticeData !== 'undefined' && noticeData.places)
                 ? noticeData.places[item.id]
                 : null;
