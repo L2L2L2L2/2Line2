@@ -156,6 +156,16 @@
         
     </main>
 
+    <!-- 하단 카피라이트 -->
+    <footer class="w-full max-w-[1200px] mx-auto px-6 py-6 border-t border-slate-200/60 relative z-10">
+        <p class="text-xs text-slate-400 text-center">© 2026 인천교통공사 실내 위치 안내 시뮬레이터 쇼케이스 도구</p>
+    </footer>
+
+    <!-- 글로벌 마우스 추적식 대형 QR코드 미리보기 오버레이 장치 -->
+    <div id="qr-preview-layer" class="hidden fixed z-50 bg-white border border-slate-200/80 rounded-2xl p-2.5 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.2)] pointer-events-none transition-opacity duration-200 w-[220px] h-[220px]">
+        <img id="qr-preview-img" src="" alt="QR Preview" class="w-full h-full object-contain">
+    </div>
+
     <!-- 외부 데이터 스크립트 연결 -->
     <script src="data.js"></script>
     <script src="notices.js"></script>
@@ -288,7 +298,7 @@
             const colorClass = colors[item.type] || 'text-slate-500';
             const isActive = item.id === AppState.activeId;
             
-            // [높이 제어 최적화] 활성화 여부와 관계없이 h-[88px] 고정 높이를 주어 균형감 형성
+            // 활성화 여부와 관계없이 h-[88px] 고정 높이를 주어 균형감 형성
             const cardActiveClass = 'border-indigo-500 bg-indigo-50/40 ring-2 ring-indigo-500/10 h-[88px]';
             const cardInactiveClass = 'border-slate-200/60 bg-white/70 h-[88px]';
 
@@ -308,7 +318,13 @@
                     <div class="flex items-center">
                         ${isActive ? `
                         <div class="flex-shrink-0 w-16 h-16 mr-3 border border-slate-200/80 rounded-xl overflow-hidden bg-white p-1 shadow-sm transition-all duration-300">
-                            <img src="./qrcode/${item.id}.png" alt="QR Code" class="w-full h-full object-contain" onerror="this.parentElement.style.display='none'">
+                            <img src="./qrcode/${item.id}.png" 
+                                 alt="QR Code" 
+                                 class="w-full h-full object-contain cursor-zoom-in" 
+                                 onerror="this.parentElement.style.display='none'"
+                                 onmouseenter="showQRPreview(event, '${item.id}')"
+                                 onmousemove="moveQRPreview(event)"
+                                 onmouseleave="hideQRPreview()">
                         </div>
                         ` : ''}
                         <span class="material-symbols-outlined text-slate-300 group-hover:text-indigo-500 transition-colors">chevron_right</span>
@@ -316,6 +332,49 @@
                 </div>
             `;
         }).join('');
+    }
+
+    // [Hover Event] QR코드 대형 미리보기 표시 처리
+    function showQRPreview(event, id) {
+        const previewLayer = document.getElementById('qr-preview-layer');
+        const previewImg = document.getElementById('qr-preview-img');
+        if (!previewLayer || !previewImg) return;
+
+        previewImg.src = `./qrcode/${id}.png`;
+        previewLayer.classList.remove('hidden');
+        moveQRPreview(event);
+    }
+
+    // [Hover Event] 마우스 커서 위치를 추적하여 오프셋 보정 및 화면 탈출 방지
+    function moveQRPreview(event) {
+        const previewLayer = document.getElementById('qr-preview-layer');
+        if (!previewLayer) return;
+
+        const offsetX = 15; // 마우스 커서 우측 간격
+        const offsetY = -240; // 툴팁 높이(220px)를 고려해 마우스 바로 위에 배치
+
+        let x = event.clientX + offsetX;
+        let y = event.clientY + offsetY;
+
+        // 화면 오른쪽 경계를 넘어갈 때 왼쪽으로 밀어주기
+        if (x + 240 > window.innerWidth) {
+            x = event.clientX - 240;
+        }
+        // 화면 최상단 위로 올라갈 때 마우스 아래에 띄우기
+        if (y < 10) {
+            y = event.clientY + 20;
+        }
+
+        previewLayer.style.left = `${x}px`;
+        previewLayer.style.top = `${y}px`;
+    }
+
+    // [Hover Event] 미리보기 숨김 처리
+    function hideQRPreview() {
+        const previewLayer = document.getElementById('qr-preview-layer');
+        if (previewLayer) {
+            previewLayer.classList.add('hidden');
+        }
     }
 
     // 특정 특정 아이템을 누를 시 시뮬레이션 (re-render 통합 적용으로 스케일링 안정화)
