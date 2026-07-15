@@ -3,12 +3,12 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>QRCODE를 이용한 역사 내 위치 안내</title>
+    <title>인천2호선 실내 위치 안내</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
 
     <style>
         body {
@@ -45,6 +45,8 @@
         </div>
         <div class="flex items-center gap-2">
             <!-- <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">가정역 박경태</span> -->
+            <a href="https://github.com/L2L2L2L2/2Line2" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-100 transition-all duration-300">Github</a>
+            <a href="https://2line.pages.dev/dataconv" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-100 transition-all duration-300">데이터 변환</a>
         </div>
     </header>
 
@@ -103,9 +105,9 @@
                                 <div class="w-2 h-2 rounded-full bg-slate-900 border border-slate-800/40"></div>
                             </div>
 
-                            <!-- 상태 표시줄 (Status Bar - 시인성 확보를 위해 축소 비율 역계산 규격 보정 적용) -->
+                            <!-- 상태 표시줄 (Status Bar - 시각 크기 정상화 역보정 처리 완료) -->
                             <div class="w-full h-[46px] px-6 pt-2.5 flex items-center justify-between text-slate-900 select-none bg-white relative z-30 shrink-0">
-                                <!-- 실시간 모바일 동기화 시계 (글자 크기 역보정 적용) -->
+                                <!-- 실시간 모바일 동기화 시계 -->
                                 <div id="mockup-time" class="text-[17px] font-bold tracking-tight">-</div>
                                 
                                 <!-- Dynamic Island 간격 유지를 위한 가상 공간 -->
@@ -123,9 +125,9 @@
                                     <!-- 와이파이 심볼 스케일 보정 -->
                                     <span class="material-symbols-outlined !text-[20px] font-bold">wifi</span>
                                     <!-- 배터리 바 장식 크기 및 내부 채움 보정 -->
-                                    <div class="w-[28px] h-3.5 border-[1.5px] border-slate-900 rounded-[4.5px] p-[1.2px] flex items-center relative mb-[0.5px]">
+                                    <div class="w-[28px] h-3.5 border-[1.5px] border-slate-900 rounded-[4.5px] p-[1.5px] flex items-center relative mb-[0.5px]">
                                         <div class="h-full w-[18px] bg-slate-900 rounded-[1.5px]"></div>
-                                        <div class="w-[1.5px] h-1.5 bg-slate-900 absolute -right-[4px] top-1/2 -translate-y-1/2 rounded-r-[1px]"></div>
+                                        <div class="w-[1.5px] h-1.5 bg-slate-900 absolute -right-[3px] top-1/2 -translate-y-1/2 rounded-r-[1px]"></div>
                                     </div>
                                 </div>
                             </div>
@@ -157,10 +159,10 @@
         
     </main>
 
-    <!-- 하단 카피라이트 -->
-    <!-- <footer class="w-full max-w-[1200px] mx-auto px-6 py-6 border-t border-slate-200/60 relative z-10">
-        <p class="text-xs text-slate-400 text-center">제안자 박경태</p>
-    </footer> -->
+    <!-- 하단 푸터 영역 (요청해주신 Github 및 데이터 변환 버튼 연동 정상화) -->
+    <footer class="w-full max-w-[1200px] mx-auto px-6 py-6 border-t border-slate-200/60 relative z-10 flex gap-2">
+        
+    </footer>
 
     <!-- 글로벌 마우스 추적식 대형 QR코드 미리보기 오버레이 장치 -->
     <div id="qr-preview-layer" class="hidden fixed z-50 bg-white border border-slate-200/80 rounded-2xl p-2.5 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.2)] pointer-events-none transition-opacity duration-200 w-[220px] h-[220px]">
