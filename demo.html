@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>인천2호선 실내 위치 안내</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .fill-icon { font-variation-settings: 'FILL' 1; }
+
+        /* 가로 스크롤 시 브라우저 스크롤바 숨김 처리 */
+        .scrollbar-none::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-none {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col justify-between relative bg-slate-50 overflow-x-hidden">
+
+    <!-- 뒷배경 격자 패턴 효과 -->
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-35 pointer-events-none"></div>
+
+    <!-- 상단 헤더 영역 -->
+    <header class="w-full max-w-[1200px] mx-auto px-6 py-6 flex items-center justify-between border-b border-slate-200/60 relative z-10">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-indigo-600 !text-[32px]">devices</span>
+            <div class="flex flex-col">
+                <h1 class="text-lg font-extrabold tracking-tight text-slate-800">인천2호선 실내 위치 안내</h1>
+                <span class="text-xs text-slate-400 font-medium">Interactive Demo Showcase</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">Prototype v2.0</span>
+        </div>
+    </header>
+
+    <!-- 메인 대시보드 영역 -->
+    <main class="flex-grow w-full max-w-[1200px] mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-12 gap-12 items-start relative z-10">
+        
+        <!-- 좌측 제어 패널 -->
+        <section class="md:col-span-7 flex flex-col gap-6">
+            <div class="flex flex-col gap-2">
+                <span class="text-xs font-extrabold text-indigo-600 tracking-wider uppercase">데모 시나리오</span>
+                <h2 class="text-3xl font-extrabold tracking-tight text-slate-800">지하철역별 기기 선택기</h2>
+                <p class="text-sm text-slate-500 leading-relaxed max-w-[540px]">
+                    지하철역 필터를 선택하면 데이터에 포함된 기기 목록이 하단에 자동으로 구조화되어 나타납니다. 각 목록을 클릭하면 우측 모의 화면에 실시간 로드됩니다.
+                </p>
+            </div>
+
+            <!-- 동적 역명 필터 탭 -->
+            <div class="flex flex-col gap-2 mt-2">
+                <span class="text-[11px] font-bold text-slate-400 tracking-wider uppercase">역명 선택</span>
+                <div id="station-tabs" class="flex gap-2 overflow-x-auto pb-1 scrollbar-none shrink-0">
+                    <!-- Javascript를 통해 역 선택 탭이 동적으로 삽입됩니다 -->
+                </div>
+            </div>
+            
+            <!-- 리스트 컨테이너 -->
+            <div id="link-list" class="flex flex-col gap-3.5">
+                <!-- Javascript를 통해 선택된 역의 아이템이 동적으로 렌더링됩니다 -->
+            </div>
+
+        </section>
+
+        <!-- 우측 시뮬레이터 패널 (세로 정렬 flex-col 적용 및 정밀한 위치 고정) -->
+        <section class="md:col-span-5 md:sticky md:top-6 flex flex-col items-center gap-4 py-6">
+            
+            <!-- 목업 기기 영역 -->
+            <div class="relative">
+                <div class="absolute -inset-4 bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 rounded-[3.5rem] blur-2xl opacity-75"></div>
+
+                <!-- 아이폰 15/16 Pro 스타일 CSS 섀시 -->
+                <div class="relative mx-auto border-slate-900 bg-slate-900 border-[12px] rounded-[3.2rem] h-[668px] w-[320px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.18)] flex-shrink-0 relative z-10">
+                    
+                    <!-- 물리 버튼 장식 -->
+                    <div class="absolute -left-[14px] top-[110px] w-1 h-[40px] bg-slate-800 rounded-l-md"></div>
+                    <div class="absolute -left-[14px] top-[160px] w-1 h-[45px] bg-slate-800 rounded-l-md"></div>
+                    <div class="absolute -left-[14px] top-[215px] w-1 h-[45px] bg-slate-800 rounded-l-md"></div>
+                    <div class="absolute -right-[14px] top-[140px] w-1 h-[65px] bg-slate-800 rounded-r-md"></div>
+
+                    <!-- 액정 화면 마스킹 영역 (물리적 크기: 너비 296px, 높이 644px) -->
+                    <div class="rounded-[2.4rem] overflow-hidden w-[296px] h-[644px] bg-slate-100 relative z-20">
+                        
+                        <!-- 해상도 왜곡 최적화 스케일 컨테이너 (scale 0.7363) -->
+                        <div class="absolute top-0 left-0 origin-top-left flex flex-col" style="width: 402px; height: 874px; transform: scale(0.736318);">
+                            
+                            <!-- Dynamic Island 내부 스케일 전용 펀치홀 카메라 -->
+                            <div class="h-[25px] w-[110px] bg-black absolute top-[11px] left-1/2 transform -translate-x-1/2 rounded-full z-40 flex items-center justify-end px-2.5 pointer-events-none">
+                                <div class="w-2 h-2 rounded-full bg-slate-900 border border-slate-800/40"></div>
+                            </div>
+
+                            <!-- 상태 표시줄 (Status Bar) -->
+                            <div class="w-full h-[44px] px-6 pt-3 flex items-center justify-between text-slate-900 select-none bg-white relative z-30 shrink-0">
+                                <!-- 실시간 모바일 동기화 시계 -->
+                                <div id="mockup-time" class="text-[13px] font-bold tracking-tight">-</div>
+                                
+                                <!-- Dynamic Island 간격 유지를 위한 가상 공간 -->
+                                <div class="w-[110px] h-full"></div>
+                                
+                                <!-- 네트워크 상태 및 배터리 아이콘 -->
+                                <div class="flex items-center gap-1.5 text-slate-900">
+                                    <!-- 안테나 수신 감도 -->
+                                    <div class="flex items-end gap-[1.5px] h-[10px]">
+                                        <div class="w-[2.5px] h-[3px] bg-slate-900 rounded-[0.5px]"></div>
+                                        <div class="w-[2.5px] h-[5px] bg-slate-900 rounded-[0.5px]"></div>
+                                        <div class="w-[2.5px] h-[7px] bg-slate-900 rounded-[0.5px]"></div>
+                                        <div class="w-[2.5px] h-[9px] bg-slate-900 rounded-[0.5px]"></div>
+                                    </div>
+                                    <span class="material-symbols-outlined !text-[15px] font-bold">wifi</span>
+                                    <!-- 배터리 바 장식 -->
+                                    <div class="w-[21px] h-2.5 border border-slate-900 rounded-[3.5px] p-[1.2px] flex items-center relative">
+                                        <div class="h-full w-[13px] bg-slate-900 rounded-[1.5px]"></div>
+                                        <div class="w-[1px] h-1 bg-slate-900 absolute -right-[3px] top-1/2 -translate-y-1/2 rounded-r-[1.2px]"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 웹 뷰포트 영역 (402px 정밀 너비 보정 렌더링) -->
+                            <div class="flex-grow w-full relative">
+                                <iframe id="mockup-frame" src="" class="w-full h-full border-none select-none"></iframe>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div> 
+
+            <!-- [위치 이동 및 조율] 기기 가로폭(w-[320px])에 일치시켜 목업 바로 밑에 뜨도록 수정 -->
+            <div class="w-[320px] p-5 bg-slate-100 border border-slate-200 rounded-2xl flex flex-col gap-3 shadow-sm shrink-0">
+                <div class="flex flex-col gap-1 overflow-hidden">
+                    <span class="text-[11px] font-bold text-slate-400 tracking-wider uppercase">로드된 파일 경로 및 파라미터</span>
+                    <code id="current-id-label" class="text-sm font-semibold text-indigo-600 truncate">-</code>
+                </div>
+                <a id="btn-open-preview" href="#" target="_blank" class="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white text-xs font-bold text-slate-700 rounded-xl shadow-sm border border-slate-200 hover:bg-slate-50 hover:shadow-md transition-all duration-300">
+                    <span class="material-symbols-outlined !text-[16px]">open_in_new</span>
+                    전체 화면으로 확인
+                </a>
+            </div>
+            
+        </section>
+        
+    </main>
+
+    <!-- 외부 데이터 스크립트 연결 -->
+    <script src="data.js"></script>
+    <script src="notices.js"></script>
+
+<script>
+    const CONFIG = {
+        BASE_FILE: 'index.html'
+    };
+
+    const icons = {
+        exit: 'directions_walk',
+        escalator: 'escalator',
+        elevator: 'elevator'
+    };
+
+    const colors = {
+        exit: 'text-emerald-500 bg-emerald-50 bg-emerald-500/10 border-emerald-500/10',
+        escalator: 'text-sky-500 bg-sky-50 bg-sky-500/10 border-sky-500/10',
+        elevator: 'text-violet-500 bg-violet-50 bg-violet-500/10 border-violet-500/10'
+    };
+
+    const AppState = {
+        stations: [],
+        itemsByStation: {},
+        activeStation: null,
+        activeId: null,
+        imageLoadFailed: false
+    };
+
+    // 실시간 모의기기 시계 업데이트
+    function updateMockupTime() {
+        const timeEl = document.getElementById('mockup-time');
+        if (!timeEl) return;
+        
+        const now = new Date();
+        let hours = now.getHours();
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? '오후' : '오전';
+        
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        
+        timeEl.innerText = `${ampm} ${hours}:${minutes}`;
+    }
+
+    // 아이디 및 타이틀 이름을 분석하여 UI 심볼 유형 예측
+    function detectType(id, title) {
+        const combined = `${id} ${title}`.toLowerCase();
+        if (combined.includes('es') || combined.includes('에스컬레이터')) return 'escalator';
+        if (combined.includes('el') || combined.includes('엘리베이터')) return 'elevator';
+        if (combined.includes('exit') || combined.includes('출구')) return 'exit';
+        return 'exit';
+    }
+
+    // data.js 원본 데이터를 분석하여 탭 및 데이터 그룹 생성
+    function processPlaceData() {
+        if (typeof placeData === 'undefined') {
+            console.error('placeData가 존재하지 않거나 로드되지 않았습니다.');
+            return;
+        }
+
+        Object.keys(placeData).forEach(id => {
+            const item = placeData[id];
+            const station = item.station || '미정역';
+
+            if (!AppState.itemsByStation[station]) {
+                AppState.itemsByStation[station] = [];
+                AppState.stations.push(station);
+            }
+
+            AppState.itemsByStation[station].push({
+                id: id,
+                title: item.title || id,
+                type: detectType(id, item.title || ''),
+                station: station
+            });
+        });
+
+        // 역 가나다순 정렬
+        AppState.stations.sort();
+
+        if (AppState.stations.length > 0) {
+            AppState.activeStation = AppState.stations[0];
+        }
+    }
+
+    // 상단 지하철역 탭 컴포넌트 렌더링
+    function renderTabs() {
+        const tabsEl = document.getElementById('station-tabs');
+        if (!tabsEl) return;
+
+        tabsEl.innerHTML = AppState.stations.map(station => {
+            const isActive = station === AppState.activeStation;
+            const activeClass = 'bg-indigo-600 text-white shadow-md shadow-indigo-600/10 border-indigo-600';
+            const inactiveClass = 'bg-white text-slate-600 border-slate-200/80 hover:border-slate-300';
+            
+            return `
+                <button onclick="selectStation('${station}')" class="px-4 py-2 border rounded-xl font-bold text-xs transition-all whitespace-nowrap cursor-pointer shrink-0 ${isActive ? activeClass : inactiveClass}">
+                    ${station}
+                </button>
+            `;
+        }).join('');
+    }
+
+    // 특정 지하철역 선택 시 동작
+    function selectStation(station) {
+        if (AppState.activeStation === station) return;
+        AppState.activeStation = station;
+        renderTabs();
+        renderPlaces();
+        
+        // 해당 역의 첫 번째 아이템 기본 선택 작동
+        const places = AppState.itemsByStation[station] || [];
+        if (places.length > 0) {
+            selectItem(places[0].id);
+        }
+    }
+
+    // 선택된 역 내부의 기기 리스트 렌더링
+    function renderPlaces() {
+        const listEl = document.getElementById('link-list');
+        if (!listEl || !AppState.activeStation) return;
+
+        const places = AppState.itemsByStation[AppState.activeStation] || [];
+        
+        listEl.innerHTML = places.map((item) => {
+            const icon = icons[item.type] || 'location_on';
+            const colorClass = colors[item.type] || 'text-slate-500';
+            const isActive = item.id === AppState.activeId;
+            const cardActiveClass = 'border-indigo-500 bg-indigo-50/40 ring-2 ring-indigo-500/10';
+            const cardInactiveClass = 'border-slate-200/60 bg-white/70';
+
+            return `
+                <div onclick="selectItem('${item.id}')" id="item-${item.id}" class="group flex items-center justify-between p-4 rounded-2xl border cursor-pointer hover:border-indigo-400 hover:shadow-md transition-all duration-300 ${isActive ? cardActiveClass : cardInactiveClass}">
+                    <div class="flex items-center gap-4 overflow-hidden">
+                        <div class="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-xl border ${colorClass} transition-transform group-hover:scale-105">
+                            <span class="material-symbols-outlined !text-[24px]">${icon}</span>
+                        </div>
+                        <div class="flex flex-col overflow-hidden">
+                            <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">${item.station}</span>
+                            <h3 class="text-sm font-semibold text-slate-800 truncate">${item.title}</h3>
+                        </div>
+                    </div>
+                    <span class="material-symbols-outlined text-slate-300 group-hover:text-indigo-500 transition-colors">chevron_right</span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // 특정 특정 아이템을 누를 시 시뮬레이션
+    function selectItem(id) {
+        if (AppState.activeId === id) return;
+
+        if (AppState.activeId) {
+            const prevEl = document.getElementById(`item-${AppState.activeId}`);
+            if (prevEl) {
+                prevEl.classList.remove('border-indigo-500', 'bg-indigo-50/40', 'ring-2', 'ring-indigo-500/10');
+                prevEl.classList.add('border-slate-200/60', 'bg-white/70');
+            }
+        }
+
+        AppState.activeId = id;
+        const activeEl = document.getElementById(`item-${id}`);
+        if (activeEl) {
+            activeEl.classList.remove('border-slate-200/60', 'bg-white/70');
+            activeEl.classList.add('border-indigo-500', 'bg-indigo-50/40', 'ring-2', 'ring-indigo-500/10');
+        }
+
+        const iframe = document.getElementById('mockup-frame');
+        const url = `${CONFIG.BASE_FILE}?id=${id}`;
+        if (iframe) {
+            iframe.src = url;
+        }
+
+        const label = document.getElementById('current-id-label');
+        if (label) label.innerText = url;
+
+        const btn = document.getElementById('btn-open-preview');
+        if (btn) btn.href = url;
+    }
+
+    // 새 창 열기 안전 헬퍼
+    function openMapNewWindow() {
+        if (AppState.activeId) {
+            window.open(`${CONFIG.BASE_FILE}?id=${AppState.activeId}`, '_blank', 'noopener,noreferrer');
+        }
+    }
+
+    function init() {
+        // 데이터 전처리
+        processPlaceData();
+
+        // 렌더 패스
+        renderTabs();
+        renderPlaces();
+        
+        // 1초 단위로 상태표시줄 실시간 시계 동기화
+        updateMockupTime();
+        setInterval(updateMockupTime, 1000);
+
+        // 첫 기본 역 및 기기 시뮬레이션 가동
+        if (AppState.stations.length > 0) {
+            const firstStation = AppState.stations[0];
+            const places = AppState.itemsByStation[firstStation] || [];
+            if (places.length > 0) {
+                selectItem(places[0].id);
+            }
+        }
+
+        // 새창 열기 버튼 바인딩 보조
+        const btnOpenMap = document.getElementById('btn-open-map');
+        if (btnOpenMap) {
+            btnOpenMap.addEventListener('click', openMapNewWindow);
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
