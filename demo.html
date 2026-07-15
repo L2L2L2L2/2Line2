@@ -44,7 +44,7 @@
             </div>
         </div>
         <div class="flex items-center gap-2">
-            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">가정역 박경태</span>
+            <!-- <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">가정역 박경태</span> -->
         </div>
     </header>
 
@@ -57,7 +57,7 @@
                 <span class="text-xs font-extrabold text-indigo-600 tracking-wider uppercase">Data status</span>
                 <h2 class="text-3xl font-extrabold tracking-tight text-slate-800">역사별 데이터 현황</h2>
                 <p class="text-sm text-slate-500 leading-relaxed max-w-[540px]">
-                    역명을 선택하면 data.js에 포함된 목록이 하단에 자동으로 나타납니다. <br>각 목록을 클릭하면 우측 모의 화면에 실시간 로드됩니다.
+                    각 목록을 클릭하면 우측 모의 화면에 실시간 로드됩니다.<br>역명을 선택하면 data.js에 포함된 목록이 하단에 자동으로 나타납니다. <br>notices.js에 포함된 공지가 있을 경우, 하단에 추가 안내 문구가 표시됩니다.
                 </p>
             </div>
 
@@ -123,7 +123,7 @@
                                     <!-- 와이파이 심볼 스케일 보정 -->
                                     <span class="material-symbols-outlined !text-[20px] font-bold">wifi</span>
                                     <!-- 배터리 바 장식 크기 및 내부 채움 보정 -->
-                                    <div class="w-[28px] h-3.5 border-[1.5px] border-slate-900 rounded-[4.5px] p-[1.5px] flex items-center relative mb-[0.5px]">
+                                    <div class="w-[28px] h-3.5 border-[1.5px] border-slate-900 rounded-[4.5px] p-[1.2px] flex items-center relative mb-[0.5px]">
                                         <div class="h-full w-[18px] bg-slate-900 rounded-[1.5px]"></div>
                                         <div class="w-[1.5px] h-1.5 bg-slate-900 absolute -right-[4px] top-1/2 -translate-y-1/2 rounded-r-[1px]"></div>
                                     </div>
@@ -156,6 +156,16 @@
         </section>
         
     </main>
+
+    <!-- 하단 카피라이트 -->
+    <!-- <footer class="w-full max-w-[1200px] mx-auto px-6 py-6 border-t border-slate-200/60 relative z-10">
+        <p class="text-xs text-slate-400 text-center">제안자 박경태</p>
+    </footer> -->
+
+    <!-- 글로벌 마우스 추적식 대형 QR코드 미리보기 오버레이 장치 -->
+    <div id="qr-preview-layer" class="hidden fixed z-50 bg-white border border-slate-200/80 rounded-2xl p-2.5 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.2)] pointer-events-none transition-opacity duration-200 w-[220px] h-[220px]">
+        <img id="qr-preview-img" src="" alt="QR Preview" class="w-full h-full object-contain">
+    </div>
 
     <!-- 외부 데이터 스크립트 연결 -->
     <script src="data.js"></script>
