@@ -1,4 +1,4 @@
-// [장소 데이터] 총 74건
+// [장소 데이터] 총 79건
 const placeData = {
     "211ES001": {
         "station": "가정역",
@@ -170,49 +170,49 @@ const placeData = {
     },
     "211EXIT001": {
         "station": "가정역",
-        "title": "가정역 1번 출구",
+        "title": "가정역 1번출구",
         "phone": "032-451-4311",
         "image_name": "211ZONE03.jpg"
     },
     "211EXIT002": {
         "station": "가정역",
-        "title": "가정역 2번 출구",
+        "title": "가정역 2번출구",
         "phone": "032-451-4311",
         "image_name": "211ZONE06.jpg"
     },
     "211EXIT003": {
         "station": "가정역",
-        "title": "가정역 3번 출구",
+        "title": "가정역 3번출구",
         "phone": "032-451-4311",
         "image_name": "211ZONE06.jpg"
     },
     "211EXIT004": {
         "station": "가정역",
-        "title": "가정역 4번 출구",
+        "title": "가정역 4번출구",
         "phone": "032-451-4311",
         "image_name": "211ZONE04.jpg"
     },
     "211EXIT005": {
         "station": "가정역",
-        "title": "가정역 5번 출구",
+        "title": "가정역 5번출구",
         "phone": "032-451-4311",
         "image_name": "211ZONE04.jpg"
     },
     "211EXIT006": {
         "station": "가정역",
-        "title": "가정역 6번 출구",
+        "title": "가정역 6번출구",
         "phone": "032-451-4311",
         "image_name": "211ZONE01.jpg"
     },
     "211EXIT007": {
         "station": "가정역",
-        "title": "가정역 7번 출구",
+        "title": "가정역 7번출구",
         "phone": "032-451-4311",
         "image_name": "211ZONE01.jpg"
     },
     "211EXIT008": {
         "station": "가정역",
-        "title": "가정역 8번 출구",
+        "title": "가정역 8번출구",
         "phone": "032-451-4311",
         "image_name": "211ZONE03.jpg"
     },
@@ -340,13 +340,13 @@ const placeData = {
         "station": "아시아드경기장역",
         "title": "아시아드경기장역 4번 출구 방면 남자화장실",
         "phone": "032-451-4309",
-        "image_name": "209ZONE02.jpg"
+        "image_name": "209ZONE03.jpg"
     },
     "209TOILET4W": {
         "station": "아시아드경기장역",
         "title": "아시아드경기장역 4번 출구 방면 여자화장실",
         "phone": "032-451-4309",
-        "image_name": "209ZONE02.jpg"
+        "image_name": "209ZONE04.jpg"
     },
     "209EL001": {
         "station": "아시아드경기장역",
@@ -395,5 +395,83 @@ const placeData = {
         "title": "아시아드경기장역 4번 출구",
         "phone": "032-451-4309",
         "image_name": "209ZONE02.jpg"
+    },
+    "212ES001": {
+        "station": "가정중앙시장역",
+        "title": "가정중앙시장역 에스컬레이터 1호기",
+        "phone": "032-451-4312",
+        "image_name": "212ZONE05.jpg"
+    },
+    "212ES002": {
+        "station": "가정중앙시장역",
+        "title": "가정중앙시장역 에스컬레이터 2호기",
+        "phone": "032-451-4312",
+        "image_name": "212ZONE03.jpg"
+    },
+    "212ES003": {
+        "station": "가정중앙시장역",
+        "title": "가정중앙시장역 에스컬레이터 3호기",
+        "phone": "032-451-4312",
+        "image_name": "212ZONE07.jpg"
+    },
+    "212ES004": {
+        "station": "가정중앙시장역",
+        "title": "가정중앙시장역 에스컬레이터 4호기",
+        "phone": "032-451-4312",
+        "image_name": "212ZONE03.jpg"
+    },
+    "212ES005": {
+        "station": "가정중앙시장역",
+        "title": "가정중앙시장역 에스컬레이터 5호기",
+        "phone": "032-451-4312",
+        "image_name": "212ZONE01.jpg"
+    },
+    "212ES006": {
+        "station": "가정중앙시장역",
+        "title": "가정중앙시장역 에스컬레이터 6호기",
+        "phone": "032-451-4312",
+        "image_name": "212ZONE01.jpg"
+    },
+    "212EL001": {
+        "station": "가정중앙시장역",
+        "title": "가정중앙시장역 엘리베이터 1호기",
+        "phone": "032-451-4312",
+        "image_name": "212ZONE04.jpg"
+    },
+    "212EL002": {
+        "station": "가정중앙시장역",
+        "title": "가정중앙시장역 엘리베이터 2호기",
+        "phone": "032-451-4312",
+        "image_name": "212ZONE06.jpg"
+    },
+    "212EL003": {
+        "station": "가정중앙시장역",
+        "title": "가정중앙시장역 엘리베이터 3호기",
+        "phone": "032-451-4312",
+        "image_name": "212ZONE01.jpg"
+    },
+    "212EL004": {
+        "station": "가정중앙시장역",
+        "title": "가정중앙시장역 엘리베이터 4호기",
+        "phone": "032-451-4312",
+        "image_name": "212ZONE02.jpg"
+    },
+    "212EL005": {
+        "station": "가정중앙시장역",
+        "title": "가정중앙시장역 엘리베이터 5호기",
+        "phone": "032-451-4312",
+        "image_name": "212ZONE02.jpg"
+    },
+    "212TOILET1M": {
+        "station": "가정중앙시장역",
+        "title": "가정중앙시장역 남자화장실",
+        "phone": "032-451-4312",
+        "image_name": "212ZONE01.jpg"
+    },
+    "212TOILET1W": {
+        "station": "가정중앙시장역",
+        "title": "가정중앙시장역 여자화장실",
+        "phone": "032-451-4312",
+        "image_name": "212ZONE01.jpg"
     }
 };
