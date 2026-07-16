@@ -127,10 +127,12 @@
             </div>
         </div>
         
-        <div id="place-desc-box" class="location-gradient-glass text-white p-6 rounded-3xl flex items-center shadow-lg">
-            <div class="flex items-center gap-5 w-full overflow-hidden">
-                <div class="flex-shrink-0 bg-white/20 p-3 rounded-2xl flex items-center justify-center shadow-inner">
-                    <span class="material-symbols-outlined text-[32px] text-white fill-icon" style="font-variation-settings: 'FILL' 1;">location_on</span>
+        <!-- [디자인 최적화 수정 영역] 패딩 축소(p-6 -> p-5), 내부 요소 정렬 최적화 -->
+        <div id="place-desc-box" class="location-gradient-glass text-white p-5 rounded-3xl flex items-center shadow-lg">
+            <div class="flex items-center gap-4 w-full overflow-hidden">
+                <!-- 패딩 p-2.5로 줄이고 둥글기를 rounded-xl로 축소, 핀 아이콘 크기를 text-[24px]로 줄여 주변 공지 아이콘과 완벽하게 시각적 크기 일치화 -->
+                <div class="flex-shrink-0 bg-white/20 p-2.5 rounded-xl flex items-center justify-center shadow-inner">
+                    <span class="material-symbols-outlined text-[24px] text-white fill-icon" style="font-variation-settings: 'FILL' 1;">location_on</span>
                 </div>
                 <div class="flex flex-col gap-1 w-full overflow-hidden">
                     <p id="place-desc" class="single-line-fit text-[24px] leading-tight font-extrabold text-white tracking-tight my-0.5 auto-fit-text"></p>
@@ -170,7 +172,6 @@
             <span class="text-[11.5px] font-bold mt-1.5 text-center leading-[1.2] whitespace-nowrap tracking-tighter">유실물<br>조회</span>
         </a>
         <a id="contact-link" href="#" class="flex-1 flex flex-col items-center justify-center text-green-600 no-underline">
-            <!-- [오타 교정] phone_enable을 공식 머티리얼 아이콘 규격인 phone_enabled로 보정 완료 -->
             <div class="h-8 flex items-center justify-center"><span class="material-symbols-outlined !text-[32px]" style="font-variation-settings: 'FILL' 1;">phone_enabled</span></div>
             <span class="text-[11.5px] font-bold mt-1.5 text-center leading-[1.2] whitespace-nowrap tracking-tighter">역무실<br>전화연결</span>
         </a>
