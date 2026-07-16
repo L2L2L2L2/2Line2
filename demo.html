@@ -18,7 +18,7 @@
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         .fill-icon { font-variation-settings: 'FILL' 1; }
 
-        /* 가로 스크롤 시 브라우저 스크롤바 숨김 처리 */
+        /* 스크롤 시 브라우저 스크롤바 숨김 처리 */
         .scrollbar-none::-webkit-scrollbar {
             display: none;
         }
@@ -105,7 +105,7 @@
                                 <div class="w-2 h-2 rounded-full bg-slate-900 border border-slate-800/40"></div>
                             </div>
 
-                            <!-- 상태 표시줄 (Status Bar - 시각 크기 정상화 역보정 처리 완료) -->
+                            <!-- 상태 표시줄 (Status Bar) -->
                             <div class="w-full h-[46px] px-6 pt-2.5 flex items-center justify-between text-slate-900 select-none bg-white relative z-30 shrink-0">
                                 <!-- 실시간 모바일 동기화 시계 -->
                                 <div id="mockup-time" class="text-[17px] font-bold tracking-tight">-</div>
@@ -151,7 +151,7 @@
                 </div>
                 <a id="btn-open-preview" href="#" target="_blank" class="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white text-xs font-bold text-slate-700 rounded-xl shadow-sm border border-slate-200 hover:bg-slate-50 hover:shadow-md transition-all duration-300">
                     <span class="material-symbols-outlined !text-[16px]">open_in_new</span>
-                    전체 화면으로 확인
+                    전체 화면
                 </a>
             </div>
             
@@ -159,7 +159,7 @@
         
     </main>
 
-    <!-- 하단 푸터 영역 (요청해주신 Github 및 데이터 변환 버튼 연동 정상화) -->
+    <!-- 하단 푸터 영역 -->
     <footer class="w-full max-w-[1200px] mx-auto px-6 py-6 border-t border-slate-200/60 relative z-10 flex gap-2">
         
     </footer>
@@ -198,7 +198,7 @@
         imageLoadFailed: false
     };
 
-    // 실시간 모의기기 시계 업데이트
+    // 실시간 목업 기기 상단 시계 업데이트
     function updateMockupTime() {
         const timeEl = document.getElementById('mockup-time');
         if (!timeEl) return;
@@ -225,37 +225,49 @@
 
     // data.js 원본 데이터를 분석하여 탭 및 데이터 그룹 생성
     function processPlaceData() {
-        if (typeof placeData === 'undefined') {
-            console.error('placeData가 존재하지 않거나 로드되지 않았습니다.');
-            return;
-        }
-
-        Object.keys(placeData).forEach(id => {
-            const item = placeData[id];
-            const station = item.station || '미정역';
-
-            if (!AppState.itemsByStation[station]) {
-                AppState.itemsByStation[station] = [];
-                AppState.stations.push(station);
-            }
-
-            AppState.itemsByStation[station].push({
-                id: id,
-                title: item.title || id,
-                type: detectType(id, item.title || ''),
-                station: station
-            });
-        });
-
-        // 역 가나다순 정렬
-        AppState.stations.sort();
-
-        if (AppState.stations.length > 0) {
-            AppState.activeStation = AppState.stations[0];
-        }
+    if (typeof placeData === 'undefined') {
+        console.error('placeData가 존재하지 않거나 로드되지 않았습니다.');
+        return;
     }
 
-    // 상단 지하철역 탭 컴포넌트 렌더링
+    const stationPrefixes = {}; // 각 역별 앞 3자리 접두사를 임시 매핑할 저장소
+
+    Object.keys(placeData).forEach(id => {
+        const item = placeData[id];
+        const station = item.station || '미정역';
+        const prefix = id.slice(0, 3); // "211ES001" 과 같은 placeData의 앞 3자리 추출
+
+        // 각 역명별로 발견되는 가장 앞선 접두사(일련번호) 기록
+        if (!stationPrefixes[station] || prefix < stationPrefixes[station]) {
+            stationPrefixes[station] = prefix;
+        }
+
+        if (!AppState.itemsByStation[station]) {
+            AppState.itemsByStation[station] = [];
+            AppState.stations.push(station);
+        }
+
+        AppState.itemsByStation[station].push({
+            id: id,
+            title: item.title || id,
+            type: detectType(id, item.title || ''),
+            station: station
+        });
+    });
+
+    // 단순 가나다순 대신 각 역명의 대표 앞 3자리 고유 코드 번호순(오름차순)으로 최종 정렬
+    AppState.stations.sort((a, b) => {
+        const prefixA = stationPrefixes[a] || '999';
+        const prefixB = stationPrefixes[b] || '999';
+        return prefixA.localeCompare(prefixB);
+    });
+
+    if (AppState.stations.length > 0) {
+        AppState.activeStation = AppState.stations[0];
+    }
+}
+
+    // 상단 역사 탭 컴포넌트 렌더링
     function renderTabs() {
         const tabsEl = document.getElementById('station-tabs');
         if (!tabsEl) return;
@@ -273,7 +285,7 @@
         }).join('');
     }
 
-    // 특정 지하철역 선택 시 동작
+    // 특정 역사 선택 시 동작
     function selectStation(station) {
         if (AppState.activeStation === station) return;
         AppState.activeStation = station;
@@ -388,7 +400,7 @@
         }
     }
 
-    // 특정 특정 아이템을 누를 시 시뮬레이션 (re-render 통합 적용으로 스케일링 안정화)
+    // 특정 아이템을 누를 시 시뮬레이션 (re-render 통합 적용으로 스케일링 안정화)
     function selectItem(id) {
         if (AppState.activeId === id) return;
         AppState.activeId = id;
