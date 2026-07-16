@@ -3,11 +3,11 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
-    <title>📍 인천2호선 실내 위치 안내</title>
+    <title>인천2호선 실내 위치 안내</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght=100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 
     <script id="tailwind-config">
@@ -68,6 +68,18 @@
             padding-top: 3.5rem;
         }
         .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+        
+        /* Chrome, Safari, Opera, Edge에서 스크롤바 숨기기 */
+        html::-webkit-scrollbar, 
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* IE 및 Firefox에서 스크롤바 숨기기 */
+        html, body {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
     </style>
 </head>
 
@@ -76,9 +88,9 @@
 <header class="safe-header fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
     <div class="flex items-center justify-between w-full max-w-[800px] mx-auto px-4 h-14">
         <img src="https://www.ictr.or.kr/main/img/main2025/logo.svg" alt="인천교통공사" class="h-7 w-auto object-contain">
-        <div class="flex items-center gap-1.5">
-            <span class="material-symbols-outlined text-primary text-[18px] fill-icon" style="font-variation-settings: 'FILL' 1;">location_on</span>
-            <h1 id="station-name" class="text-lg font-bold text-primary tracking-tight mt-0.5">인천2호선</h1>
+        <div class="flex items-center gap-2">
+            <div class="w-[4.5px] h-[18px] bg-gradient-to-b from-[#2980b9] to-[#27ae60] rounded-full shrink-0"></div>
+            <h1 id="station-name" class="text-lg font-bold text-primary tracking-tight leading-none">인천2호선</h1>
         </div>
     </div>
 </header>
@@ -93,6 +105,16 @@
                 <p id="global-notice-text" class="text-[15px] text-slate-900 leading-tight font-semibold"></p>
             </div>
         </div>
+
+        <div id="local-notice-box" class="hidden glass-card p-4 rounded-2xl flex items-start gap-3">
+            <span class="material-symbols-outlined text-amber-600 text-[24px]">info</span>
+            <div class="flex flex-col w-full">
+                <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest">알려드립니다</span>
+                <p id="station-notice-text" class="text-[15px] text-slate-900 leading-tight font-bold mb-1 hidden"></p>
+                <p id="additional-text" class="text-sm text-slate-700 leading-tight hidden"></p>
+            </div>
+        </div>
+
         <!-- 데이터 오류 알림 글래스카드 영역 추가 -->
         <div id="error-notice-box" class="hidden glass-card p-4 rounded-2xl flex items-start gap-3">
             <span class="material-symbols-outlined text-rose-600 text-[24px]">error</span>
@@ -104,40 +126,38 @@
                 </p>
             </div>
         </div>
-        <div id="local-notice-box" class="hidden glass-card p-4 rounded-2xl flex items-start gap-3">
-            <span class="material-symbols-outlined text-amber-600 text-[24px]">info</span>
-            <div class="flex flex-col w-full">
-                <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest">알려드립니다</span>
-                <p id="station-notice-text" class="text-[15px] text-slate-900 leading-tight font-bold mb-1 hidden"></p>
-                <p id="additional-text" class="text-sm text-slate-700 leading-tight hidden"></p>
+        
+        <!-- [레이아웃 완전 리뉴얼] flex-col 세로 배치 및 하단 2단 아이콘 정렬 적용 -->
+        <div id="place-desc-box" class="location-gradient-glass text-white p-5 rounded-3xl flex flex-col gap-3 shadow-lg">
+            <!-- 1단: 가로 영역 전체를 활용하는 대형 폰트의 기기명 타이틀 -->
+            <p id="place-desc" class="single-line-fit text-[24px] leading-tight font-extrabold text-white tracking-tight my-0.5 auto-fit-text"></p>
+            
+            <!-- 2단: 슬림한 기기 아이콘 및 2줄의 위치 알림 보조 안내문 -->
+            <div class="flex items-center gap-3 w-full overflow-hidden">
+                <!-- 미니멀한 rounded-xl과 w-9 h-9의 세련된 컴팩트 아이콘 보정 -->
+                <div class="flex-shrink-0 bg-white/20 w-9 h-9 rounded-xl flex items-center justify-center shadow-inner">
+                    <span class="material-symbols-outlined text-[18px] text-white fill-icon" style="font-variation-settings: 'FILL' 1;">location_on</span>
+                </div>
+                <div class="flex flex-col overflow-hidden text-[15px] text-white/80 leading-normal tracking-tight font-medium">
+                    <span class="single-line-fit auto-fit-text">현재 고객님의 위치를 알려드립니다.</span>
+                    <span class="single-line-fit auto-fit-text">도움이 필요하시면 하단의 버튼을 이용해 주세요.</span>
+                </div>
             </div>
         </div>
+        
+        <div id="map-box" class="bg-white/60 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden border border-white/40">
+            <div id="map-aspect-box" class="relative w-full aspect-[1.15] bg-white/20 overflow-hidden">
+                <img id="place-img" alt="위치 지도" class="w-full h-full object-contain scale-[1.01]" src="">
+                <!-- 지도 로딩 실패 대처 영역 -->
+                <div id="map-placeholder" class="hidden absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-slate-50/80">
+                    <span class="material-symbols-outlined text-slate-400 !text-[44px] mb-2">broken_image</span>
+                    <p class="text-[15px] font-semibold text-slate-700">지도 이미지를 불러올 수 없습니다.</p>
+                </div>
+            </div>
+        </div>
+
     </section>
 
-    <div id="map-box" class="bg-white/60 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden border border-white/40">
-        <div class="relative w-full aspect-[1.15] bg-white/20 overflow-hidden">
-            <img id="place-img" alt="위치 지도" class="w-full h-full object-cover scale-[1.01]" src="">
-            <!-- 지도 로딩 실패 대처 영역 -->
-            <div id="map-placeholder" class="hidden absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-slate-50/80">
-                <span class="material-symbols-outlined text-slate-400 !text-[44px] mb-2">broken_image</span>
-                <p class="text-[15px] font-semibold text-slate-700">지도 이미지를 불러올 수 없습니다.</p>
-                <p class="text-xs text-slate-400 mt-1">네트워크 상태를 확인하시고 새로고침을 시도해 보세요.</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="place-desc-box" class="location-gradient-glass text-white p-6 rounded-3xl flex items-center shadow-lg">
-        <div class="flex items-center gap-5 w-full overflow-hidden">
-            <div class="flex-shrink-0 bg-white/20 p-3 rounded-2xl flex items-center justify-center shadow-inner">
-                <span class="material-symbols-outlined text-[32px] text-white fill-icon" style="font-variation-settings: 'FILL' 1;">location_on</span>
-            </div>
-            <div class="flex flex-col gap-1 w-full overflow-hidden">
-                <p id="place-desc" class="single-line-fit text-[24px] leading-tight font-extrabold text-white tracking-tight my-0.5 auto-fit-text"></p>
-                <span class="single-line-fit text-[14px] text-white/80 font-medium tracking-tight auto-fit-text">현재 고객님의 위치를 알려드립니다.</span>
-                <span class="single-line-fit text-[14px] text-white/80 font-medium tracking-tight auto-fit-text">도움이 필요하시면 하단의 버튼을 이용해 주세요.</span>
-            </div>
-        </div>
-    </div>
 </main>
 
 <div class="fixed bottom-0 left-0 w-full z-50 bg-white/85 backdrop-blur-lg rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.06)] border-t border-white/30 px-2 pb-safe">
@@ -155,11 +175,16 @@
             <span class="text-[11.5px] font-bold mt-1.5 text-center leading-[1.2] whitespace-nowrap tracking-tighter">유실물<br>조회</span>
         </a>
         <a id="contact-link" href="#" class="flex-1 flex flex-col items-center justify-center text-green-600 no-underline">
-            <div class="h-8 flex items-center justify-center"><span class="material-symbols-outlined !text-[32px]" style="font-variation-settings: 'FILL' 1;">phone_in_talk</span></div>
+            <div class="h-8 flex items-center justify-center"><span class="material-symbols-outlined !text-[32px]" style="font-variation-settings: 'FILL' 1;">phone_enabled</span></div>
             <span class="text-[11.5px] font-bold mt-1.5 text-center leading-[1.2] whitespace-nowrap tracking-tighter">역무실<br>전화연결</span>
         </a>
     </nav>
 </div>
+
+<!-- 디스코드 긴급도움 모바일 플로팅 단추 (CONFIG 제어 스위치에 따라 자동 노출 및 배치 작동) -->
+<button id="help-trigger-btn" class="hidden fixed bottom-28 right-6 z-40 w-14 h-14 rounded-full bg-white border border-slate-200/80 shadow-[0_8px_30px_rgba(0,0,0,0.12)] flex items-center justify-center cursor-pointer transition-all active:scale-95 duration-200 focus:outline-none">
+    <span class="text-[28px] leading-none select-none">🚨</span>
+</button>
 
 <script src="data.js"></script>
 <script src="notices.js"></script>
@@ -167,7 +192,9 @@
     const CONFIG = {
         PATH_IMAGE: 'images/',
         CLASS_HIDDEN: 'hidden',
-        CLASS_DISABLE: ['opacity-40', 'pointer-events-none']
+        CLASS_DISABLE: ['opacity-40', 'pointer-events-none'],
+        // [토글 제어 장치] 디스코드 헬프 버튼을 활성화하려면 true, 완전 숨기려면 false로 변경하시면 됩니다.
+        ENABLE_DISCORD_HELP: true 
     };
 
     const SELECTORS = {
@@ -185,9 +212,11 @@
         additionalText: '#additional-text',
         mapBox: '#map-box',
         mapPlaceholder: '#map-placeholder',
+        mapAspectBox: '#map-aspect-box',
         placeDescBox: '#place-desc-box',
         btnOpenMap: '#btn-open-map',
-        errorNoticeBox: '#error-notice-box'
+        errorNoticeBox: '#error-notice-box',
+        helpTriggerBtn: '#help-trigger-btn' // 플로팅 버튼 선택자 추가
     };
 
     const AppState = {
@@ -265,6 +294,7 @@
         AppState.imageLoadFailed = true;
         DOM.hide(UI.placeImg);
         DOM.show(UI.mapPlaceholder);
+        if (UI.mapAspectBox) UI.mapAspectBox.style.aspectRatio = '';
     }
 
     function openMapNewWindow() {
@@ -279,6 +309,99 @@
         }
     }
 
+    function adjustMapAspectRatio() {
+        const img = UI.placeImg;
+        const box = UI.mapAspectBox;
+        if (!img || !box || !img.naturalWidth || !img.naturalHeight) return;
+        box.style.aspectRatio = `${img.naturalWidth} / ${img.naturalHeight}`;
+    }
+
+    // 디스코드 전송 시간 계산 함수 (기기 타임존 오류 차단용 수동 포맷 조립)
+    function getFormattedKoreanTime() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth() + 1;
+        const date = now.getDate();
+        
+        let hours = now.getHours();
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        
+        const ampm = hours >= 12 ? '오후' : '오전';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+
+        return `${year}. ${month}. ${date}. ${ampm} ${hours}:${minutes}:${seconds}`;
+    }
+
+    // 디스코드 알림 전송 API 통신 모듈
+    function sendDiscordNotification(statusMessage) {
+        const place = AppState.currentPlace;
+        if (!place) {
+            console.log("장소 데이터가 존재하지 않아 알림 전송을 보류합니다.");
+            return Promise.resolve();
+        }
+
+        const requestBody = {
+            title: place.title,
+            statusMessage: statusMessage,
+            time: getFormattedKoreanTime()
+        };
+
+        return fetch('/send-webhook', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
+        }).then(res => {
+            if (!res.ok) throw new Error("알림 전송 실패");
+            return res.json();
+        });
+    }
+
+    // 플로팅 단추 클릭 피드백 제어 모듈
+    function handleHelpButtonClick() {
+        if (!AppState.currentPlace || AppState.imageLoadFailed) return;
+
+        const btn = UI.helpTriggerBtn;
+        if (!btn) return;
+
+        // 중복 전송 방지 비활성화 및 로딩상태 전환
+        btn.disabled = true;
+        btn.classList.add('opacity-60', 'pointer-events-none');
+        btn.querySelector('span').innerText = '⏳';
+
+        sendDiscordNotification(" **[🚨 긴급 호출 🚨]** 방문자가 **'도움이 필요합니다'** 버튼을 클릭했습니다! 현장 확인 바랍니다.")
+            .then(() => {
+                alert("⚠️ 현장 담당자에게 도움 요청 알림이 전송되었습니다. 잠시만 기다려주세요!");
+                btn.querySelector('span').innerText = '✅';
+                btn.classList.remove('border-slate-200/80');
+                btn.classList.add('border-emerald-500', 'bg-emerald-50');
+                
+                // 3초 후 원상복구 리셋
+                setTimeout(resetHelpButton, 3000);
+            })
+            .catch(() => {
+                alert("전송에 실패했습니다. 담당자에게 유선으로 연락 바랍니다.");
+                btn.querySelector('span').innerText = '❌';
+                btn.classList.remove('border-slate-200/80');
+                btn.classList.add('border-rose-500', 'bg-rose-50');
+                
+                // 3초 후 원상복구 리셋
+                setTimeout(resetHelpButton, 3000);
+            });
+    }
+
+    // 호출 처리 완료 후 버튼 원상 복구 함수
+    function resetHelpButton() {
+        const btn = UI.helpTriggerBtn;
+        if (!btn) return;
+
+        btn.disabled = false;
+        btn.classList.remove('opacity-60', 'pointer-events-none', 'border-emerald-500', 'bg-emerald-50', 'border-rose-500', 'bg-rose-50');
+        btn.classList.add('border-slate-200/80', 'bg-white');
+        btn.querySelector('span').innerText = '🚨';
+    }
+    
     function cacheElements() {
         Object.keys(SELECTORS).forEach(key => {
             const sel = SELECTORS[key];
@@ -299,11 +422,17 @@
                 AppState.imageLoadFailed = false;
                 DOM.show(UI.placeImg);
                 DOM.hide(UI.mapPlaceholder);
+                adjustMapAspectRatio();
                 scheduleLayout();
             });
             UI.placeImg.onerror = handleImageError;
         }
         if (UI.btnOpenMap) UI.btnOpenMap.addEventListener('click', openMapNewWindow);
+
+        // 긴급도움 플로팅 버튼 클릭 리스너 결합
+        if (UI.helpTriggerBtn) {
+            UI.helpTriggerBtn.addEventListener('click', handleHelpButtonClick);
+        }
     }
 
     function loadPlaceData() {
@@ -326,6 +455,7 @@
         if (!AppState.currentPlace) {
             DOM.hide(UI.placeDescBox);
             DOM.hide(UI.mapBox);
+            DOM.hide(UI.helpTriggerBtn); // 오류 시 플로팅 숨김
             DOM.show(UI.errorNoticeBox);
             return;
         }
@@ -335,6 +465,13 @@
         renderMap();
         renderNotice();
         renderPhone();
+
+        // 긴급 도움 스위치 제어 설정에 따라 플로팅 토글 작동
+        if (CONFIG.ENABLE_DISCORD_HELP) {
+            DOM.show(UI.helpTriggerBtn);
+        } else {
+            DOM.hide(UI.helpTriggerBtn);
+        }
     }
 
     function renderPlace() {
@@ -352,6 +489,7 @@
         }
     }
 
+    // notices.js의 places 데이터 매칭 시 index.html 본문 하단에 역별 공지와 별개로 노출할 수 있도록 renderNotice()를 안전하게 구성
     function renderNotice() {
         if (typeof noticeData === 'undefined') return;
         renderGlobalNotice();
