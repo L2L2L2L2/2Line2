@@ -1,4 +1,4 @@
-// [장소 데이터] 총 79건
+// [장소 데이터] 총 81건
 const placeData = {
     "211ES001": {
         "station": "가정역",
@@ -471,6 +471,18 @@ const placeData = {
     "212TOILET1W": {
         "station": "가정중앙시장역",
         "title": "가정중앙시장역 여자화장실",
+        "phone": "032-451-4312",
+        "image_name": "212ZONE01.jpg"
+    },
+    "212EXIT001": {
+        "station": "가정중앙시장역",
+        "title": "가정중앙시장역 1번 출구",
+        "phone": "032-451-4312",
+        "image_name": "212ZONE01.jpg"
+    },
+    "212EXIT002": {
+        "station": "가정중앙시장역",
+        "title": "가정중앙시장역 2번 출구",
         "phone": "032-451-4312",
         "image_name": "212ZONE01.jpg"
     }
