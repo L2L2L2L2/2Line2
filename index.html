@@ -181,13 +181,20 @@
     </nav>
 </div>
 
+<!-- 디스코드 긴급도움 모바일 플로팅 단추 (CONFIG 제어 스위치에 따라 자동 노출 및 배치 작동) -->
+<button id="help-trigger-btn" class="hidden fixed bottom-28 right-6 z-40 w-14 h-14 rounded-full bg-white border border-slate-200/80 shadow-[0_8px_30px_rgba(0,0,0,0.12)] flex items-center justify-center cursor-pointer transition-all active:scale-95 duration-200 focus:outline-none">
+    <span class="text-[28px] leading-none select-none">🚨</span>
+</button>
+
 <script src="data.js"></script>
 <script src="notices.js"></script>
 <script>
     const CONFIG = {
         PATH_IMAGE: 'images/',
         CLASS_HIDDEN: 'hidden',
-        CLASS_DISABLE: ['opacity-40', 'pointer-events-none']
+        CLASS_DISABLE: ['opacity-40', 'pointer-events-none'],
+        // [토글 제어 장치] 디스코드 헬프 버튼을 활성화하려면 true, 완전 숨기려면 false로 변경하시면 됩니다.
+        ENABLE_DISCORD_HELP: false 
     };
 
     const SELECTORS = {
@@ -208,7 +215,8 @@
         mapAspectBox: '#map-aspect-box',
         placeDescBox: '#place-desc-box',
         btnOpenMap: '#btn-open-map',
-        errorNoticeBox: '#error-notice-box'
+        errorNoticeBox: '#error-notice-box',
+        helpTriggerBtn: '#help-trigger-btn' // 플로팅 버튼 선택자 추가
     };
 
     const AppState = {
@@ -307,6 +315,92 @@
         if (!img || !box || !img.naturalWidth || !img.naturalHeight) return;
         box.style.aspectRatio = `${img.naturalWidth} / ${img.naturalHeight}`;
     }
+
+    // 디스코드 전송 시간 계산 함수 (기기 타임존 오류 차단용 수동 포맷 조립)
+    function getFormattedKoreanTime() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth() + 1;
+        const date = now.getDate();
+        
+        let hours = now.getHours();
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        
+        const ampm = hours >= 12 ? '오후' : '오전';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+
+        return `${year}. ${month}. ${date}. ${ampm} ${hours}:${minutes}:${seconds}`;
+    }
+
+    // 디스코드 알림 전송 API 통신 모듈
+    function sendDiscordNotification(statusMessage) {
+        const place = AppState.currentPlace;
+        if (!place) {
+            console.log("장소 데이터가 존재하지 않아 알림 전송을 보류합니다.");
+            return Promise.resolve();
+        }
+
+        const requestBody = {
+            title: place.title,
+            statusMessage: statusMessage,
+            time: getFormattedKoreanTime()
+        };
+
+        return fetch('/send-webhook', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
+        }).then(res => {
+            if (!res.ok) throw new Error("알림 전송 실패");
+            return res.json();
+        });
+    }
+
+    // 플로팅 단추 클릭 피드백 제어 모듈
+    function handleHelpButtonClick() {
+        if (!AppState.currentPlace || AppState.imageLoadFailed) return;
+
+        const btn = UI.helpTriggerBtn;
+        if (!btn) return;
+
+        // 중복 전송 방지 비활성화 및 로딩상태 전환
+        btn.disabled = true;
+        btn.classList.add('opacity-60', 'pointer-events-none');
+        btn.querySelector('span').innerText = '⏳';
+
+        sendDiscordNotification(" **[🚨 긴급 호출 🚨]** 방문자가 **'도움이 필요합니다'** 버튼을 클릭했습니다! 현장 확인 바랍니다.")
+            .then(() => {
+                alert("⚠️ 현장 담당자에게 도움 요청 알림이 전송되었습니다. 잠시만 기다려주세요!");
+                btn.querySelector('span').innerText = '✅';
+                btn.classList.remove('border-slate-200/80');
+                btn.classList.add('border-emerald-500', 'bg-emerald-50');
+                
+                // 3초 후 원상복구 리셋
+                setTimeout(resetHelpButton, 3000);
+            })
+            .catch(() => {
+                alert("전송에 실패했습니다. 담당자에게 유선으로 연락 바랍니다.");
+                btn.querySelector('span').innerText = '❌';
+                btn.classList.remove('border-slate-200/80');
+                btn.classList.add('border-rose-500', 'bg-rose-50');
+                
+                // 3초 후 원상복구 리셋
+                setTimeout(resetHelpButton, 3000);
+            });
+    }
+
+    // 호출 처리 완료 후 버튼 원상 복구 함수
+    function resetHelpButton() {
+        const btn = UI.helpTriggerBtn;
+        if (!btn) return;
+
+        btn.disabled = false;
+        btn.classList.remove('opacity-60', 'pointer-events-none', 'border-emerald-500', 'bg-emerald-50', 'border-rose-500', 'bg-rose-50');
+        btn.classList.add('border-slate-200/80', 'bg-white');
+        btn.querySelector('span').innerText = '🚨';
+    }
     
     function cacheElements() {
         Object.keys(SELECTORS).forEach(key => {
@@ -334,6 +428,11 @@
             UI.placeImg.onerror = handleImageError;
         }
         if (UI.btnOpenMap) UI.btnOpenMap.addEventListener('click', openMapNewWindow);
+
+        // 긴급도움 플로팅 버튼 클릭 리스너 결합
+        if (UI.helpTriggerBtn) {
+            UI.helpTriggerBtn.addEventListener('click', handleHelpButtonClick);
+        }
     }
 
     function loadPlaceData() {
@@ -356,6 +455,7 @@
         if (!AppState.currentPlace) {
             DOM.hide(UI.placeDescBox);
             DOM.hide(UI.mapBox);
+            DOM.hide(UI.helpTriggerBtn); // 오류 시 플로팅 숨김
             DOM.show(UI.errorNoticeBox);
             return;
         }
@@ -365,6 +465,13 @@
         renderMap();
         renderNotice();
         renderPhone();
+
+        // 긴급 도움 스위치 제어 설정에 따라 플로팅 토글 작동
+        if (CONFIG.ENABLE_DISCORD_HELP) {
+            DOM.show(UI.helpTriggerBtn);
+        } else {
+            DOM.hide(UI.helpTriggerBtn);
+        }
     }
 
     function renderPlace() {
