@@ -69,12 +69,22 @@
 가정중앙시장역	212ES002	에스컬레이터 2호기	032-451-4312	212ZONE02</pre>
         </div>
 
-        <!-- 2. 입력 및 가공 명령 카드 -->
+       <!-- 2. 입력 및 가공 명령 카드 -->
         <div class="bg-white/70 backdrop-blur-sm rounded-2xl border border-slate-200/60 p-5 flex flex-col gap-3 shadow-sm hover:shadow-md transition-all duration-300">
-            <label class="text-xs font-extrabold text-slate-400 tracking-wider uppercase flex items-center gap-2">
-                <span class="material-symbols-outlined text-indigo-500 !text-[20px]">content_paste</span>
-                엑셀 데이터 붙여넣기
-            </label>
+            
+            <!-- [수정] 타이틀 우측에 '지우기' 버튼 배치를 위한 레이아웃 분할 전개 -->
+            <div class="flex justify-between items-center">
+                <label class="text-xs font-extrabold text-slate-400 tracking-wider uppercase flex items-center gap-2">
+                    <span class="material-symbols-outlined text-indigo-500 !text-[20px]">content_paste</span>
+                    엑셀 데이터 붙여넣기
+                </label>
+                <!-- 지우기 기능 버튼 (로즈 계열 스타일링 적용) -->
+                <button onclick="clearInput()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl font-bold text-xs shadow-sm border border-rose-200/80 transition-all duration-300 flex items-center gap-1 cursor-pointer">
+                    <span class="material-symbols-outlined !text-[14px]">delete</span>
+                    지우기
+                </button>
+            </div>
+
             <textarea id="excel-input" class="w-full h-44 p-4 border border-slate-200/60 rounded-xl font-mono text-xs bg-white/50 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all" placeholder="이곳에 복사한 데이터를 붙여넣거나 위의 '즉시 입력하기' 버튼을 눌러 테스트해 보세요."></textarea>
             
             <!-- 변환 및 동적 복사 연동 버튼 그룹 -->
@@ -103,7 +113,7 @@
     <!-- 하단 푸터 영역 -->
     <footer class="w-full max-w-[800px] mx-auto px-6 py-6 border-t border-slate-200/60 relative z-10 flex gap-2">
         <a href="https://github.com/L2L2L2L2/2Line2" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-100 transition-all duration-300">Github</a>
-        <a href="./demo" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-100 transition-all duration-300">역사별 데이터 현황</a>
+        <a href="https://2line.pages.dev/dataconv" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-100 transition-all duration-300">데이터 변환</a>
     </footer>
 
 <script>
@@ -114,6 +124,24 @@
         if (inputArea) {
             inputArea.value = sampleText;
             inputArea.focus();
+        }
+    }
+
+    // [추가] 붙여넣기 입력창 비우기 및 데이터 원상 복구 초기화 함수
+    function clearInput() {
+        const inputArea = document.getElementById("excel-input");
+        if (inputArea) {
+            inputArea.value = "";
+            inputArea.focus(); // 초기화 즉시 타이핑이 가능하게 커서 주입
+        }
+        
+        // 결과 패널 초기 상태로 환원
+        document.getElementById("output-result").innerText = "결과가 여기에 표시됩니다.";
+        
+        // 잔존해 있던 복사 버튼도 안전하게 숨김 처리
+        const copyBtn = document.getElementById("copy-btn");
+        if (copyBtn) {
+            copyBtn.classList.add('hidden');
         }
     }
 
@@ -161,18 +189,18 @@
         }
     }
 
-    // 클립보드 복사 인터랙션 제어 모듈 (체크 아이콘 피드백 적용)
+    // 클립보드 복사 인터랙션 제어 모듈
     function copyToClipboard() {
         const outputText = document.getElementById("output-result").innerText;
         if (!outputText || outputText === "결과가 여기에 표시됩니다.") {
-            alert("복사할 가공 결과가 존재하지 않습니다.");
+            alert("복사할 변환 결과물이 존재하지 않습니다.");
             return;
         }
 
         navigator.clipboard.writeText(outputText).then(() => {
             const copyBtn = document.getElementById("copy-btn");
             if (copyBtn) {
-                // 원클릭 성공 알림 상태 전환
+                // 전송 성공 시 상태 피드백 노출
                 copyBtn.innerHTML = `
                     <span class="material-symbols-outlined !text-[16px]">check_circle</span>
                     복사 완료!
@@ -180,7 +208,7 @@
                 copyBtn.classList.remove('bg-emerald-500', 'hover:bg-emerald-600');
                 copyBtn.classList.add('bg-emerald-600', 'pointer-events-none');
 
-                // 2초 후 디폴트 스타일로 조용히 원복
+                // 2초 후 디폴트 스타일 복구
                 setTimeout(() => {
                     copyBtn.innerHTML = `
                         <span class="material-symbols-outlined !text-[16px]">content_copy</span>
