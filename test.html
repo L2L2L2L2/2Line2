@@ -51,7 +51,7 @@
         </div>
     </header>
 
-    <!-- [뷰 ①] 역사별 데이터 현황 (Showcase View) -->
+    <!-- [뷰 ①] 역사별 데이터 현황 (Showcase View - 가로폭 max-w-[1200px] 보존) -->
     <main id="view-showcase" class="flex-grow w-full max-w-[1200px] mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-12 gap-12 items-start relative z-10">
         
         <!-- 좌측 제어 패널 -->
@@ -177,8 +177,8 @@
         
     </main>
 
-    <!-- [뷰 ②] 데이터 변환기 (dataconv View) - 기본 hidden 처리 -->
-    <main id="view-converter" class="hidden flex-grow w-full max-w-[800px] mx-auto px-6 py-8 flex flex-col gap-6 relative z-10">
+    <!-- [뷰 ②] 데이터 변환기 (dataconv View - 가로폭 규격을 max-w-[800px]에서 max-w-[1200px]로 대칭 보정 완료) -->
+    <main id="view-converter" class="hidden flex-grow w-full max-w-[1200px] mx-auto px-6 py-8 flex flex-col gap-6 relative z-10">
         
         <!-- 타이틀 문구 -->
         <div class="flex flex-col gap-2">
@@ -304,7 +304,7 @@
 
             headerIcon.innerText = 'devices';
             headerTitle.innerText = 'QRCODE를 이용한 역사 내 위치안내 시스템';
-            headerSubtitle.innerText = 'QR Code-Based In-Station Navigation Guide';
+            headerSubtitle.innerText = 'Location guide within the station using QR code';
         } else if (viewName === 'converter') {
             // 데이터 변환기 뷰 로드
             viewShowcase.classList.add('hidden');
@@ -684,8 +684,6 @@
 
         // 렌더 패스
         renderTabs();
-
-        renderRawNotices();
         
         // 1초 단위로 상태표시줄 실시간 시계 동기화
         updateMockupTime();
