@@ -1,69 +1,200 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>📋 엑셀 ➡️ data.js 변환기 (v3)</title>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>📋 엑셀 ➡️ data.js 변환기 (v3.1)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+
     <style>
-        body { font-family: -apple-system, sans-serif; padding: 40px; background: #f1f5f9; }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        textarea { width: 100%; height: 200px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: monospace; font-size: 13px; }
-        button { padding: 12px 24px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        pre { background: #0f172a; color: #e2e8f0; padding: 20px; border-radius: 8px; white-space: pre-wrap; font-size: 13px; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .fill-icon { font-variation-settings: 'FILL' 1; }
     </style>
 </head>
-<body>
 
-    <h2>📋 엑셀 ➡️ data.js 변환기</h2>
-    <p style="font-size: 14px; color: #64748b;">data.js 장소 데이터 전용 변환기입니다.</p>
-    <p style="font-size: 14px; color: #64748b;">엑셀에서 각 열에 역명, 코드, 위치명, 연락처, 구역명(이미지파일 이름)을 관리 후 복사하시면 data.js에 맞는 데이터가 출력됩니다.</p>
-    
-    <div class="card">
-        <label style="font-weight: bold; display: block; margin-bottom: 10px;">📥 엑셀 데이터 붙여넣기</label>
-        <textarea id="excel-input" placeholder="아래와 같은 형식으로 복사해서 붙여넣으세요:
-가정역	211ES001	에스컬레이터 1호기	032-451-4311	211ZONE01
-가정역	211EV001	엘리베이터 1호기	032-451-4311	211ZONE02
-서해구청역	212ES001	에스컬레이터 1호기	032-451-4312	212ZONE01"></textarea>
-        <button onclick="convert()">⚡ 변환하기</button>
-    </div>
+<body class="min-h-screen flex flex-col justify-between relative bg-slate-50 overflow-x-hidden">
 
-    <div class="card" style="background: #0f172a;">
-        <pre id="output-result">결과가 여기에 표시됩니다.</pre>
-    </div>
+    <!-- 뒷배경 격자 패턴 효과 (demo.html과 일치) -->
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-35 pointer-events-none"></div>
+
+    <!-- 상단 헤더 영역 (demo.html 디자인 이식) -->
+    <header class="w-full max-w-[800px] mx-auto px-6 py-6 flex items-center justify-between border-b border-slate-200/60 relative z-10">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-indigo-600 !text-[32px]">database</span>
+            <div class="flex flex-col">
+                <h1 class="text-lg font-extrabold tracking-tight text-slate-800">📋 엑셀 ➡️ data.js 변환기 (v3.1)</h1>
+                <span class="text-xs text-slate-400 font-medium">Excel tab data compiling dashboard utility</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">Utility v3.1</span>
+        </div>
+    </header>
+
+    <!-- 메인 가공 보드 영역 -->
+    <main class="flex-grow w-full max-w-[800px] mx-auto px-6 py-8 flex flex-col gap-6 relative z-10">
+        
+        <!-- 타이틀 문구 -->
+        <div class="flex flex-col gap-2">
+            <span class="text-xs font-extrabold text-indigo-600 tracking-wider uppercase">Data Compilation</span>
+            <h2 class="text-3xl font-extrabold tracking-tight text-slate-800">엑셀 데이터 파싱 도구</h2>
+            <p class="text-sm text-slate-500 leading-relaxed">
+                엑셀에서 각 열에 <code class="font-semibold text-slate-700 bg-slate-200/50 px-1 rounded">역명 | 코드 | 위치명 | 연락처 | 구역코드</code> 규격으로 수립된 데이터를 그대로 복사하여 입력창에 주입하세요. 실내안내판 웹용 스키마 데이터 파일(<code class="font-semibold text-slate-700 bg-slate-200/50 px-1 rounded">data.js</code>) 코드가 자동으로 구성됩니다.
+            </p>
+        </div>
+
+        <!-- 1. 테스트용 샘플 영역 카드 (demo.html의 글래스카드 테두리 및 쉐도우 이식) -->
+        <div class="bg-white/70 backdrop-blur-sm rounded-2xl border border-slate-200/60 p-5 flex flex-col gap-3 shadow-sm hover:shadow-md transition-all duration-300">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-indigo-500 !text-[20px]">info</span>
+                    <span class="text-xs font-extrabold text-slate-400 tracking-wider uppercase">테스트용 엑셀 샘플 데이터 (드래그 복사 가능)</span>
+                </div>
+                <!-- 원클릭 주입 장치 -->
+                <button onclick="fillSample()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs shadow-sm border border-slate-200 transition-all duration-300 flex items-center gap-1 cursor-pointer">
+                    <span class="material-symbols-outlined !text-[14px]">file_upload</span>
+                    즉시 입력하기
+                </button>
+            </div>
+            <pre id="sample-data-block" class="bg-slate-100 text-slate-700 p-4 rounded-xl font-mono text-xs overflow-x-auto border border-slate-200/50 select-text leading-relaxed">가정역	211ES001	에스컬레이터 1호기	032-451-4311	211ZONE08
+가정역	211EV005	엘리베이터 5호기	032-451-4311	211ZONE05
+가정중앙시장역	212ES002	에스컬레이터 2호기	032-451-4312	212ZONE02</pre>
+        </div>
+
+        <!-- 2. 입력 및 가공 명령 카드 -->
+        <div class="bg-white/70 backdrop-blur-sm rounded-2xl border border-slate-200/60 p-5 flex flex-col gap-3 shadow-sm hover:shadow-md transition-all duration-300">
+            <label class="text-xs font-extrabold text-slate-400 tracking-wider uppercase flex items-center gap-2">
+                <span class="material-symbols-outlined text-indigo-500 !text-[20px]">content_paste</span>
+                엑셀 데이터 붙여넣기
+            </label>
+            <textarea id="excel-input" class="w-full h-44 p-4 border border-slate-200/60 rounded-xl font-mono text-xs bg-white/50 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all" placeholder="이곳에 복사한 데이터를 붙여넣거나 위의 '즉시 입력하기' 버튼을 눌러 테스트해 보세요."></textarea>
+            
+            <!-- 변환 및 동적 복사 연동 버튼 그룹 -->
+            <div class="flex gap-2.5 mt-1">
+                <button onclick="convert()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-md shadow-indigo-600/10 hover:shadow-lg transition-all duration-300 flex items-center gap-1.5 cursor-pointer">
+                    <span class="material-symbols-outlined !text-[16px]">bolt</span>
+                    변환하기
+                </button>
+                <button id="copy-btn" onclick="copyToClipboard()" class="hidden px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs shadow-md shadow-emerald-500/10 hover:shadow-lg transition-all duration-300 flex items-center gap-1.5 cursor-pointer">
+                    <span class="material-symbols-outlined !text-[16px]">content_copy</span>
+                    결과 복사하기
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. 결과 출력 패널 (코드 블록의 세련된 다크 감성 유지) -->
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl overflow-hidden relative group">
+            <div class="absolute top-4 right-4 opacity-30 group-hover:opacity-60 transition-opacity pointer-events-none">
+                <span class="material-symbols-outlined text-slate-400 !text-[32px]">code</span>
+            </div>
+            <pre id="output-result" class="text-indigo-200 font-mono text-xs overflow-x-auto leading-relaxed select-text">결과가 여기에 표시됩니다.</pre>
+        </div>
+        
+    </main>
+
+    <!-- 하단 푸터 영역 -->
+    <footer class="w-full max-w-[800px] mx-auto px-6 py-6 border-t border-slate-200/60 relative z-10 flex gap-2">
+        <a href="https://github.com/L2L2L2L2/2Line2" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-100 transition-all duration-300">Github</a>
+        <a href="https://2line.pages.dev/dataconv" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-100 transition-all duration-300">데이터 변환</a>
+    </footer>
 
 <script>
-function convert() {
-    const input = document.getElementById("excel-input").value.trim();
-    if (!input) return;
-
-    const lines = input.split("\n");
-    const resultObject = {};
-    let count = 0;
-
-    lines.forEach(line => {
-        const cols = line.split("\t");
-        if (cols.length >= 5) {
-            const station = cols[0].trim();
-            const id = cols[1].trim();
-            const rawTitle = cols[2].trim();
-            const phone = cols[3].trim();
-            const zone = cols[4].trim();
-
-            if (id) {
-                let fullTitle = rawTitle.startsWith(station) ? rawTitle : station + " " + rawTitle;
-                resultObject[id] = {
-                    station: station,
-                    title: fullTitle,
-                    phone: phone,
-                    image_name: zone + ".jpg"
-                };
-                count++;
-            }
+    // 샘플 입력 처리 함수
+    function fillSample() {
+        const sampleText = document.getElementById("sample-data-block").innerText;
+        const inputArea = document.getElementById("excel-input");
+        if (inputArea) {
+            inputArea.value = sampleText;
+            inputArea.focus();
         }
-    });
+    }
 
-    const finalCode = `// [장소 데이터] 총 ${count}건\nconst placeData = ${JSON.stringify(resultObject, null, 4)};`;
-    document.getElementById("output-result").innerText = finalCode;
-}
+    // 데이터 변환 가공 핵심 모듈
+    function convert() {
+        const input = document.getElementById("excel-input").value.trim();
+        if (!input) {
+            alert("데이터를 먼저 입력하거나 우측의 '즉시 입력하기' 버튼을 활용해 주세요.");
+            return;
+        }
+
+        const lines = input.split("\n");
+        const resultObject = {};
+        let count = 0;
+
+        lines.forEach(line => {
+            const cols = line.split("\t");
+            if (cols.length >= 5) {
+                const station = cols[0].trim();
+                const id = cols[1].trim();
+                const rawTitle = cols[2].trim();
+                const phone = cols[3].trim();
+                const zone = cols[4].trim();
+
+                if (id) {
+                    let fullTitle = rawTitle.startsWith(station) ? rawTitle : station + " " + rawTitle;
+                    resultObject[id] = {
+                        station: station,
+                        title: fullTitle,
+                        phone: phone,
+                        image_name: zone + ".jpg"
+                    };
+                    count++;
+                }
+            }
+        });
+
+        const finalCode = `// [장소 데이터] 총 ${count}건\nconst placeData = ${JSON.stringify(resultObject, null, 4)};`;
+        document.getElementById("output-result").innerText = finalCode;
+        
+        // 결과 존재 시 복사 버튼 동적 가시화
+        const copyBtn = document.getElementById("copy-btn");
+        if (copyBtn) {
+            copyBtn.classList.remove('hidden');
+        }
+    }
+
+    // 클립보드 복사 인터랙션 제어 모듈 (체크 아이콘 피드백 적용)
+    function copyToClipboard() {
+        const outputText = document.getElementById("output-result").innerText;
+        if (!outputText || outputText === "결과가 여기에 표시됩니다.") {
+            alert("복사할 가공 결과가 존재하지 않습니다.");
+            return;
+        }
+
+        navigator.clipboard.writeText(outputText).then(() => {
+            const copyBtn = document.getElementById("copy-btn");
+            if (copyBtn) {
+                // 원클릭 성공 알림 상태 전환
+                copyBtn.innerHTML = `
+                    <span class="material-symbols-outlined !text-[16px]">check_circle</span>
+                    복사 완료!
+                `;
+                copyBtn.classList.remove('bg-emerald-500', 'hover:bg-emerald-600');
+                copyBtn.classList.add('bg-emerald-600', 'pointer-events-none');
+
+                // 2초 후 디폴트 스타일로 조용히 원복
+                setTimeout(() => {
+                    copyBtn.innerHTML = `
+                        <span class="material-symbols-outlined !text-[16px]">content_copy</span>
+                        결과 복사하기
+                    `;
+                    copyBtn.classList.remove('bg-emerald-600', 'pointer-events-none');
+                    copyBtn.classList.add('bg-emerald-500', 'hover:bg-emerald-600');
+                }, 2000);
+            }
+        }).catch(err => {
+            console.error("클립보드 복사 에러:", err);
+            alert("클립보드 저장 실패했습니다. 하단 창의 완성된 코드를 수동 드래그 복사해 주세요.");
+        });
+    }
 </script>
 </body>
 </html>
