@@ -18,7 +18,7 @@
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         .fill-icon { font-variation-settings: 'FILL' 1; }
 
-        /* 가로 스크롤 시 브라우저 스크롤바 숨김 처리 */
+        /* 스크롤 시 브라우저 스크롤바 숨김 처리 */
         .scrollbar-none::-webkit-scrollbar {
             display: none;
         }
@@ -34,13 +34,13 @@
     <!-- 뒷배경 격자 패턴 효과 -->
     <div class="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-35 pointer-events-none"></div>
 
-    <!-- [통합 상단 헤더 영역] 동적으로 타이틀 및 네비게이션 탭이 변경됩니다 -->
+    <!-- 상단 헤더 영역 -->
     <header class="w-full max-w-[1200px] mx-auto px-6 py-6 flex items-center justify-between border-b border-slate-200/60 relative z-10">
         <div class="flex items-center gap-3">
             <span id="header-icon" class="material-symbols-outlined text-indigo-600 !text-[32px]">devices</span>
             <div class="flex flex-col">
                 <h1 id="header-title" class="text-lg font-extrabold tracking-tight text-slate-800">QRCODE를 이용한 역사 내 위치 안내</h1>
-                <span id="header-subtitle" class="text-xs text-slate-400 font-medium">QR Code-Based In-Station Navigation Guide</span>
+                <span id="header-subtitle" class="text-xs text-slate-400 font-medium">Location guide within the station using QR code</span>
             </div>
         </div>
         <div class="flex items-center gap-2 relative z-20">
@@ -283,7 +283,7 @@
         imageLoadFailed: false
     };
 
-    // [SPA 전환 제어 장치] 대시보드와 데이터 변환기 사이를 깜빡임 없이 스위칭
+    // [SPA 전환 제어 장치] 대시보드와 데이터 변환기 사이를 깜빡임 없이 스위칭 (미정의 scheduleLayout 오류 제어 완료)
     function switchView(viewName) {
         const viewShowcase = document.getElementById('view-showcase');
         const viewConverter = document.getElementById('view-converter');
@@ -305,8 +305,6 @@
             headerIcon.innerText = 'devices';
             headerTitle.innerText = 'QRCODE를 이용한 역사 내 위치 안내';
             headerSubtitle.innerText = 'QR Code-Based In-Station Navigation Guide';
-
-            scheduleLayout();
         } else if (viewName === 'converter') {
             // 데이터 변환기 뷰 로드
             viewShowcase.classList.add('hidden');
@@ -318,6 +316,33 @@
             headerIcon.innerText = 'database';
             headerTitle.innerText = '📋 엑셀 ➡️ data.js 변환기';
             headerSubtitle.innerText = 'Excel tab data compiling dashboard utility';
+        }
+    }
+
+    // [추가] 공지사항 아코디언 접고 펴는 토글 모듈
+    function toggleNoticesView() {
+        const box = document.getElementById('notices-content-box');
+        const icon = document.getElementById('notices-toggle-icon');
+        if (!box || !icon) return;
+
+        const isHidden = box.classList.contains('hidden');
+        if (isHidden) {
+            box.classList.remove('hidden');
+            icon.style.transform = 'rotate(180deg)';
+        } else {
+            box.classList.add('hidden');
+            icon.style.transform = '';
+        }
+    }
+
+    // [추가] 실시간 로드된 공지사항 코드 텍스트 렌더링 모듈
+    function renderRawNotices() {
+        const preEl = document.getElementById('notices-raw-code');
+        if (!preEl) return;
+        if (typeof noticeData !== 'undefined') {
+            preEl.innerText = `// [실시간 공지사항 데이터]\nconst noticeData = ${JSON.stringify(noticeData, null, 4)};`;
+        } else {
+            preEl.innerText = `// notices.js 데이터가 존재하지 않습니다.`;
         }
     }
 
