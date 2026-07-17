@@ -47,7 +47,7 @@
             <a href="https://github.com/L2L2L2L2/2Line2" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-100 transition-all duration-300">GitHub</a>
             <!-- 화면 전환 제어용 버튼 스위치군 -->
             <button id="nav-btn-showcase" onclick="switchView('showcase')" class="hidden text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-100 transition-all duration-300 cursor-pointer">역사별 데이터 현황</button>
-            <button id="nav-btn-converter" onclick="switchView('converter')" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-100 transition-all duration-300 cursor-pointer">데이터 변환기</button>
+            <button id="nav-btn-converter" onclick="switchView('converter')" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-100 transition-all duration-300 cursor-pointer">data.js 데이터 변환기</button>
         </div>
     </header>
 
@@ -165,10 +165,10 @@
         
         <!-- 타이틀 문구 -->
         <div class="flex flex-col gap-2">
-            <span class="text-xs font-extrabold text-indigo-600 tracking-wider uppercase">Data Compilation</span>
-            <h2 class="text-3xl font-extrabold tracking-tight text-slate-800">엑셀 데이터 파싱 도구</h2>
+            <span class="text-xs font-extrabold text-indigo-600 tracking-wider uppercase">Data Converter</span>
+            <h2 class="text-3xl font-extrabold tracking-tight text-slate-800">엑셀 데이터 변환 도구</h2>
             <p class="text-sm text-slate-500 leading-relaxed">
-                엑셀에서 각 열에 <code class="font-semibold text-slate-700 bg-slate-200/50 px-1 rounded">역명 | 코드 | 위치명 | 연락처 | 구역코드</code> 규격으로 수립된 데이터를 그대로 복사하여 입력창에 주입하세요. 실내안내판 웹용 스키마 데이터 파일(<code class="font-semibold text-slate-700 bg-slate-200/50 px-1 rounded">data.js</code>) 코드가 자동으로 구성됩니다.
+                엑셀에서 각 열에 <code class="font-semibold text-slate-700 bg-slate-200/50 px-1 rounded">역명 | 코드 | 위치명 | 연락처 | 구역코드</code> 규격으로 수립된 데이터를 그대로 복사하여 입력창에 넣어주세요. 데이터 파일(<code class="font-semibold text-slate-700 bg-slate-200/50 px-1 rounded">data.js</code>) 코드가 자동으로 구성됩니다.
             </p>
         </div>
 
@@ -228,7 +228,7 @@
 
     <!-- 하단 푸터 영역 -->
     <footer class="w-full max-w-[1200px] mx-auto px-6 py-6 border-t border-slate-200/60 relative z-10 text-center text-xs text-slate-400">
-        © 2026 인천교통공사 실내 위치 안내 쇼케이스 대시보드
+        역사 내 위치안내를 위한 제안을 목적으로 제작하였습니다.
     </footer>
 
     <!-- 글로벌 마우스 추적식 대형 QR코드 미리보기 오버레이 장치 -->
