@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>QRCODE를 이용한 역사 내 위치 안내</title>
+    <title>인천2호선 실내 위치 안내 - 통합 대시보드</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,7 @@
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         .fill-icon { font-variation-settings: 'FILL' 1; }
 
-        /* 스크롤 시 브라우저 스크롤바 숨김 처리 */
+        /* 가로 스크롤 시 브라우저 스크롤바 숨김 처리 */
         .scrollbar-none::-webkit-scrollbar {
             display: none;
         }
@@ -34,24 +34,25 @@
     <!-- 뒷배경 격자 패턴 효과 -->
     <div class="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-35 pointer-events-none"></div>
 
-    <!-- 상단 헤더 영역 -->
+    <!-- [통합 상단 헤더 영역] 동적으로 타이틀 및 네비게이션 탭이 변경됩니다 -->
     <header class="w-full max-w-[1200px] mx-auto px-6 py-6 flex items-center justify-between border-b border-slate-200/60 relative z-10">
         <div class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-indigo-600 !text-[32px]">devices</span>
+            <span id="header-icon" class="material-symbols-outlined text-indigo-600 !text-[32px]">devices</span>
             <div class="flex flex-col">
-                <h1 class="text-lg font-extrabold tracking-tight text-slate-800">QRCODE를 이용한 역사 내 위치 안내</h1>
-                <span class="text-xs text-slate-400 font-medium">Location guide within the station using QR code</span>
+                <h1 id="header-title" class="text-lg font-extrabold tracking-tight text-slate-800">QRCODE를 이용한 역사 내 위치 안내</h1>
+                <span id="header-subtitle" class="text-xs text-slate-400 font-medium">QR Code-Based In-Station Navigation Guide</span>
             </div>
         </div>
-        <div class="flex items-center gap-2">
-            <!-- <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">가정역 박경태</span> -->
+        <div class="flex items-center gap-2 relative z-20">
             <a href="https://github.com/L2L2L2L2/2Line2" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-100 transition-all duration-300">GitHub</a>
-            <a href="https://2line.pages.dev/dataconv" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-100 transition-all duration-300">데이터 변환기</a>
+            <!-- 화면 전환 제어용 버튼 스위치군 -->
+            <button id="nav-btn-showcase" onclick="switchView('showcase')" class="hidden text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-100 transition-all duration-300 cursor-pointer">역사별 데이터 현황</button>
+            <button id="nav-btn-converter" onclick="switchView('converter')" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-100 transition-all duration-300 cursor-pointer">데이터 변환기</button>
         </div>
     </header>
 
-    <!-- 메인 대시보드 영역 -->
-    <main class="flex-grow w-full max-w-[1200px] mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-12 gap-12 items-start relative z-10">
+    <!-- [뷰 ①] 역사별 데이터 현황 (Showcase View) -->
+    <main id="view-showcase" class="flex-grow w-full max-w-[1200px] mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-12 gap-12 items-start relative z-10">
         
         <!-- 좌측 제어 패널 -->
         <section class="md:col-span-7 flex flex-col gap-6">
@@ -125,7 +126,7 @@
                                     <!-- 와이파이 심볼 스케일 보정 -->
                                     <span class="material-symbols-outlined !text-[20px] font-bold">wifi</span>
                                     <!-- 배터리 바 장식 크기 및 내부 채움 보정 -->
-                                    <div class="w-[28px] h-3.5 border-[1.5px] border-slate-900 rounded-[4.5px] p-[1.5px] flex items-center relative mb-[0.5px]">
+                                    <div class="w-[28px] h-3.5 border-[1.5px] border-slate-900 rounded-[4.5px] p-[1.2px] flex items-center relative mb-[0.5px]">
                                         <div class="h-full w-[18px] bg-slate-900 rounded-[1.5px]"></div>
                                         <div class="w-[1.5px] h-1.5 bg-slate-900 absolute -right-[3px] top-1/2 -translate-y-1/2 rounded-r-[1px]"></div>
                                     </div>
@@ -159,9 +160,75 @@
         
     </main>
 
-    <!-- 하단 푸터 영역 -->
-    <footer class="w-full max-w-[1200px] mx-auto px-6 py-6 border-t border-slate-200/60 relative z-10 flex gap-2">
+    <!-- [뷰 ②] 데이터 변환기 (dataconv View) - 기본 hidden 처리 -->
+    <main id="view-converter" class="hidden flex-grow w-full max-w-[800px] mx-auto px-6 py-8 flex flex-col gap-6 relative z-10">
         
+        <!-- 타이틀 문구 -->
+        <div class="flex flex-col gap-2">
+            <span class="text-xs font-extrabold text-indigo-600 tracking-wider uppercase">Data Compilation</span>
+            <h2 class="text-3xl font-extrabold tracking-tight text-slate-800">엑셀 데이터 파싱 도구</h2>
+            <p class="text-sm text-slate-500 leading-relaxed">
+                엑셀에서 각 열에 <code class="font-semibold text-slate-700 bg-slate-200/50 px-1 rounded">역명 | 코드 | 위치명 | 연락처 | 구역코드</code> 규격으로 수립된 데이터를 그대로 복사하여 입력창에 주입하세요. 실내안내판 웹용 스키마 데이터 파일(<code class="font-semibold text-slate-700 bg-slate-200/50 px-1 rounded">data.js</code>) 코드가 자동으로 구성됩니다.
+            </p>
+        </div>
+
+        <!-- 1. 테스트용 샘플 영역 카드 -->
+        <div class="bg-white/70 backdrop-blur-sm rounded-2xl border border-slate-200/60 p-5 flex flex-col gap-3 shadow-sm hover:shadow-md transition-all duration-300">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-indigo-500 !text-[20px]">info</span>
+                    <span class="text-xs font-extrabold text-slate-400 tracking-wider uppercase">테스트용 엑셀 샘플 데이터 (드래그 복사 가능)</span>
+                </div>
+                <button onclick="fillSample()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs shadow-sm border border-slate-200 transition-all duration-300 flex items-center gap-1 cursor-pointer">
+                    <span class="material-symbols-outlined !text-[14px]">file_upload</span>
+                    즉시 입력하기
+                </button>
+            </div>
+            <pre id="sample-data-block" class="bg-slate-100 text-slate-700 p-4 rounded-xl font-mono text-xs overflow-x-auto border border-slate-200/50 select-text leading-relaxed">가정역	211ES001	에스컬레이터 1호기	032-451-4311	211ZONE08
+가정역	211EV005	엘리베이터 5호기	032-451-4311	211ZONE05
+가정중앙시장역	212ES002	에스컬레이터 2호기	032-451-4312	212ZONE02</pre>
+        </div>
+
+        <!-- 2. 입력 및 가공 명령 카드 -->
+        <div class="bg-white/70 backdrop-blur-sm rounded-2xl border border-slate-200/60 p-5 flex flex-col gap-3 shadow-sm hover:shadow-md transition-all duration-300">
+            <div class="flex justify-between items-center">
+                <label class="text-xs font-extrabold text-slate-400 tracking-wider uppercase flex items-center gap-2">
+                    <span class="material-symbols-outlined text-indigo-500 !text-[20px]">content_paste</span>
+                    엑셀 데이터 붙여넣기
+                </label>
+                <button onclick="clearInput()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl font-bold text-xs shadow-sm border border-rose-200/80 transition-all duration-300 flex items-center gap-1 cursor-pointer">
+                    <span class="material-symbols-outlined !text-[14px]">delete</span>
+                    지우기
+                </button>
+            </div>
+
+            <textarea id="excel-input" class="w-full h-44 p-4 border border-slate-200/60 rounded-xl font-mono text-xs bg-white/50 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all" placeholder="이곳에 복사한 데이터를 붙여넣거나 위의 '즉시 입력하기' 버튼을 눌러 테스트해 보세요."></textarea>
+            
+            <div class="flex justify-end gap-2.5 mt-1">
+                <button onclick="convert()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-md shadow-indigo-600/10 hover:shadow-lg transition-all duration-300 flex items-center gap-1.5 cursor-pointer">
+                    <span class="material-symbols-outlined !text-[16px]">bolt</span>
+                    변환하기
+                </button>
+                <button id="copy-btn" onclick="copyToClipboard()" class="hidden px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs shadow-md shadow-emerald-500/10 hover:shadow-lg transition-all duration-300 flex items-center gap-1.5 cursor-pointer">
+                    <span class="material-symbols-outlined !text-[16px]">content_copy</span>
+                    결과 복사하기
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. 결과 출력 패널 -->
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl overflow-hidden relative group">
+            <div class="absolute top-4 right-4 opacity-30 group-hover:opacity-60 transition-opacity pointer-events-none">
+                <span class="material-symbols-outlined text-slate-400 !text-[32px]">code</span>
+            </div>
+            <pre id="output-result" class="text-indigo-200 font-mono text-xs overflow-x-auto leading-relaxed select-text">결과가 여기에 표시됩니다.</pre>
+        </div>
+        
+    </main>
+
+    <!-- 하단 푸터 영역 -->
+    <footer class="w-full max-w-[1200px] mx-auto px-6 py-6 border-t border-slate-200/60 relative z-10 text-center text-xs text-slate-400">
+        © 2026 인천교통공사 실내 위치 안내 쇼케이스 대시보드
     </footer>
 
     <!-- 글로벌 마우스 추적식 대형 QR코드 미리보기 오버레이 장치 -->
@@ -198,6 +265,44 @@
         imageLoadFailed: false
     };
 
+    // [SPA 전환 제어 장치] 대시보드와 데이터 변환기 사이를 깜빡임 없이 스위칭
+    function switchView(viewName) {
+        const viewShowcase = document.getElementById('view-showcase');
+        const viewConverter = document.getElementById('view-converter');
+        const navShowcase = document.getElementById('nav-btn-showcase');
+        const navConverter = document.getElementById('nav-btn-converter');
+        
+        const headerIcon = document.getElementById('header-icon');
+        const headerTitle = document.getElementById('header-title');
+        const headerSubtitle = document.getElementById('header-subtitle');
+
+        if (viewName === 'showcase') {
+            // 시뮬레이터 뷰 로드
+            viewShowcase.classList.remove('hidden');
+            viewConverter.classList.add('hidden');
+            
+            navShowcase.classList.add('hidden');
+            navConverter.classList.remove('hidden');
+
+            headerIcon.innerText = 'devices';
+            headerTitle.innerText = 'QRCODE를 이용한 역사 내 위치 안내';
+            headerSubtitle.innerText = 'QR Code-Based In-Station Navigation Guide';
+
+            scheduleLayout();
+        } else if (viewName === 'converter') {
+            // 데이터 변환기 뷰 로드
+            viewShowcase.classList.add('hidden');
+            viewConverter.classList.remove('hidden');
+
+            navShowcase.classList.remove('hidden');
+            navConverter.classList.add('hidden');
+
+            headerIcon.innerText = 'database';
+            headerTitle.innerText = '📋 엑셀 ➡️ data.js 변환기 (v3.1)';
+            headerSubtitle.innerText = 'Excel tab data compiling dashboard utility';
+        }
+    }
+
     // 실시간 목업 기기 상단 시계 업데이트
     function updateMockupTime() {
         const timeEl = document.getElementById('mockup-time');
@@ -225,47 +330,47 @@
 
     // data.js 원본 데이터를 분석하여 탭 및 데이터 그룹 생성
     function processPlaceData() {
-    if (typeof placeData === 'undefined') {
-        console.error('placeData가 존재하지 않거나 로드되지 않았습니다.');
-        return;
-    }
-
-    const stationPrefixes = {}; // 각 역별 앞 3자리 접두사를 임시 매핑할 저장소
-
-    Object.keys(placeData).forEach(id => {
-        const item = placeData[id];
-        const station = item.station || '미정역';
-        const prefix = id.slice(0, 3); // "211ES001" 과 같은 placeData의 앞 3자리 추출
-
-        // 각 역명별로 발견되는 가장 앞선 접두사(일련번호) 기록
-        if (!stationPrefixes[station] || prefix < stationPrefixes[station]) {
-            stationPrefixes[station] = prefix;
+        if (typeof placeData === 'undefined') {
+            console.error('placeData가 존재하지 않거나 로드되지 않았습니다.');
+            return;
         }
 
-        if (!AppState.itemsByStation[station]) {
-            AppState.itemsByStation[station] = [];
-            AppState.stations.push(station);
-        }
+        const stationPrefixes = {}; // 각 역별 앞 3자리 접두사를 임시 매핑할 저장소
 
-        AppState.itemsByStation[station].push({
-            id: id,
-            title: item.title || id,
-            type: detectType(id, item.title || ''),
-            station: station
+        Object.keys(placeData).forEach(id => {
+            const item = placeData[id];
+            const station = item.station || '미정역';
+            const prefix = id.slice(0, 3); // "211ES001" 과 같은 placeData의 앞 3자리 추출
+
+            // 각 역명별로 발견되는 가장 앞선 접두사(일련번호) 기록
+            if (!stationPrefixes[station] || prefix < stationPrefixes[station]) {
+                stationPrefixes[station] = prefix;
+            }
+
+            if (!AppState.itemsByStation[station]) {
+                AppState.itemsByStation[station] = [];
+                AppState.stations.push(station);
+            }
+
+            AppState.itemsByStation[station].push({
+                id: id,
+                title: item.title || id,
+                type: detectType(id, item.title || ''),
+                station: station
+            });
         });
-    });
 
-    // 단순 가나다순 대신 각 역명의 대표 앞 3자리 고유 코드 번호순(오름차순)으로 최종 정렬
-    AppState.stations.sort((a, b) => {
-        const prefixA = stationPrefixes[a] || '999';
-        const prefixB = stationPrefixes[b] || '999';
-        return prefixA.localeCompare(prefixB);
-    });
+        // 단순 가나다순 대신 각 역명의 대표 앞 3자리 고유 코드 번호순(오름차순)으로 최종 정렬
+        AppState.stations.sort((a, b) => {
+            const prefixA = stationPrefixes[a] || '999';
+            const prefixB = stationPrefixes[b] || '999';
+            return prefixA.localeCompare(prefixB);
+        });
 
-    if (AppState.stations.length > 0) {
-        AppState.activeStation = AppState.stations[0];
+        if (AppState.stations.length > 0) {
+            AppState.activeStation = AppState.stations[0];
+        }
     }
-}
 
     // 상단 역사 탭 컴포넌트 렌더링
     function renderTabs() {
@@ -426,6 +531,108 @@
         if (AppState.activeId) {
             window.open(`${CONFIG.BASE_FILE}?id=${AppState.activeId}`, '_blank', 'noopener,noreferrer');
         }
+    }
+
+    // 엑셀 변환기 샘플 데이터 주입 모듈
+    function fillSample() {
+        const sampleText = document.getElementById("sample-data-block").innerText;
+        const inputArea = document.getElementById("excel-input");
+        if (inputArea) {
+            inputArea.value = sampleText;
+            inputArea.focus();
+        }
+    }
+
+    // 엑셀 변환기 붙여넣기 입력창 초기화 및 결과 환원 모듈
+    function clearInput() {
+        const inputArea = document.getElementById("excel-input");
+        if (inputArea) {
+            inputArea.value = "";
+            inputArea.focus();
+        }
+        
+        document.getElementById("output-result").innerText = "결과가 여기에 표시됩니다.";
+        
+        const copyBtn = document.getElementById("copy-btn");
+        if (copyBtn) {
+            copyBtn.classList.add('hidden');
+        }
+    }
+
+    // 엑셀 변환기 파싱 및 데이터 구성 모듈
+    function convert() {
+        const input = document.getElementById("excel-input").value.trim();
+        if (!input) {
+            alert("데이터를 먼저 입력하거나 우측의 '즉시 입력하기' 버튼을 활용해 주세요.");
+            return;
+        }
+
+        const lines = input.split("\n");
+        const resultObject = {};
+        let count = 0;
+
+        lines.forEach(line => {
+            const cols = line.split("\t");
+            if (cols.length >= 5) {
+                const station = cols[0].trim();
+                const id = cols[1].trim();
+                const rawTitle = cols[2].trim();
+                const phone = cols[3].trim();
+                const zone = cols[4].trim();
+
+                if (id) {
+                    let fullTitle = rawTitle.startsWith(station) ? rawTitle : station + " " + rawTitle;
+                    resultObject[id] = {
+                        station: station,
+                        title: fullTitle,
+                        phone: phone,
+                        image_name: zone + ".jpg"
+                    };
+                    count++;
+                }
+            }
+        });
+
+        const finalCode = `// [장소 데이터] 총 ${count}건\nconst placeData = ${JSON.stringify(resultObject, null, 4)};`;
+        document.getElementById("output-result").innerText = finalCode;
+        
+        const copyBtn = document.getElementById("copy-btn");
+        if (copyBtn) {
+            copyBtn.classList.remove('hidden');
+        }
+    }
+
+    // 엑셀 변환기 결과 복사 클립보드 제어 모듈 (복사 완료 피드백 포함)
+    function copyToClipboard() {
+        const outputText = document.getElementById("output-result").innerText;
+        if (!outputText || outputText === "결과가 여기에 표시됩니다.") {
+            alert("복사할 변환 결과물이 존재하지 않습니다.");
+            return;
+        }
+
+        navigator.clipboard.writeText(outputText).then(() => {
+            const copyBtn = document.getElementById("copy-btn");
+            if (copyBtn) {
+                copyBtn.innerHTML = `
+                    <span class="material-symbols-outlined !text-[16px]">check_circle</span>
+                    복사 완료!
+                `;
+                copyBtn.classList.remove('bg-emerald-500', 'hover:bg-emerald-600');
+                copyBtn.classList.add('bg-emerald-600', 'pointer-events-none');
+
+                setTimeout(() => {
+                    copyBtn.innerHTML = `
+                        <span class="material-symbols-outlined !text-[16px]">content_copy</span>
+                        결과 복사하기
+                    `;
+                    copyBtn.classList.remove('bg-emerald-600', 'pointer-events-none');
+                    copyBtn.classList.add('bg-emerald-500', 'hover:bg-emerald-600');
+                }, 2000);
+            }
+        }).catch(err => {
+            console.error("클립보드 복사 에러:", err);
+            alert("클립보드 저장 실패했습니다. 하단 창의 완성된 코드를 수동 드래그 복사해 주세요.");
+        });
     }
 
     function init() {
