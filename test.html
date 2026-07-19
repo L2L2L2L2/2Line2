@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
-    <title>인천2호선 실내 위치 안내</title>
+    <title>역사 내 위치 안내 서비스</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -138,7 +138,8 @@
                 <div class="flex-shrink-0 bg-white/20 w-9 h-9 rounded-xl flex items-center justify-center shadow-inner">
                     <span class="material-symbols-outlined text-[18px] text-white fill-icon" style="font-variation-settings: 'FILL' 1;">location_on</span>
                 </div>
-                <div class="flex flex-col overflow-hidden text-[15px] text-white/80 leading-normal tracking-tight font-medium">
+                <!-- [수정] 자막 수집 범위 제한을 위해 flex-col 상자에 전용 ID(place-desc-sub) 부여 -->
+                <div id="place-desc-sub" class="flex flex-col overflow-hidden text-[15px] text-white/80 leading-normal tracking-tight font-medium">
                     <span class="single-line-fit auto-fit-text">현재 고객님의 위치를 알려드립니다.</span>
                     <span class="single-line-fit auto-fit-text">도움이 필요하시면 하단의 버튼을 이용해 주세요.</span>
                 </div>
@@ -148,6 +149,10 @@
         <div id="map-box" class="bg-white/60 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden border border-white/40">
             <div id="map-aspect-box" class="relative w-full aspect-[1.15] bg-white/20 overflow-hidden">
                 <img id="place-img" alt="위치 지도" class="w-full h-full object-contain scale-[1.01]" src="">
+                
+                <!-- [복원] 누락되었던 유튜브 전용 동영상 플레이어 아이프레임(Iframe) 태그 복원 삽입 -->
+                <iframe id="place-video" class="hidden absolute inset-0 w-full h-full" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
                 <!-- 지도 로딩 실패 대처 영역 -->
                 <div id="map-placeholder" class="hidden absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-slate-50/80">
                     <span class="material-symbols-outlined text-slate-400 !text-[44px] mb-2">broken_image</span>
@@ -208,6 +213,7 @@
         mapPlaceholder: '#map-placeholder',
         mapAspectBox: '#map-aspect-box',
         placeDescBox: '#place-desc-box',
+        placeDescSub: '#place-desc-sub', // 자막 상자 전용 선택자 추가
         btnOpenMap: '#btn-open-map',
         errorNoticeBox: '#error-notice-box'
     };
@@ -296,7 +302,7 @@
         if (!place) return;
 
         if (place.video_id) {
-            // 비디오인 경우 유튜브 웹사이트 새창 연결 [3]
+            // 비디오인 경우 유튜브 웹사이트 새창 연결
             window.open(`https://www.youtube.com/watch?v=${place.video_id}`, '_blank', 'noopener,noreferrer');
             return;
         }
@@ -319,7 +325,7 @@
         const box = UI.mapAspectBox;
         if (!place || !box) return;
 
-        // 유튜브 동영상 콘텐츠인 경우 16:9 표준 규격 비율로 고정 [3]
+        // 유튜브 동영상 콘텐츠인 경우 16:9 표준 규격 비율로 고정
         if (place.video_id) {
             box.style.aspectRatio = '16 / 9';
             return;
@@ -397,8 +403,8 @@
         }
         DOM.setText(UI.placeDesc, place.title || '');
 
-        // [동적 안내문 보정] 공통 교육용 동영상 컨텐츠의 경우 안내 메세지를 유연하게 변경 (.flex-col span 선택자로 교정 완료) [2]
-        const subTexts = UI.placeDescBox?.querySelectorAll('.flex-col span');
+        // [동적 안내문 보정] 미니 핀 아이콘 파괴 방지를 위해 ID 선택자(placeDescSub) 내부의 span만 수집하도록 교정 완료
+        const subTexts = UI.placeDescSub?.querySelectorAll('span');
         if (subTexts && subTexts.length >= 2) {
             if (place.video_id) {
                 DOM.setText(subTexts[0], "안전 교육 가이드를 제공해 드립니다.");
