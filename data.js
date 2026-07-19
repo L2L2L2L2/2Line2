@@ -486,36 +486,6 @@ const placeData = {
         "phone": "032-451-4312",
         "image_name": "212ZONE01.jpg"
     },
-    "210EXIT001": {
-        "station": "서해구청역",
-        "title": "서해구청역 1번 출구",
-        "phone": "032-451-4310",
-        "image_name": "210ZONE01.jpg"
-    },
-    "210EXIT002": {
-        "station": "서해구청역",
-        "title": "서해구청역 2번 출구",
-        "phone": "032-451-4310",
-        "image_name": "210ZONE01.jpg"
-    },
-    "210EXIT003": {
-        "station": "서해구청역",
-        "title": "서해구청역 3번 출구",
-        "phone": "032-451-4310",
-        "image_name": "210ZONE02.jpg"
-    },
-    "210EXIT004": {
-        "station": "서해구청역",
-        "title": "서해구청역 4번 출구",
-        "phone": "032-451-4310",
-        "image_name": "210ZONE03.jpg"
-    },
-    "210TOILET001": {
-        "station": "서해구청역",
-        "title": "서해구청역 화장실",
-        "phone": "032-451-4310",
-        "image_name": "210ZONE03.jpg"
-    },
     "210ES001": {
         "station": "서해구청역",
         "title": "서해구청역 에스컬레이터 1호기",
@@ -599,5 +569,35 @@ const placeData = {
         "title": "서해구청역 엘리베이터 4호기",
         "phone": "032-451-4310",
         "image_name": "210ZONE02.jpg"
+    },
+    "210EXIT001": {
+        "station": "서해구청역",
+        "title": "서해구청역 1번 출구",
+        "phone": "032-451-4310",
+        "image_name": "210ZONE01.jpg"
+    },
+    "210EXIT002": {
+        "station": "서해구청역",
+        "title": "서해구청역 2번 출구",
+        "phone": "032-451-4310",
+        "image_name": "210ZONE01.jpg"
+    },
+    "210EXIT003": {
+        "station": "서해구청역",
+        "title": "서해구청역 3번 출구",
+        "phone": "032-451-4310",
+        "image_name": "210ZONE02.jpg"
+    },
+    "210EXIT004": {
+        "station": "서해구청역",
+        "title": "서해구청역 4번 출구",
+        "phone": "032-451-4310",
+        "image_name": "210ZONE03.jpg"
+    },
+    "210TOILET001": {
+        "station": "서해구청역",
+        "title": "서해구청역 화장실",
+        "phone": "032-451-4310",
+        "image_name": "210ZONE03.jpg"
     }
 };
