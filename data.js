@@ -1,5 +1,11 @@
 // [장소 데이터] 총 100건
 const placeData = {
+    "airpack": {
+        "station": "공통 안전 가이드",
+        "title": "공기호흡기 사용법",
+        "phone": "032-451-4446",
+        "video_id": "Xm4MCl_Q25U" // 여기에 유튜브 영상 고유 ID만 입력합니다 (예: "Xm4MCl_Q25U")
+    },
     "211ES001": {
         "station": "가정역",
         "title": "가정역 에스컬레이터 1호기",
