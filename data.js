@@ -1,4 +1,4 @@
-// [장소 데이터] 총 86건
+// [장소 데이터] 총 100건
 const placeData = {
     "211ES001": {
         "station": "가정역",
@@ -515,5 +515,89 @@ const placeData = {
         "title": "서해구청역 화장실",
         "phone": "032-451-4310",
         "image_name": "210ZONE03.jpg"
+    },
+    "210ES001": {
+        "station": "서해구청역",
+        "title": "서해구청역 에스컬레이터 1호기",
+        "phone": "032-451-4310",
+        "image_name": "210ZONE06.jpg"
+    },
+    "210ES002": {
+        "station": "서해구청역",
+        "title": "서해구청역 에스컬레이터 2호기",
+        "phone": "032-451-4310",
+        "image_name": "210ZONE07.jpg"
+    },
+    "210ES003": {
+        "station": "서해구청역",
+        "title": "서해구청역 에스컬레이터 3호기",
+        "phone": "032-451-4310",
+        "image_name": "210ZONE06.jpg"
+    },
+    "210ES004": {
+        "station": "서해구청역",
+        "title": "서해구청역 에스컬레이터 4호기",
+        "phone": "032-451-4310",
+        "image_name": "210ZONE08.jpg"
+    },
+    "210ES005": {
+        "station": "서해구청역",
+        "title": "서해구청역 에스컬레이터 5호기",
+        "phone": "032-451-4310",
+        "image_name": "210ZONE06.jpg"
+    },
+    "210ES006": {
+        "station": "서해구청역",
+        "title": "서해구청역 에스컬레이터 6호기",
+        "phone": "032-451-4310",
+        "image_name": "210ZONE04.jpg"
+    },
+    "210ES007": {
+        "station": "서해구청역",
+        "title": "서해구청역 에스컬레이터 7호기",
+        "phone": "032-451-4310",
+        "image_name": "210ZONE01.jpg"
+    },
+    "210ES008": {
+        "station": "서해구청역",
+        "title": "서해구청역 에스컬레이터 8호기",
+        "phone": "032-451-4310",
+        "image_name": "210ZONE01.jpg"
+    },
+    "210ES009": {
+        "station": "서해구청역",
+        "title": "서해구청역 에스컬레이터 9호기",
+        "phone": "032-451-4310",
+        "image_name": "210ZONE03.jpg"
+    },
+    "210ES010": {
+        "station": "서해구청역",
+        "title": "서해구청역 에스컬레이터 10호기",
+        "phone": "032-451-4310",
+        "image_name": "210ZONE03.jpg"
+    },
+    "210EL001": {
+        "station": "서해구청역",
+        "title": "서해구청역 엘리베이터 1호기",
+        "phone": "032-451-4310",
+        "image_name": "210ZONE07.jpg"
+    },
+    "210EL002": {
+        "station": "서해구청역",
+        "title": "서해구청역 엘리베이터 2호기",
+        "phone": "032-451-4310",
+        "image_name": "210ZONE08.jpg"
+    },
+    "210EL003": {
+        "station": "서해구청역",
+        "title": "서해구청역 엘리베이터 3호기",
+        "phone": "032-451-4310",
+        "image_name": "210ZONE01.jpg"
+    },
+    "210EL004": {
+        "station": "서해구청역",
+        "title": "서해구청역 엘리베이터 4호기",
+        "phone": "032-451-4310",
+        "image_name": "210ZONE02.jpg"
     }
 };
