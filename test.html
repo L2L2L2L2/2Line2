@@ -115,7 +115,7 @@
             </div>
         </div>
 
-        <!-- 데이터 오류 알림 글래스카드 영역 -->
+        <!-- 데이터 오류 알림 글래스카드 영역 추가 -->
         <div id="error-notice-box" class="hidden glass-card p-4 rounded-2xl flex items-start gap-3">
             <span class="material-symbols-outlined text-rose-600 text-[24px]">error</span>
             <div class="flex flex-col w-full">
@@ -127,11 +127,14 @@
             </div>
         </div>
         
-        <!-- [레이아웃 수직 2단 개편] -->
+        <!-- [레이아웃 수직 2단 구조] -->
         <div id="place-desc-box" class="location-gradient-glass text-white p-5 rounded-3xl flex flex-col gap-3 shadow-lg">
+            <!-- 1단: 가로 영역 전체를 활용하는 대형 폰트의 기기명 타이틀 -->
             <p id="place-desc" class="single-line-fit text-[24px] leading-tight font-extrabold text-white tracking-tight my-0.5 auto-fit-text"></p>
             
+            <!-- 2단: 슬림한 기기 아이콘 및 2줄의 위치 알림 보조 안내문 -->
             <div class="flex items-center gap-3 w-full overflow-hidden">
+                <!-- 미니멀한 rounded-xl과 w-9 h-9의 세련된 컴팩트 아이콘 보정 -->
                 <div class="flex-shrink-0 bg-white/20 w-9 h-9 rounded-xl flex items-center justify-center shadow-inner">
                     <span class="material-symbols-outlined text-[18px] text-white fill-icon" style="font-variation-settings: 'FILL' 1;">location_on</span>
                 </div>
@@ -142,15 +145,9 @@
             </div>
         </div>
         
-        <!-- 미디어 카드 영역 -->
         <div id="map-box" class="bg-white/60 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden border border-white/40">
             <div id="map-aspect-box" class="relative w-full aspect-[1.15] bg-white/20 overflow-hidden">
-                <!-- 일반 뷰: 이미지 지도 -->
                 <img id="place-img" alt="위치 지도" class="w-full h-full object-contain scale-[1.01]" src="">
-                
-                <!-- [수정] 비디오 전용 뷰: 유튜브 플레이어 연동 프레임 (기본 숨김) -->
-                <iframe id="place-video" class="hidden absolute inset-0 w-full h-full" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-
                 <!-- 지도 로딩 실패 대처 영역 -->
                 <div id="map-placeholder" class="hidden absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-slate-50/80">
                     <span class="material-symbols-outlined text-slate-400 !text-[44px] mb-2">broken_image</span>
@@ -299,7 +296,7 @@
         if (!place) return;
 
         if (place.video_id) {
-            // 비디오인 경우 유튜브 웹사이트 새창 연결
+            // 비디오인 경우 유튜브 웹사이트 새창 연결 [3]
             window.open(`https://www.youtube.com/watch?v=${place.video_id}`, '_blank', 'noopener,noreferrer');
             return;
         }
@@ -400,8 +397,8 @@
         }
         DOM.setText(UI.placeDesc, place.title || '');
 
-        // [동적 안내문 보정] 공통 교육용 동영상 컨텐츠의 경우 안내 메세지를 유연하게 변경
-        const subTexts = UI.placeDescBox?.querySelectorAll('span');
+        // [동적 안내문 보정] 공통 교육용 동영상 컨텐츠의 경우 안내 메세지를 유연하게 변경 (.flex-col span 선택자로 교정 완료) [2]
+        const subTexts = UI.placeDescBox?.querySelectorAll('.flex-col span');
         if (subTexts && subTexts.length >= 2) {
             if (place.video_id) {
                 DOM.setText(subTexts[0], "안전 교육 가이드를 제공해 드립니다.");
