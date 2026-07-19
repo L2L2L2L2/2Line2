@@ -4,7 +4,7 @@ const placeData = {
         "station": "공통 안전 가이드",
         "title": "공기호흡기 사용법",
         "phone": "032-451-4446",
-        "video_id": "Xm4MCl_Q25U" // 여기에 유튜브 영상 고유 ID만 입력합니다 (예: "Xm4MCl_Q25U")
+        "video_id": "6qK51uAtdnk" // 여기에 유튜브 영상 고유 ID만 입력합니다 (예: "Xm4MCl_Q25U")
     },
     "211ES001": {
         "station": "가정역",
