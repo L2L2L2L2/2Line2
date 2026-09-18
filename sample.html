@@ -1,0 +1,2098 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>열차 운전실 A필러 조작반 훈련 시뮬레이터</title>
+  <style>
+    /* ==========================================================================
+       [기본 리셋 및 디자인 토큰]
+       ========================================================================== */
+    :root {
+      --bg-metal-dark: #16181b;
+      --bg-panel: #202428;
+      --bg-panel-sub: #1a1d21;
+      --border-metal: #383e46;
+      --border-highlight: #4f5763;
+      --text-main: #f0f3f6;
+      --text-dim: #9aa0a6;
+      --text-warning: #ffcc00;
+      --text-danger: #ff4d4d;
+      --text-success: #00e676;
+      
+      --btn-red: #d32f2f;
+      --btn-red-active: #9a0007;
+      --btn-green: #2e7d32;
+      --btn-green-active: #1b5e20;
+      --btn-yellow: #f57f17;
+      
+      --gauge-rim: #2d3238;
+      --gauge-face: #0e1012;
+      --needle-mr: #e0e0e0;
+      --needle-bc: #ff3333;
+      
+      --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #0b0c0e;
+      font-family: var(--font-stack);
+      color: var(--text-main);
+      touch-action: manipulation;
+    }
+
+    /* 최상위 컨테이너: 9:16 ~ 9:20 모바일 뷰 고정 */
+    #app-container {
+      width: 100%;
+      max-width: 440px;
+      height: 100vh;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-metal-dark);
+      position: relative;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
+      border-left: 1px solid #2a2e34;
+      border-right: 1px solid #2a2e34;
+    }
+
+    /* ==========================================================================
+       [1. 상단 HUD 영역]
+       ========================================================================== */
+    #hud-header {
+      background: linear-gradient(180deg, #22262c 0%, #17191d 100%);
+      border-bottom: 2px solid #333940;
+      padding: 8px 12px 6px;
+      z-index: 50;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+
+    .mode-tab-container {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 7px 0;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid #3a414a;
+      border-radius: 4px;
+      background: #252a30;
+      color: var(--text-dim);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: #39424e;
+      color: #fff;
+      border-color: #5c6878;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 2px 5px rgba(0,0,0,0.4);
+    }
+
+    .tab-btn.active.record-tab {
+      background: #4a1515;
+      border-color: #e53935;
+      color: #ffcdd2;
+    }
+
+    /* 상태 표시창 */
+    #status-display {
+      background: #0d0f12;
+      border: 1px solid #2e353d;
+      border-radius: 4px;
+      padding: 8px 10px;
+      min-height: 52px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+
+    #status-display.feedback-success {
+      border-color: var(--text-success);
+      background: #092113;
+    }
+
+    #status-display.feedback-error {
+      border-color: var(--text-danger);
+      background: #270f0f;
+    }
+
+    .hud-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3px;
+    }
+
+    .step-badge {
+      font-size: 11px;
+      font-weight: 800;
+      background: #343b44;
+      color: #79c0ff;
+      padding: 2px 6px;
+      border-radius: 3px;
+      letter-spacing: 0.5px;
+    }
+
+    .rec-indicator {
+      display: none;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #ff4d4d;
+    }
+
+    .rec-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ff4d4d;
+      animation: recBlink 1s infinite ease-in-out;
+    }
+
+    @keyframes recBlink {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.2; transform: scale(0.85); }
+    }
+
+    .rec-save-btn {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 3px;
+      background: #c62828;
+      border: 1px solid #ef5350;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .instruction-text {
+      font-size: 13.5px;
+      font-weight: 600;
+      line-height: 1.35;
+      color: #fff;
+      white-space: normal;
+      word-break: keep-all;
+    }
+
+    /* ==========================================================================
+       [2. 중앙 메탈 패널 영역]
+       ========================================================================== */
+    #panel-scroller {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 12px 10px 75px; /* 하단 툴바 여백 */
+      background:
+        radial-gradient(circle at 50% 20%, #2a2f36 0%, #1c1f24 80%),
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0, rgba(255,255,255,0.01) 1px, transparent 0, transparent 4px);
+    }
+
+    /* 모듈 단위 플레이트 */
+    .module-plate {
+      background: linear-gradient(170deg, #282d33 0%, #1d2126 100%);
+      border: 1px solid var(--border-metal);
+      border-radius: 6px;
+      box-shadow: 
+        inset 1px 1px 0 rgba(255, 255, 255, 0.08),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.5),
+        0 4px 10px rgba(0, 0, 0, 0.6);
+      margin-bottom: 12px;
+      padding: 12px;
+      position: relative;
+    }
+
+    /* 패널 볼트 나사 장식 */
+    .screw {
+      position: absolute;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #5b6571 30%, #20242a 90%);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.8), inset 0 0.5px 0.5px rgba(255,255,255,0.4);
+    }
+    .screw::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 20%;
+      width: 60%;
+      height: 1px;
+      background: #111;
+      transform: translateY(-50%) rotate(40deg);
+    }
+    .screw.tl { top: 4px; left: 4px; }
+    .screw.tr { top: 4px; right: 4px; }
+    .screw.bl { bottom: 4px; left: 4px; }
+    .screw.br { bottom: 4px; right: 4px; }
+
+    /* 플레이트 상단 한글 명판 */
+    .plate-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #adb5bd;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding-bottom: 4px;
+    }
+
+    .plate-row {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    /* 힌트 강조 애니메이션 */
+    .hint-highlight {
+      outline: 3px dashed #ffd600 !important;
+      outline-offset: 4px;
+      animation: hintPulse 1s infinite alternate;
+    }
+
+    @keyframes hintPulse {
+      0% { box-shadow: 0 0 4px #ffd600; }
+      100% { box-shadow: 0 0 18px #ffd600; }
+    }
+
+    /* ==========================================================================
+       [3. 부품 상세 스타일링]
+       ========================================================================== */
+    
+    /* --- 부품 1: 공기 압력계 (듀얼 게이지) --- */
+    .gauge-wrapper {
+      width: 170px;
+      height: 170px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .gauge-dial {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle, #1a1e22 55%, #0d0f12 100%);
+      border: 6px solid #363d46;
+      box-shadow: 
+        inset 0 0 15px rgba(0,0,0,0.9),
+        0 4px 10px rgba(0,0,0,0.7);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gauge-svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(0deg);
+    }
+
+    .gauge-needle {
+      position: absolute;
+      width: 3px;
+      height: 68px;
+      bottom: 50%;
+      left: calc(50% - 1.5px);
+      transform-origin: bottom center;
+      border-radius: 2px 2px 0 0;
+      transition: transform 0.65s cubic-bezier(0.25, 1, 0.5, 1);
+      z-index: 5;
+    }
+
+    .gauge-needle.mr {
+      background: var(--needle-mr);
+      height: 66px;
+      box-shadow: 0 0 3px rgba(255,255,255,0.4);
+    }
+
+    .gauge-needle.bc {
+      background: var(--needle-bc);
+      height: 60px;
+      box-shadow: 0 0 4px rgba(255,0,0,0.7);
+      z-index: 6;
+    }
+
+    .gauge-cap {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #8f98a3 20%, #202428 90%);
+      border: 1px solid #111;
+      z-index: 10;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    }
+
+    .gauge-legend {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .legend-box {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    /* --- 부품 2: 비상제동체결 (Mushroom Latch) --- */
+    .switch-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .unit-nameplate {
+      font-size: 12px;
+      font-weight: 800;
+      color: #e2e8f0;
+      margin-top: 8px;
+      text-align: center;
+      letter-spacing: -0.2px;
+    }
+
+    .unit-state-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-warning);
+      margin-top: 2px;
+    }
+
+    .mushroom-base {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #f9a825 50%, #c17900 95%);
+      border: 4px solid #1a1d20;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.7), inset 0 2px 3px rgba(255,255,255,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .mushroom-cap {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #ff5252 0%, #d32f2f 60%, #850000 100%);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.8), inset 0 3px 5px rgba(255,255,255,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+      text-align: center;
+      line-height: 1.15;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+      border: 2px solid #570000;
+      transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.12s, filter 0.12s;
+    }
+
+    /* 체결(LATCHED) 시 쑥 들어간 상태 */
+    .mushroom-base.latched .mushroom-cap {
+      transform: scale(0.85);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.9), inset 0 4px 8px rgba(0,0,0,0.7);
+      filter: brightness(0.8);
+      border-color: #380000;
+    }
+
+    /* --- 부품 3 & 4: 보호커버 및 비상제동완해 푸시버튼 --- */
+    .cover-station {
+      width: 90px;
+      height: 96px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      perspective: 700px;
+    }
+
+    .push-btn-inner {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #38bdf8 0%, #0284c7 65%, #034f78 100%);
+      border: 3px solid #182635;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.7), inset 0 2px 4px rgba(255,255,255,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      text-align: center;
+      line-height: 1.15;
+      cursor: pointer;
+      transition: transform 0.08s, box-shadow 0.08s;
+    }
+
+    .push-btn-inner.pressed {
+      transform: scale(0.91);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.8), inset 0 3px 6px rgba(0,0,0,0.8);
+      filter: brightness(0.85);
+    }
+
+    .flip-cover {
+      position: absolute;
+      top: 10px;
+      width: 78px;
+      height: 78px;
+      border-radius: 8px;
+      background: rgba(255, 179, 0, 0.35);
+      border: 2px solid #ffb300;
+      backdrop-filter: blur(1.5px);
+      -webkit-backdrop-filter: blur(1.5px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.4);
+      transform-origin: top center;
+      transition: transform 0.35s cubic-bezier(0.3, 1.4, 0.5, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 15;
+    }
+
+    /* 위험 경고 줄무늬 */
+    .flip-cover::before {
+      content: "";
+      position: absolute;
+      inset: 2px;
+      border-radius: 6px;
+      background: repeating-linear-gradient(-45deg, rgba(0,0,0,0.25) 0, rgba(0,0,0,0.25) 6px, transparent 6px, transparent 12px);
+      pointer-events: none;
+    }
+
+    .cover-label {
+      font-size: 10px;
+      font-weight: 900;
+      color: #fff;
+      background: rgba(0,0,0,0.65);
+      padding: 2px 4px;
+      border-radius: 3px;
+      text-shadow: 0 1px 2px #000;
+      z-index: 2;
+    }
+
+    /* 커버 열림 상태 */
+    .flip-cover.opened {
+      transform: rotateX(-120deg);
+      box-shadow: 0 12px 14px rgba(0,0,0,0.3);
+    }
+
+    /* 커버 닫기 탭 */
+    .cover-close-tab {
+      display: none;
+      position: absolute;
+      top: -22px;
+      right: 2px;
+      background: #e53935;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 3px;
+      border: 1px solid #ff867c;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.6);
+      cursor: pointer;
+      z-index: 20;
+    }
+    .cover-close-tab.visible {
+      display: block;
+    }
+
+    /* --- 부품 5 & 6: 2단 로터리 스위치 --- */
+    .rotary-unit {
+      width: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .rotary-dial-plate {
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #2a2f35 60%, #17191d 100%);
+      border: 2px solid #3c434d;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.15);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .rotary-knob {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #111 0%, #292d32 100%);
+      border: 2px solid #474f5a;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.8);
+      position: relative;
+      transition: transform 0.2s cubic-bezier(0.25, 1.2, 0.5, 1);
+    }
+
+    /* 노브 포인터 바 */
+    .rotary-pointer {
+      position: absolute;
+      top: 3px;
+      left: calc(50% - 2px);
+      width: 4px;
+      height: 18px;
+      background: #ffffff;
+      border-radius: 2px;
+      box-shadow: 0 0 4px rgba(255,255,255,0.8);
+    }
+
+    /* 로터리 각도 라벨 */
+    .rotary-scale-label {
+      position: absolute;
+      font-size: 10px;
+      font-weight: 800;
+      color: #94a3b8;
+    }
+    /* 0도: 상단 */
+    .scale-pos-0 { top: 2px; left: 50%; transform: translateX(-50%); }
+    /* 45도: 우상단 */
+    .scale-pos-45 { top: 10px; right: 8px; }
+    /* 90도: 우측 */
+    .scale-pos-90 { top: 50%; right: 4px; transform: translateY(-50%); }
+
+    /* --- 부품 7 & 8: 주차제동 모멘터리 푸시버튼 --- */
+    .momentary-btn {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      border: 4px solid #33383f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 900;
+      color: #ffffff;
+      text-align: center;
+      line-height: 1.15;
+      cursor: pointer;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.8), inset 0 2px 3px rgba(255,255,255,0.4);
+      transition: transform 0.08s, filter 0.08s, box-shadow 0.08s;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    }
+
+    .momentary-btn.set {
+      background: radial-gradient(circle at 35% 35%, #4caf50 0%, #2e7d32 70%, #1b5e20 100%);
+    }
+
+    .momentary-btn.rel {
+      background: radial-gradient(circle at 35% 35%, #ef5350 0%, #c62828 70%, #7f0000 100%);
+    }
+
+    .momentary-btn.pressed {
+      transform: scale(0.92);
+      filter: brightness(0.85);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.9), inset 0 3px 6px rgba(0,0,0,0.8);
+    }
+
+    /* ==========================================================================
+       [4. 하단 플로팅 툴바]
+       ========================================================================== */
+    #bottom-toolbar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: linear-gradient(180deg, rgba(23, 26, 30, 0.95) 0%, rgba(13, 15, 18, 0.98) 100%);
+      border-top: 1px solid #333a42;
+      padding: 8px 12px 14px;
+      display: flex;
+      gap: 8px;
+      z-index: 50;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .tool-btn {
+      flex: 1;
+      padding: 9px 4px;
+      font-size: 12.5px;
+      font-weight: 700;
+      border: 1px solid #3d4550;
+      border-radius: 5px;
+      background: #252b32;
+      color: #e2e8f0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+      transition: all 0.15s;
+    }
+
+    .tool-btn:active {
+      transform: translateY(1px);
+      background: #1c2026;
+    }
+
+    /* ==========================================================================
+       [5. 모달 및 팝업 대화상자]
+       ========================================================================== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #1e2329;
+      border: 1px solid #434c56;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 380px;
+      padding: 18px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+      color: #f1f5f9;
+      animation: modalFadeIn 0.2s ease-out;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-header {
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid #333a44;
+      padding-bottom: 8px;
+    }
+
+    .modal-body {
+      font-size: 13px;
+      color: #cbd5e1;
+      margin-bottom: 14px;
+      line-height: 1.45;
+    }
+
+    .modal-field {
+      margin-bottom: 12px;
+    }
+
+    .modal-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #94a3b8;
+      margin-bottom: 4px;
+    }
+
+    .modal-input {
+      width: 100%;
+      padding: 8px 10px;
+      background: #101316;
+      border: 1px solid #374151;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .modal-input:focus {
+      border-color: #3b82f6;
+    }
+
+    .detected-action-badge {
+      display: inline-block;
+      background: #0f2744;
+      border: 1px solid #1d4ed8;
+      color: #60a5fa;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .modal-btn {
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .modal-btn.cancel {
+      background: #333a44;
+      color: #cbd5e1;
+    }
+
+    .modal-btn.confirm {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    /* 화면 진동(Shake) 애니메이션 */
+    .shake {
+      animation: screenShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    @keyframes screenShake {
+      10%, 90% { transform: translate3d(-2px, 0, 0); }
+      20%, 80% { transform: translate3d(4px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+      40%, 60% { transform: translate3d(5px, 0, 0); }
+    }
+
+    /* 토스트 알림창 */
+    #toast-msg {
+      position: absolute;
+      top: 110px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: rgba(220, 38, 38, 0.95);
+      border: 1px solid #f87171;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12.5px;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease-out;
+      z-index: 60;
+      white-space: nowrap;
+    }
+
+    #toast-msg.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+<div id="app-container">
+
+  <!-- ========================================================================
+       1. 상단 HUD 영역
+       ======================================================================== -->
+  <header id="hud-header">
+    <div class="mode-tab-container">
+      <button class="tab-btn active" id="tab-play" onclick="App.setMode('PLAY')">🕹️ 실습 훈련 모드</button>
+      <button class="tab-btn record-tab" id="tab-record" onclick="App.setMode('RECORD')">🔴 동작 녹화 모드</button>
+    </div>
+
+    <div id="status-display">
+      <div class="hud-meta-row">
+        <!-- 실습 모드 정보 -->
+        <span class="step-badge" id="step-counter">STEP 1/3</span>
+        <!-- 녹화 모드 정보 -->
+        <div class="rec-indicator" id="rec-status-group">
+          <span class="rec-dot"></span>
+          <span>REC 녹화 중 (<span id="rec-step-count">0</span>스텝)</span>
+          <button class="rec-save-btn" onclick="App.openSaveScenarioModal()">녹화 완료 및 저장</button>
+        </div>
+      </div>
+      <div class="instruction-text" id="hud-instruction">
+        시나리오를 준비 중입니다...
+      </div>
+    </div>
+  </header>
+
+  <!-- 토스트 경고 알림 -->
+  <div id="toast-msg">⚠️ 잘못된 조작입니다! 지시를 확인하세요.</div>
+
+  <!-- ========================================================================
+       2. 중앙 운전실 A필러 메탈 패널 영역
+       ======================================================================== -->
+  <main id="panel-scroller">
+
+    <!-- [플레이트 1] 이중 공기 압력계 -->
+    <div class="module-plate" id="plate-gauge">
+      <div class="screw tl"></div><div class="screw tr"></div>
+      <div class="screw bl"></div><div class="screw br"></div>
+      <div class="plate-title">공기 압력계 (AIR PRESSURE GAUGE)</div>
+      
+      <div class="gauge-wrapper" id="GAUGE_AIR">
+        <div class="gauge-dial">
+          <!-- 압력계 눈금 SVG -->
+          <svg class="gauge-svg" viewBox="0 0 200 200">
+            <!-- 0~12 bar 눈금: -135deg ~ +135deg (총 270도) -->
+            <defs>
+              <filter id="gaugeShadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.8"/>
+              </filter>
+            </defs>
+            <g transform="translate(100, 100)">
+              <!-- 눈금 원호 -->
+              <path d="M -67.1 67.1 A 95 95 0 1 1 67.1 67.1" fill="none" stroke="#4b5563" stroke-width="3"/>
+              
+              <!-- 주요 눈금선 및 수치 0, 2, 4, 6, 8, 10, 12 -->
+              <!-- 0 bar (-135deg) -->
+              <line x1="-63.6" y1="63.6" x2="-53.0" y2="53.0" stroke="#fff" stroke-width="2"/>
+              <text x="-48" y="48" fill="#e2e8f0" font-size="11" font-weight="800" text-anchor="middle">0</text>
+
+              <!-- 2 bar (-90deg) -->
+              <line x1="-90" y1="0" x2="-75" y2="0" stroke="#fff" stroke-width="2"/>
+              <text x="-65" y="4" fill="#e2e8f0" font-size="11" font-weight="800" text-anchor="middle">2</text>
+
+              <!-- 4 bar (-45deg) -->
+              <line x1="-63.6" y1="-63.6" x2="-53.0" y2="-53.0" stroke="#fff" stroke-width="2"/>
+              <text x="-46" y="-42" fill="#e2e8f0" font-size="11" font-weight="800" text-anchor="middle">4</text>
+
+              <!-- 6 bar (0deg) -->
+              <line x1="0" y1="-90" x2="0" y2="-75" stroke="#fff" stroke-width="2"/>
+              <text x="0" y="-62" fill="#e2e8f0" font-size="11" font-weight="800" text-anchor="middle">6</text>
+
+              <!-- 8 bar (45deg) -->
+              <line x1="63.6" y1="-63.6" x2="53.0" y2="-53.0" stroke="#fff" stroke-width="2"/>
+              <text x="46" y="-42" fill="#e2e8f0" font-size="11" font-weight="800" text-anchor="middle">8</text>
+
+              <!-- 10 bar (90deg) -->
+              <line x1="90" y1="0" x2="75" y2="0" stroke="#fff" stroke-width="2"/>
+              <text x="63" y="4" fill="#e2e8f0" font-size="11" font-weight="800" text-anchor="middle">10</text>
+
+              <!-- 12 bar (135deg) -->
+              <line x1="63.6" y1="63.6" x2="53.0" y2="53.0" stroke="#fff" stroke-width="2"/>
+              <text x="48" y="48" fill="#e2e8f0" font-size="11" font-weight="800" text-anchor="middle">12</text>
+
+              <!-- 단위 표시 -->
+              <text x="0" y="32" fill="#94a3b8" font-size="9" font-weight="700" text-anchor="middle">bar (×100 kPa)</text>
+            </g>
+          </svg>
+
+          <!-- MR 검은 바늘 (9.0 bar 고정 = 67.5deg) -->
+          <div class="gauge-needle mr" id="needle-mr" style="transform: rotate(67.5deg);"></div>
+          <!-- BC 붉은 바늘 (초기 0 bar = -135deg) -->
+          <div class="gauge-needle bc" id="needle-bc" style="transform: rotate(-135deg);"></div>
+          <!-- 바늘 축 캡 -->
+          <div class="gauge-cap"></div>
+        </div>
+      </div>
+
+      <div class="gauge-legend">
+        <div class="legend-item"><div class="legend-box" style="background:#e0e0e0;"></div> MR: 주공기 (9.0)</div>
+        <div class="legend-item"><div class="legend-box" style="background:#ff3333;"></div> BC: 제동통 (<span id="gauge-bc-val">0.0</span>)</div>
+      </div>
+    </div>
+
+    <!-- [플레이트 2] 비상제동 조작부 (체결 버튼 + 완해 보호커버/버튼) -->
+    <div class="module-plate">
+      <div class="screw tl"></div><div class="screw tr"></div>
+      <div class="screw bl"></div><div class="screw br"></div>
+      <div class="plate-title">비상제동 제어 모듈 (EMERGENCY BRAKE)</div>
+
+      <div class="plate-row">
+        <!-- 부품 1: 비상제동체결 (버섯형 래치) -->
+        <div class="switch-unit" id="UNIT_EMG_STOP">
+          <div class="mushroom-base" id="SW_EMG_STOP" onclick="App.handleComponentTouch('SW_EMG_STOP')">
+            <div class="mushroom-cap">
+              비상제동<br>체결<br><span style="font-size:8px;">EMG STOP</span>
+            </div>
+          </div>
+          <div class="unit-nameplate">비상제동체결</div>
+          <div class="unit-state-label" id="STATE_SW_EMG_STOP">해제됨 (RELEASED)</div>
+        </div>
+
+        <!-- 부품 2 & 3: 완해 보호커버 + 내부 푸시버튼 -->
+        <div class="switch-unit" id="UNIT_EMG_REL_GROUP">
+          <div class="cover-station">
+            <!-- 닫기 버튼 탭 (커버 열렸을 때 표시) -->
+            <button class="cover-close-tab" id="btn-close-cover" onclick="App.closeCover(event)">덮개 닫기</button>
+
+            <!-- 내부 비상제동완해 푸시버튼 -->
+            <div class="push-btn-inner" id="SW_EMG_RELEASE" onclick="App.handleComponentTouch('SW_EMG_RELEASE')">
+              비상제동<br>완해
+            </div>
+
+            <!-- 보호커버 -->
+            <div class="flip-cover" id="SW_EMG_COVER" onclick="App.handleCoverTouch(event)">
+              <div class="cover-label">보호커버</div>
+              <div style="font-size:9px; color:#fff; font-weight:700; margin-top:2px;">[위로 젖힘]</div>
+            </div>
+          </div>
+          <div class="unit-nameplate">비상제동완해</div>
+          <div class="unit-state-label" id="STATE_SW_EMG_COVER">커버 닫힘 (CLOSED)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- [플레이트 3] 2단 로터리 스위치 모듈 -->
+    <div class="module-plate">
+      <div class="screw tl"></div><div class="screw tr"></div>
+      <div class="screw bl"></div><div class="screw br"></div>
+      <div class="plate-title">보안 및 운전 선택 스위치 (ROTARY SW)</div>
+
+      <div class="plate-row">
+        <!-- 부품 4: ATP후진 (0도 OFF ↔ 90도 ON) -->
+        <div class="switch-unit rotary-unit" id="UNIT_ATP_REV">
+          <div class="rotary-dial-plate" id="SW_ATP_REV" onclick="App.handleComponentTouch('SW_ATP_REV')">
+            <span class="rotary-scale-label scale-pos-0">OFF</span>
+            <span class="rotary-scale-label scale-pos-90">ON</span>
+            <div class="rotary-knob" id="KNOB_ATP_REV">
+              <div class="rotary-pointer"></div>
+            </div>
+          </div>
+          <div class="unit-nameplate">ATP후진</div>
+          <div class="unit-state-label" id="STATE_SW_ATP_REV">OFF</div>
+        </div>
+
+        <!-- 부품 5: 저속도 (0도 NORMAL ↔ 45도 BYPASS) -->
+        <div class="switch-unit rotary-unit" id="UNIT_LOW_SPEED">
+          <div class="rotary-dial-plate" id="SW_LOW_SPEED" onclick="App.handleComponentTouch('SW_LOW_SPEED')">
+            <span class="rotary-scale-label scale-pos-0">정상</span>
+            <span class="rotary-scale-label scale-pos-45">우회</span>
+            <div class="rotary-knob" id="KNOB_LOW_SPEED">
+              <div class="rotary-pointer"></div>
+            </div>
+          </div>
+          <div class="unit-nameplate">저속도 (BYPASS)</div>
+          <div class="unit-state-label" id="STATE_SW_LOW_SPEED">정상 (NORMAL)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- [플레이트 4] 주차제동 모멘터리 푸시버튼 모듈 -->
+    <div class="module-plate">
+      <div class="screw tl"></div><div class="screw tr"></div>
+      <div class="screw bl"></div><div class="screw br"></div>
+      <div class="plate-title">주차제동 제어 (PARKING BRAKE)</div>
+
+      <div class="plate-row">
+        <!-- 부품 6: 주차제동체결 (녹색 버튼) -->
+        <div class="switch-unit" id="UNIT_PARK_SET">
+          <div class="momentary-btn set" id="SW_PARK_SET" onclick="App.handleComponentTouch('SW_PARK_SET')">
+            주차제동<br>체결
+          </div>
+          <div class="unit-nameplate">주차제동체결</div>
+          <div class="unit-state-label" id="STATE_SW_PARK_SET">대기 (IDLE)</div>
+        </div>
+
+        <!-- 부품 7: 주차제동완해 (적색 버튼) -->
+        <div class="switch-unit" id="UNIT_PARK_REL">
+          <div class="momentary-btn rel" id="SW_PARK_REL" onclick="App.handleComponentTouch('SW_PARK_REL')">
+            주차제동<br>완해
+          </div>
+          <div class="unit-nameplate">주차제동완해</div>
+          <div class="unit-state-label" id="STATE_SW_PARK_REL">대기 (IDLE)</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ========================================================================
+       3. 하단 플로팅 툴바
+       ======================================================================== -->
+  <footer id="bottom-toolbar">
+    <button class="tool-btn" onclick="App.triggerHint()">💡 힌트</button>
+    <button class="tool-btn" onclick="App.resetScenario()">↺ 초기화</button>
+    <button class="tool-btn" onclick="App.openScenarioManager()">📋 시나리오 관리</button>
+  </footer>
+
+</div>
+
+<!-- ==========================================================================
+     4. 모달 팝업 레이어 (녹화 모달 / 시나리오 관리 / 완료 모달)
+     ========================================================================== -->
+
+<!-- [모달 1] 녹화 스텝 입력 모달 -->
+<div class="modal-overlay" id="modal-record-step">
+  <div class="modal-card">
+    <div class="modal-header">🔴 [Step <span id="rec-step-modal-num">1</span> 기록]</div>
+    <div class="modal-body">
+      <div class="modal-field">
+        <label class="modal-label">감지된 스위치 동작</label>
+        <div class="detected-action-badge" id="rec-detected-summary">비상제동체결 → LATCHED</div>
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">교육생 안내 지시 문구</label>
+        <input type="text" class="modal-input" id="rec-instruction-input" placeholder="예: 비상제동 버튼을 체결하십시오.">
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">제동통 압력 연동 (BC Needle)</label>
+        <select class="modal-input" id="rec-gauge-select">
+          <option value="NO_CHANGE">현재 압력 유지</option>
+          <option value="4.5">4.5 bar (비상제동 체결압력)</option>
+          <option value="0.0">0.0 bar (완해 압력)</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn cancel" onclick="App.cancelRecordedStep()">취소</button>
+      <button class="modal-btn confirm" onclick="App.saveRecordedStep()">이 단계 저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- [모달 2] 녹화 완료 및 제목 저장 모달 -->
+<div class="modal-overlay" id="modal-save-scenario">
+  <div class="modal-card">
+    <div class="modal-header">💾 녹화 완료 및 시나리오 저장</div>
+    <div class="modal-body">
+      <div class="modal-field">
+        <label class="modal-label">시나리오 제목</label>
+        <input type="text" class="modal-input" id="rec-scenario-title" placeholder="예: 입고 전 제동 점검 절차">
+      </div>
+      <p style="font-size:12px; color:#94a3b8;">
+        총 <strong id="rec-total-steps-count" style="color:#60a5fa;">0</strong>개의 조작 스텝이 기록되었습니다. 저장 즉시 실습 훈련 모드에서 학습을 진행할 수 있습니다.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn cancel" onclick="App.closeModal('modal-save-scenario')">취소</button>
+      <button class="modal-btn confirm" onclick="App.commitScenario()">저장 및 실습 시작</button>
+    </div>
+  </div>
+</div>
+
+<!-- [모달 3] 시나리오 관리 / JSON 가져오기 및 내보내기 -->
+<div class="modal-overlay" id="modal-scenario-manager">
+  <div class="modal-card">
+    <div class="modal-header">📋 시나리오 관리 / 데이터 공유</div>
+    <div class="modal-body">
+      <div class="modal-field">
+        <label class="modal-label">현재 시나리오 선택</label>
+        <select class="modal-input" id="scenario-selector" onchange="App.onScenarioSelectChange(this.value)"></select>
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">시나리오 JSON 데이터</label>
+        <textarea class="modal-input" id="json-io-area" rows="6" style="font-family:monospace; font-size:11px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn cancel" onclick="App.closeModal('modal-scenario-manager')">닫기</button>
+      <button class="modal-btn" style="background:#059669; color:#fff;" onclick="App.copyJsonToClipboard()">JSON 복사</button>
+      <button class="modal-btn confirm" onclick="App.importJsonData()">JSON 적용</button>
+    </div>
+  </div>
+</div>
+
+<!-- [모달 4] 훈련 완료 축하 모달 -->
+<div class="modal-overlay" id="modal-completion">
+  <div class="modal-card" style="text-align:center;">
+    <div style="font-size:44px; margin-bottom:8px;">🎉</div>
+    <div class="modal-header" style="justify-content:center; border:none; padding:0; font-size:18px;">
+      훈련 절차 완료!
+    </div>
+    <div class="modal-body" style="margin: 12px 0 16px;">
+      모든 단계의 조작을 완벽하게 완수하였습니다.<br>열차 안전 운행 준비가 완료되었습니다.
+    </div>
+    <div class="modal-footer" style="justify-content:center;">
+      <button class="modal-btn confirm" onclick="App.restartFromCompletion()">처음부터 다시 실습</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     5. 핵심 자바스크립트 엔진
+     ========================================================================== -->
+<script>
+/**
+ * [SoundEngine] Web Audio API 기반 순수 무음원 사운드 합성기
+ */
+const SoundEngine = {
+  ctx: null,
+
+  init() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      this.ctx = new AudioCtx();
+    }
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  },
+
+  // 1. 딸깍 푸시 버튼음
+  playClick() {
+    this.init();
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(480, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.035);
+    gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.035);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.04);
+  },
+
+  // 2. 비상제동 버섯버튼 묵직한 래치 체결/해제음
+  playHeavyLatch() {
+    this.init();
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(140, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.6, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.09);
+  },
+
+  // 3. 로터리 스위치 회전 클릭음
+  playRotary() {
+    this.init();
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.025);
+    gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.025);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.03);
+  },
+
+  // 4. 아크릴 커버 플립 사운드
+  playCover() {
+    this.init();
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(650, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(320, this.ctx.currentTime + 0.04);
+    gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.045);
+  },
+
+  // 5. 성공 챠임음 (2-Tone Arpeggio)
+  playSuccess() {
+    this.init();
+    const now = this.ctx.currentTime;
+    const playTone = (freq, start, dur) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + start);
+      gain.gain.setValueAtTime(0.25, now + start);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now + start);
+      osc.stop(now + start + dur);
+    };
+    playTone(523.25, 0, 0.15); // C5
+    playTone(659.25, 0.1, 0.25); // E5
+  },
+
+  // 6. 오조작 경고 버저음
+  playError() {
+    this.init();
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(130, now);
+    osc.frequency.setValueAtTime(110, now + 0.1);
+    gain.gain.setValueAtTime(0.35, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.3);
+  }
+};
+
+/**
+ * [App] 열차 운전실 시뮬레이터 메인 컨트롤러
+ */
+const App = {
+  // 모드: 'PLAY' (실습 훈련) | 'RECORD' (동작 녹화)
+  mode: 'PLAY',
+  
+  // 현재 부품 상태 테이블
+  states: {
+    SW_EMG_STOP: 'RELEASED', // 'RELEASED' | 'LATCHED'
+    SW_EMG_COVER: 'CLOSED',  // 'CLOSED' | 'OPEN'
+    SW_EMG_RELEASE: 'IDLE',  // 'IDLE' | 'PRESSED'
+    SW_ATP_REV: 'OFF',       // 'OFF' | 'ON'
+    SW_LOW_SPEED: 'NORMAL',  // 'NORMAL' | 'BYPASS'
+    SW_PARK_SET: 'IDLE',     // 'IDLE' | 'PRESSED'
+    SW_PARK_REL: 'IDLE'      // 'IDLE' | 'PRESSED'
+  },
+
+  // 한글 명칭 맵
+  names: {
+    SW_EMG_STOP: '비상제동체결',
+    SW_EMG_COVER: '완해 보호커버',
+    SW_EMG_RELEASE: '비상제동완해',
+    SW_ATP_REV: 'ATP후진',
+    SW_LOW_SPEED: '저속도',
+    SW_PARK_SET: '주차제동체결',
+    SW_PARK_REL: '주차제동완해'
+  },
+
+  // 공기 압력계 수치
+  gauge: {
+    mr: 9.0,
+    bc: 0.0
+  },
+
+  // 실습 엔진 상태
+  currentScenario: null,
+  currentStepIndex: 0,
+
+  // 녹화 엔진 임시 버퍼
+  recordedSteps: [],
+  pendingRecordStep: null,
+
+  // 내장 기본 시나리오 (PRD 명세)
+  defaultScenarios: [
+    {
+      id: 'default_emg_proc',
+      title: '비상제동 체결 및 완해 절차',
+      steps: [
+        {
+          step: 1,
+          target: "SW_EMG_STOP",
+          targetName: "비상제동체결",
+          expectedState: "LATCHED",
+          instruction: "비상 상황입니다. 비상제동체결 버튼을 누르십시오.",
+          gaugeEffect: { bc: 4.5 }
+        },
+        {
+          step: 2,
+          target: "SW_EMG_COVER",
+          targetName: "완해 보호커버",
+          expectedState: "OPEN",
+          instruction: "비상제동 완해 커버를 위로 여십시오."
+        },
+        {
+          step: 3,
+          target: "SW_EMG_RELEASE",
+          targetName: "비상제동완해",
+          expectedState: "PRESSED",
+          instruction: "완해 푸시버튼을 눌러 제동을 푸십시오.",
+          gaugeEffect: { bc: 0.0 }
+        }
+      ]
+    },
+    {
+      id: 'full_departure_test',
+      title: '출고 전 제동 및 보안장비 점검',
+      steps: [
+        {
+          step: 1,
+          target: "SW_PARK_SET",
+          targetName: "주차제동체결",
+          expectedState: "PRESSED",
+          instruction: "차량 유동 방지를 위해 주차제동체결 버튼을 누르십시오."
+        },
+        {
+          step: 2,
+          target: "SW_ATP_REV",
+          targetName: "ATP후진",
+          expectedState: "ON",
+          instruction: "후진 모드 시험을 위해 ATP후진 스위치를 ON으로 돌리십시오."
+        },
+        {
+          step: 3,
+          target: "SW_LOW_SPEED",
+          targetName: "저속도",
+          expectedState: "BYPASS",
+          instruction: "저속도 스위치를 우회(BYPASS) 위치로 전환하십시오."
+        },
+        {
+          step: 4,
+          target: "SW_EMG_STOP",
+          targetName: "비상제동체결",
+          expectedState: "LATCHED",
+          instruction: "비상제동체결 버튼을 눌러 비상제동을 인가하십시오.",
+          gaugeEffect: { bc: 4.5 }
+        },
+        {
+          step: 5,
+          target: "SW_EMG_STOP",
+          targetName: "비상제동체결",
+          expectedState: "RELEASED",
+          instruction: "비상제동체결 버튼을 다시 터치하여 래치를 해제하십시오."
+        },
+        {
+          step: 6,
+          target: "SW_EMG_COVER",
+          targetName: "완해 보호커버",
+          expectedState: "OPEN",
+          instruction: "비상제동 완해 보호커버를 여십시오."
+        },
+        {
+          step: 7,
+          target: "SW_EMG_RELEASE",
+          targetName: "비상제동완해",
+          expectedState: "PRESSED",
+          instruction: "완해 푸시버튼을 눌러 공기제동을 완전히 푸십시오.",
+          gaugeEffect: { bc: 0.0 }
+        },
+        {
+          step: 8,
+          target: "SW_EMG_COVER",
+          targetName: "완해 보호커버",
+          expectedState: "CLOSED",
+          instruction: "오조작 방지를 위해 완해 보호커버를 닫으십시오."
+        },
+        {
+          step: 9,
+          target: "SW_ATP_REV",
+          targetName: "ATP후진",
+          expectedState: "OFF",
+          instruction: "ATP후진 스위치를 OFF 위치로 복귀시키십시오."
+        },
+        {
+          step: 10,
+          target: "SW_PARK_REL",
+          targetName: "주차제동완해",
+          expectedState: "PRESSED",
+          instruction: "주차제동완해 버튼을 눌러 출고 준비를 마치십시오."
+        }
+      ]
+    }
+  ],
+
+  // 초기화 함수
+  init() {
+    this.loadScenariosFromStorage();
+    this.currentScenario = this.scenarios[0];
+    this.applyScenario(this.currentScenario);
+    this.updateGaugeVisual(0.0);
+  },
+
+  // 햅틱 진동 헬퍼
+  vibrate(pattern) {
+    if ('vibrate' in navigator) {
+      try { navigator.vibrate(pattern); } catch (e) {}
+    }
+  },
+
+  // 로컬스토리지 시나리오 로드
+  loadScenariosFromStorage() {
+    const saved = localStorage.getItem('TRAIN_CAB_SCENARIOS');
+    if (saved) {
+      try {
+        this.scenarios = JSON.parse(saved);
+      } catch (e) {
+        this.scenarios = [...this.defaultScenarios];
+      }
+    } else {
+      this.scenarios = [...this.defaultScenarios];
+      this.persistScenarios();
+    }
+  },
+
+  persistScenarios() {
+    localStorage.setItem('TRAIN_CAB_SCENARIOS', JSON.stringify(this.scenarios));
+  },
+
+  // 모드 전환
+  setMode(targetMode) {
+    if (this.mode === targetMode) return;
+    this.mode = targetMode;
+
+    const playTab = document.getElementById('tab-play');
+    const recTab = document.getElementById('tab-record');
+    const stepCounter = document.getElementById('step-counter');
+    const recStatusGroup = document.getElementById('rec-status-group');
+
+    if (this.mode === 'PLAY') {
+      playTab.classList.add('active');
+      recTab.classList.remove('active');
+      stepCounter.style.display = 'inline-block';
+      recStatusGroup.style.display = 'none';
+      this.resetScenario();
+    } else {
+      recTab.classList.add('active');
+      playTab.classList.remove('active');
+      stepCounter.style.display = 'none';
+      recStatusGroup.style.display = 'flex';
+      this.startRecordMode();
+    }
+  },
+
+  // =========================================================================
+  // [물리 인터랙션 처리부]
+  // =========================================================================
+  
+  // 일반 부품 터치 분기
+  handleComponentTouch(compId) {
+    switch (compId) {
+      case 'SW_EMG_STOP':
+        this.toggleMushroom();
+        break;
+      case 'SW_EMG_RELEASE':
+        this.pressEmgRelease();
+        break;
+      case 'SW_ATP_REV':
+        this.toggleAtpRev();
+        break;
+      case 'SW_LOW_SPEED':
+        this.toggleLowSpeed();
+        break;
+      case 'SW_PARK_SET':
+        this.pressMomentary('SW_PARK_SET');
+        break;
+      case 'SW_PARK_REL':
+        this.pressMomentary('SW_PARK_REL');
+        break;
+    }
+  },
+
+  // 1. 비상제동 버섯버튼 (래치 토글)
+  toggleMushroom() {
+    const nextState = this.states.SW_EMG_STOP === 'RELEASED' ? 'LATCHED' : 'RELEASED';
+    SoundEngine.playHeavyLatch();
+    this.vibrate(50);
+    
+    // UI 반영
+    const el = document.getElementById('SW_EMG_STOP');
+    const label = document.getElementById('STATE_SW_EMG_STOP');
+    if (nextState === 'LATCHED') {
+      el.classList.add('latched');
+      label.innerText = '체결됨 (LATCHED)';
+      label.style.color = 'var(--text-danger)';
+    } else {
+      el.classList.remove('latched');
+      label.innerText = '해제됨 (RELEASED)';
+      label.style.color = 'var(--text-warning)';
+    }
+
+    const prevState = this.states.SW_EMG_STOP;
+    this.states.SW_EMG_STOP = nextState;
+    this.dispatchAction('SW_EMG_STOP', nextState, prevState);
+  },
+
+  // 2. 완해 보호커버 열기
+  handleCoverTouch(e) {
+    e.stopPropagation();
+    if (this.states.SW_EMG_COVER === 'OPEN') return;
+
+    SoundEngine.playCover();
+    this.vibrate(25);
+    this.setCoverState('OPEN');
+    this.dispatchAction('SW_EMG_COVER', 'OPEN', 'CLOSED');
+  },
+
+  // 보호커버 닫기 탭 터치
+  closeCover(e) {
+    if (e) e.stopPropagation();
+    if (this.states.SW_EMG_COVER === 'CLOSED') return;
+
+    SoundEngine.playCover();
+    this.vibrate(20);
+    this.setCoverState('CLOSED');
+    this.dispatchAction('SW_EMG_COVER', 'CLOSED', 'OPEN');
+  },
+
+  setCoverState(state) {
+    this.states.SW_EMG_COVER = state;
+    const coverEl = document.getElementById('SW_EMG_COVER');
+    const closeTab = document.getElementById('btn-close-cover');
+    const label = document.getElementById('STATE_SW_EMG_COVER');
+
+    if (state === 'OPEN') {
+      coverEl.classList.add('opened');
+      closeTab.classList.add('visible');
+      label.innerText = '커버 열림 (OPEN)';
+      label.style.color = 'var(--text-success)';
+    } else {
+      coverEl.classList.remove('opened');
+      closeTab.classList.remove('visible');
+      label.innerText = '커버 닫힘 (CLOSED)';
+      label.style.color = 'var(--text-warning)';
+    }
+  },
+
+  // 3. 비상제동 완해 푸시버튼 (커버가 열렸을 때만 가능)
+  pressEmgRelease() {
+    if (this.states.SW_EMG_COVER !== 'OPEN') {
+      this.triggerShake();
+      SoundEngine.playError();
+      this.showToast("⚠️ 완해 보호커버를 먼저 위로 여십시오!");
+      return;
+    }
+
+    SoundEngine.playClick();
+    this.vibrate(20);
+    const btn = document.getElementById('SW_EMG_RELEASE');
+    btn.classList.add('pressed');
+    this.states.SW_EMG_RELEASE = 'PRESSED';
+
+    this.dispatchAction('SW_EMG_RELEASE', 'PRESSED', 'IDLE');
+
+    setTimeout(() => {
+      btn.classList.remove('pressed');
+      this.states.SW_EMG_RELEASE = 'IDLE';
+    }, 200);
+  },
+
+  // 4. ATP후진 로터리스위치 (0도 OFF ↔ 90도 ON)
+  toggleAtpRev() {
+    const nextState = this.states.SW_ATP_REV === 'OFF' ? 'ON' : 'OFF';
+    SoundEngine.playRotary();
+    this.vibrate(25);
+
+    const knob = document.getElementById('KNOB_ATP_REV');
+    const label = document.getElementById('STATE_SW_ATP_REV');
+    knob.style.transform = nextState === 'ON' ? 'rotate(90deg)' : 'rotate(0deg)';
+    label.innerText = nextState;
+    label.style.color = nextState === 'ON' ? 'var(--text-success)' : 'var(--text-warning)';
+
+    const prevState = this.states.SW_ATP_REV;
+    this.states.SW_ATP_REV = nextState;
+    this.dispatchAction('SW_ATP_REV', nextState, prevState);
+  },
+
+  // 5. 저속도 로터리스위치 (0도 NORMAL ↔ 45도 BYPASS)
+  toggleLowSpeed() {
+    const nextState = this.states.SW_LOW_SPEED === 'NORMAL' ? 'BYPASS' : 'NORMAL';
+    SoundEngine.playRotary();
+    this.vibrate(25);
+
+    const knob = document.getElementById('KNOB_LOW_SPEED');
+    const label = document.getElementById('STATE_SW_LOW_SPEED');
+    knob.style.transform = nextState === 'BYPASS' ? 'rotate(45deg)' : 'rotate(0deg)';
+    label.innerText = nextState === 'BYPASS' ? '우회 (BYPASS)' : '정상 (NORMAL)';
+    label.style.color = nextState === 'BYPASS' ? 'var(--text-danger)' : 'var(--text-warning)';
+
+    const prevState = this.states.SW_LOW_SPEED;
+    this.states.SW_LOW_SPEED = nextState;
+    this.dispatchAction('SW_LOW_SPEED', nextState, prevState);
+  },
+
+  // 6 & 7. 주차제동 모멘터리 버튼 공통
+  pressMomentary(compId) {
+    SoundEngine.playClick();
+    this.vibrate(25);
+    const btn = document.getElementById(compId);
+    const label = document.getElementById(`STATE_${compId}`);
+    btn.classList.add('pressed');
+    this.states[compId] = 'PRESSED';
+    label.innerText = '동작 중 (PRESSED)';
+
+    this.dispatchAction(compId, 'PRESSED', 'IDLE');
+
+    setTimeout(() => {
+      btn.classList.remove('pressed');
+      this.states[compId] = 'IDLE';
+      label.innerText = '대기 (IDLE)';
+    }, 200);
+  },
+
+  // 공기 압력계(BC 바늘) 부드러운 회전 애니메이션
+  updateGaugeVisual(bcBar) {
+    this.gauge.bc = bcBar;
+    document.getElementById('gauge-bc-val').innerText = bcBar.toFixed(1);
+    // 0 bar = -135deg, 12 bar = +135deg (1 bar 당 22.5deg)
+    const angle = -135 + (bcBar * 22.5);
+    document.getElementById('needle-bc').style.transform = `rotate(${angle}deg)`;
+  },
+
+  // =========================================================================
+  // [조작 이벤트 디스패처: PLAY vs RECORD]
+  // =========================================================================
+  dispatchAction(compId, newState, prevState) {
+    if (this.mode === 'RECORD') {
+      this.handleRecordAction(compId, newState, prevState);
+    } else {
+      this.handlePlayAction(compId, newState, prevState);
+    }
+  },
+
+  // =========================================================================
+  // [실습 및 평가 모드 엔진 (Play Mode)]
+  // =========================================================================
+  applyScenario(scenario) {
+    this.currentScenario = scenario;
+    this.currentStepIndex = 0;
+    this.resetAllComponents();
+    this.updatePlayHUD();
+  },
+
+  updatePlayHUD() {
+    if (!this.currentScenario || !this.currentScenario.steps.length) return;
+    const curStep = this.currentScenario.steps[this.currentStepIndex];
+    document.getElementById('step-counter').innerText = `STEP ${this.currentStepIndex + 1}/${this.currentScenario.steps.length}`;
+    document.getElementById('hud-instruction').innerText = curStep.instruction;
+    this.clearHint();
+  },
+
+  handlePlayAction(compId, newState, prevState) {
+    if (!this.currentScenario) return;
+    const curStep = this.currentScenario.steps[this.currentStepIndex];
+    if (!curStep) return;
+
+    // 조작 일치 여부 판정
+    const isTargetMatch = curStep.target === compId;
+    const isStateMatch = curStep.expectedState === newState;
+
+    if (isTargetMatch && isStateMatch) {
+      // 1. [정상 조작 확인]
+      SoundEngine.playSuccess();
+      this.vibrate(40);
+      this.flashStatusFeedback(true, "✅ 정상 조작 확인!");
+
+      // 압력계 효과 반영
+      if (curStep.gaugeEffect && typeof curStep.gaugeEffect.bc !== 'undefined') {
+        this.updateGaugeVisual(curStep.gaugeEffect.bc);
+      }
+
+      this.currentStepIndex++;
+
+      // 완료 판정
+      if (this.currentStepIndex >= this.currentScenario.steps.length) {
+        setTimeout(() => {
+          this.openModal('modal-completion');
+        }, 500);
+      } else {
+        setTimeout(() => {
+          this.updatePlayHUD();
+        }, 400);
+      }
+    } else {
+      // 2. [오조작(실수) 판정]
+      SoundEngine.playError();
+      this.vibrate([100, 50, 100]);
+      this.triggerShake();
+      this.flashStatusFeedback(false, "⚠️ 잘못된 조작입니다!");
+      this.showToast(`⚠️ 지시사항: ${curStep.instruction}`);
+
+      // 지속형 스위치 오조작 시 시각 상태 원복
+      this.revertComponentState(compId, prevState);
+    }
+  },
+
+  // 스위치 오조작 시 원래 상태로 스냅 원복
+  revertComponentState(compId, prevState) {
+    setTimeout(() => {
+      this.states[compId] = prevState;
+      if (compId === 'SW_EMG_STOP') {
+        const el = document.getElementById('SW_EMG_STOP');
+        const lbl = document.getElementById('STATE_SW_EMG_STOP');
+        if (prevState === 'LATCHED') {
+          el.classList.add('latched');
+          lbl.innerText = '체결됨 (LATCHED)';
+        } else {
+          el.classList.remove('latched');
+          lbl.innerText = '해제됨 (RELEASED)';
+        }
+      } else if (compId === 'SW_EMG_COVER') {
+        this.setCoverState(prevState);
+      } else if (compId === 'SW_ATP_REV') {
+        document.getElementById('KNOB_ATP_REV').style.transform = prevState === 'ON' ? 'rotate(90deg)' : 'rotate(0deg)';
+        document.getElementById('STATE_SW_ATP_REV').innerText = prevState;
+      } else if (compId === 'SW_LOW_SPEED') {
+        document.getElementById('KNOB_LOW_SPEED').style.transform = prevState === 'BYPASS' ? 'rotate(45deg)' : 'rotate(0deg)';
+        document.getElementById('STATE_SW_LOW_SPEED').innerText = prevState === 'BYPASS' ? '우회 (BYPASS)' : '정상 (NORMAL)';
+      }
+    }, 350);
+  },
+
+  // HUD 피드백 점등
+  flashStatusFeedback(isSuccess, text) {
+    const disp = document.getElementById('status-display');
+    const origClass = isSuccess ? 'feedback-success' : 'feedback-error';
+    disp.classList.add(origClass);
+    document.getElementById('hud-instruction').innerText = text;
+    setTimeout(() => {
+      disp.classList.remove('feedback-success', 'feedback-error');
+    }, 700);
+  },
+
+  // 힌트 제공
+  triggerHint() {
+    if (this.mode !== 'PLAY') return;
+    const curStep = this.currentScenario.steps[this.currentStepIndex];
+    if (!curStep) return;
+
+    this.clearHint();
+    const targetEl = document.getElementById(curStep.target);
+    if (targetEl) {
+      targetEl.classList.add('hint-highlight');
+      this.vibrate([30, 50, 30]);
+      this.showToast(`💡 힌트: [${curStep.targetName}] 부품을 조작하세요!`);
+      setTimeout(() => {
+        this.clearHint();
+      }, 3000);
+    }
+  },
+
+  clearHint() {
+    document.querySelectorAll('.hint-highlight').forEach(el => el.classList.remove('hint-highlight'));
+  },
+
+  // 시나리오 처음부터 다시 시작
+  resetScenario() {
+    this.applyScenario(this.currentScenario);
+    this.showToast("시나리오가 초기화되었습니다.");
+  },
+
+  restartFromCompletion() {
+    this.closeModal('modal-completion');
+    this.resetScenario();
+  },
+
+  // =========================================================================
+  // [노코드 동작 녹화 모드 엔진 (Record Mode)]
+  // =========================================================================
+  startRecordMode() {
+    this.resetAllComponents();
+    this.recordedSteps = [];
+    document.getElementById('rec-step-count').innerText = "0";
+    document.getElementById('hud-instruction').innerText = "패널의 스위치를 원하는 순서대로 직접 조작하십시오.";
+    this.showToast("🔴 동작 녹화 모드가 시작되었습니다.");
+  },
+
+  handleRecordAction(compId, newState, prevState) {
+    const stepNum = this.recordedSteps.length + 1;
+    const compName = this.names[compId] || compId;
+
+    // 추천 기본 안내 문구 생성
+    let defaultInstruction = `${compName}을(를) 조작하십시오.`;
+    let defaultGaugeVal = "NO_CHANGE";
+
+    if (compId === 'SW_EMG_STOP') {
+      defaultInstruction = newState === 'LATCHED' 
+        ? "비상 상황입니다. 비상제동체결 버튼을 누르십시오."
+        : "비상제동체결 버튼을 해제하십시오.";
+      defaultGaugeVal = newState === 'LATCHED' ? "4.5" : "NO_CHANGE";
+    } else if (compId === 'SW_EMG_COVER') {
+      defaultInstruction = newState === 'OPEN'
+        ? "비상제동 완해 보호커버를 위로 여십시오."
+        : "비상제동 완해 보호커버를 닫으십시오.";
+    } else if (compId === 'SW_EMG_RELEASE') {
+      defaultInstruction = "비상제동완해 푸시버튼을 눌러 제동을 푸십시오.";
+      defaultGaugeVal = "0.0";
+    } else if (compId === 'SW_ATP_REV') {
+      defaultInstruction = newState === 'ON'
+        ? "ATP후진 스위치를 ON 위치로 전환하십시오."
+        : "ATP후진 스위치를 OFF 위치로 복귀시키십시오.";
+    } else if (compId === 'SW_LOW_SPEED') {
+      defaultInstruction = newState === 'BYPASS'
+        ? "저속도 스위치를 우회(BYPASS)로 전환하십시오."
+        : "저속도 스위치를 정상(NORMAL)으로 복귀시키십시오.";
+    } else if (compId === 'SW_PARK_SET') {
+      defaultInstruction = "주차제동체결 버튼을 누르십시오.";
+    } else if (compId === 'SW_PARK_REL') {
+      defaultInstruction = "주차제동완해 버튼을 누르십시오.";
+    }
+
+    this.pendingRecordStep = {
+      step: stepNum,
+      target: compId,
+      targetName: compName,
+      expectedState: newState,
+      prevState: prevState
+    };
+
+    // 모달 데이터 채우기 및 열기
+    document.getElementById('rec-step-modal-num').innerText = stepNum;
+    document.getElementById('rec-detected-summary').innerText = `${compName} → ${newState}`;
+    document.getElementById('rec-instruction-input').value = defaultInstruction;
+    document.getElementById('rec-gauge-select').value = defaultGaugeVal;
+
+    this.openModal('modal-record-step');
+  },
+
+  // 감지된 스텝 확정 저장
+  saveRecordedStep() {
+    if (!this.pendingRecordStep) return;
+
+    const instruction = document.getElementById('rec-instruction-input').value.trim() || 
+                        `${this.pendingRecordStep.targetName}을(를) 조작하십시오.`;
+    const gaugeSelect = document.getElementById('rec-gauge-select').value;
+
+    const stepData = {
+      step: this.pendingRecordStep.step,
+      target: this.pendingRecordStep.target,
+      targetName: this.pendingRecordStep.targetName,
+      expectedState: this.pendingRecordStep.expectedState,
+      instruction: instruction
+    };
+
+    if (gaugeSelect !== 'NO_CHANGE') {
+      const gVal = parseFloat(gaugeSelect);
+      stepData.gaugeEffect = { bc: gVal };
+      this.updateGaugeVisual(gVal);
+    }
+
+    this.recordedSteps.push(stepData);
+    document.getElementById('rec-step-count').innerText = this.recordedSteps.length;
+    document.getElementById('hud-instruction').innerText = `Step ${stepData.step} 기록 완료! 다음 스위치를 조작하세요.`;
+
+    this.closeModal('modal-record-step');
+    this.pendingRecordStep = null;
+    SoundEngine.playSuccess();
+  },
+
+  // 녹화 스텝 취소 (방금 조작한 부품 원복)
+  cancelRecordedStep() {
+    if (this.pendingRecordStep) {
+      this.revertComponentState(this.pendingRecordStep.target, this.pendingRecordStep.prevState);
+      this.pendingRecordStep = null;
+    }
+    this.closeModal('modal-record-step');
+  },
+
+  // 녹화 완료 버튼 터치 시 제목 입력창 열기
+  openSaveScenarioModal() {
+    if (this.recordedSteps.length === 0) {
+      this.showToast("⚠️ 녹화된 스텝이 없습니다. 스위치를 먼저 조작하세요!");
+      return;
+    }
+    document.getElementById('rec-total-steps-count').innerText = this.recordedSteps.length;
+    document.getElementById('rec-scenario-title').value = `훈련 절차 ${this.scenarios.length + 1}`;
+    this.openModal('modal-save-scenario');
+  },
+
+  // 시나리오 영구 저장 및 실습 모드로 전환
+  commitScenario() {
+    const title = document.getElementById('rec-scenario-title').value.trim() || `신규 훈련 절차`;
+    const newScenario = {
+      id: `custom_${Date.now()}`,
+      title: title,
+      steps: this.recordedSteps
+    };
+
+    this.scenarios.unshift(newScenario);
+    this.persistScenarios();
+
+    this.closeModal('modal-save-scenario');
+    this.showToast("🎉 시나리오가 성공적으로 저장되었습니다!");
+
+    // 실습 모드로 즉시 전환
+    this.currentScenario = newScenario;
+    this.setMode('PLAY');
+  },
+
+  // =========================================================================
+  // [시나리오 관리 & JSON Import/Export]
+  // =========================================================================
+  openScenarioManager() {
+    const selector = document.getElementById('scenario-selector');
+    selector.innerHTML = '';
+    this.scenarios.forEach((sc, idx) => {
+      const opt = document.createElement('option');
+      opt.value = sc.id;
+      opt.innerText = `${idx + 1}. ${sc.title} (${sc.steps.length}단계)`;
+      if (this.currentScenario && this.currentScenario.id === sc.id) {
+        opt.selected = true;
+      }
+      selector.appendChild(opt);
+    });
+
+    this.updateJsonTextArea(this.currentScenario);
+    this.openModal('modal-scenario-manager');
+  },
+
+  onScenarioSelectChange(scenarioId) {
+    const selected = this.scenarios.find(s => s.id === scenarioId);
+    if (selected) {
+      this.updateJsonTextArea(selected);
+    }
+  },
+
+  updateJsonTextArea(scenario) {
+    document.getElementById('json-io-area').value = JSON.stringify(scenario, null, 2);
+  },
+
+  copyJsonToClipboard() {
+    const jsonStr = document.getElementById('json-io-area').value;
+    navigator.clipboard.writeText(jsonStr).then(() => {
+      this.showToast("📋 JSON 데이터가 클립보드에 복사되었습니다.");
+    }).catch(() => {
+      this.showToast("복사에 실패했습니다. 수동으로 복사하세요.");
+    });
+  },
+
+  importJsonData() {
+    const text = document.getElementById('json-io-area').value.trim();
+    try {
+      const parsed = JSON.parse(text);
+      if (!parsed.title || !Array.isArray(parsed.steps) || parsed.steps.length === 0) {
+        throw new Error("유효한 시나리오 포맷이 아닙니다 (title과 steps 배열 필수).");
+      }
+      if (!parsed.id) parsed.id = `imported_${Date.now()}`;
+
+      // 중복 체크 및 추가
+      const existingIdx = this.scenarios.findIndex(s => s.id === parsed.id);
+      if (existingIdx >= 0) {
+        this.scenarios[existingIdx] = parsed;
+      } else {
+        this.scenarios.unshift(parsed);
+      }
+      this.persistScenarios();
+
+      this.closeModal('modal-scenario-manager');
+      this.currentScenario = parsed;
+      this.applyScenario(parsed);
+      this.showToast("✅ 시나리오를 성공적으로 가져왔습니다!");
+    } catch (err) {
+      alert(`JSON 가져오기 오류:\n${err.message}`);
+    }
+  },
+
+  // =========================================================================
+  // [UI 헬퍼 및 부품 전체 초기화]
+  // =========================================================================
+  resetAllComponents() {
+    this.states = {
+      SW_EMG_STOP: 'RELEASED',
+      SW_EMG_COVER: 'CLOSED',
+      SW_EMG_RELEASE: 'IDLE',
+      SW_ATP_REV: 'OFF',
+      SW_LOW_SPEED: 'NORMAL',
+      SW_PARK_SET: 'IDLE',
+      SW_PARK_REL: 'IDLE'
+    };
+
+    // 버섯 버튼 해제
+    const emgStop = document.getElementById('SW_EMG_STOP');
+    emgStop.classList.remove('latched');
+    document.getElementById('STATE_SW_EMG_STOP').innerText = '해제됨 (RELEASED)';
+    document.getElementById('STATE_SW_EMG_STOP').style.color = 'var(--text-warning)';
+
+    // 커버 닫기
+    this.setCoverState('CLOSED');
+
+    // ATP후진 OFF
+    document.getElementById('KNOB_ATP_REV').style.transform = 'rotate(0deg)';
+    document.getElementById('STATE_SW_ATP_REV').innerText = 'OFF';
+    document.getElementById('STATE_SW_ATP_REV').style.color = 'var(--text-warning)';
+
+    // 저속도 NORMAL
+    document.getElementById('KNOB_LOW_SPEED').style.transform = 'rotate(0deg)';
+    document.getElementById('STATE_SW_LOW_SPEED').innerText = '정상 (NORMAL)';
+    document.getElementById('STATE_SW_LOW_SPEED').style.color = 'var(--text-warning)';
+
+    // 주차제동 버튼
+    document.getElementById('SW_PARK_SET').classList.remove('pressed');
+    document.getElementById('SW_PARK_REL').classList.remove('pressed');
+    document.getElementById('STATE_SW_PARK_SET').innerText = '대기 (IDLE)';
+    document.getElementById('STATE_SW_PARK_REL').innerText = '대기 (IDLE)';
+
+    // 압력계 0.0 bar 초기화
+    this.updateGaugeVisual(0.0);
+    this.clearHint();
+  },
+
+  triggerShake() {
+    const scroller = document.getElementById('panel-scroller');
+    scroller.classList.remove('shake');
+    void scroller.offsetWidth; // Reflow
+    scroller.classList.add('shake');
+    setTimeout(() => scroller.classList.remove('shake'), 450);
+  },
+
+  showToast(msg) {
+    const toast = document.getElementById('toast-msg');
+    toast.innerText = msg;
+    toast.classList.add('show');
+    clearTimeout(this._toastTimer);
+    this._toastTimer = setTimeout(() => {
+      toast.classList.remove('show');
+    }, 2400);
+  },
+
+  openModal(modalId) {
+    document.getElementById(modalId).classList.add('active');
+  },
+
+  closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+  }
+};
+
+// 웹앱 시동
+window.addEventListener('DOMContentLoaded', () => {
+  App.init();
+
+  // 브라우저 첫 터치 시 AudioContext 자동 언락
+  const unlockAudio = () => {
+    SoundEngine.init();
+    window.removeEventListener('touchstart', unlockAudio);
+    window.removeEventListener('click', unlockAudio);
+  };
+  window.addEventListener('touchstart', unlockAudio, { passive: true });
+  window.addEventListener('click', unlockAudio, { passive: true });
+});
+</script>
+
+</body>
+</html>
