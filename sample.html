@@ -23,7 +23,7 @@
     .svgrepo-box { background: #f8fafc; border: 2px dashed #94a3b8; padding: 15px; border-radius: 8px; margin-top: 6px; }
     .mobile-only-box { background: #f0fdf4; border: 1.5px solid #86efac; padding: 14px; border-radius: 8px; margin-top: 6px; }
 
-    /* [2] A4 가로 인쇄 포스터 (예시 이미지 100% 동일 규격) */
+    /* [2] A4 가로 인쇄 포스터 (PDF 원본 완벽 일치 규격) */
     #poster-wrapper { display: none; margin: 30px auto; max-width: 920px; }
     
     #print-poster {
@@ -31,19 +31,20 @@
       aspect-ratio: 297 / 210;
       background: #fff;
       position: relative;
-      /* 상단, 좌측, 하단 테두리 선 (회색 9px) */
+      /* 상, 좌, 하단 테두리 실선 9px */
       border-top: 9px solid #9EA4AA;
       border-left: 9px solid #9EA4AA;
       border-bottom: 9px solid #9EA4AA;
-      border-right: none; /* 우측은 분할 라인으로 별도 처리 */
+      border-right: none;
       padding: 30px 45px 25px 45px;
       box-shadow: 0 8px 25px rgba(0,0,0,0.15);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      overflow: hidden; /* 밖으로 삐져나가는 현상 원천 차단 */
     }
 
-    /* --- [예시 1번 이미지 완벽 재현: 우측 테두리 일체형 영문] --- */
+    /* --- [예시 1번 완벽 구현: 우측 테두리 일체형 분할 컬럼] --- */
     .right-border-column {
       position: absolute;
       top: 0;
@@ -53,6 +54,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      z-index: 5;
     }
     /* 상단에서 내려오는 실선 */
     .right-line-top {
@@ -60,26 +62,28 @@
       flex: 1;
       background: #9EA4AA;
     }
-    /* 영문 텍스트 감싸는 홈 영역 (상하 12px 여백) */
+    /* 글자가 들어가는 간격 홈 */
     .right-text-slot {
-      padding: 12px 0;
+      margin: 10px 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #fff;
+      width: 100%;
     }
-    /* 예시와 100% 동일한 대소문자 & 굵기 & 회전 각도 */
+    /* 표준 세로 조판: 회전 버그 없이 밖으로 절대 안 튀어나감 */
     .right-brand-text {
-      transform: rotate(90deg);
-      white-space: nowrap;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
       font-family: Arial, Helvetica, sans-serif;
-      font-weight: 800; /* 선 굵기와 일치하는 볼드체 */
-      font-size: 14.5px;
-      color: #9EA4AA;   /* 테두리 회색과 일치 */
-      letter-spacing: 0.3px;
-      text-transform: none !important; /* 대문자 강제 해제 */
+      font-weight: 800;
+      font-size: 13.5px;
+      color: #9EA4AA;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      line-height: 1;
+      display: block;
     }
-    /* 하단 모서리에서 올라오는 짧은 실선 (예시 1번 길이 반영) */
+    /* 하단 모서리에서 올라오는 짧은 실선 */
     .right-line-bottom {
       width: 9px;
       height: 52px;
@@ -101,8 +105,9 @@
       max-height: 190px; max-width: 70%; width: auto; height: auto;
     }
 
-    .poster-desc-area { text-align: center; margin-bottom: 10px; }
-    .poster-desc { font-size: 23px; line-height: 1.5; color: #1e293b; font-weight: bold; white-space: pre-line; word-break: keep-all; }
+    /* 설명 문구: QR코드와 겹치지 않도록 우측 안전 여백 100px 확보 */
+    .poster-desc-area { text-align: center; margin-bottom: 10px; padding: 0 100px; }
+    .poster-desc { font-size: 22px; line-height: 1.5; color: #1e293b; font-weight: bold; white-space: pre-line; word-break: keep-all; }
 
     /* 하단 고정 영역 */
     .poster-footer {
@@ -121,7 +126,7 @@
     }
     #poster-qr {
       background: #ffffff;
-      padding: 6px;
+      padding: 5px;
       border: 1px solid #cbd5e1;
       display: inline-block;
       line-height: 0;
@@ -184,7 +189,7 @@
 </head>
 <body>
 
-  <!-- 작성자 패널 -->
+  <!-- 1. 작성 관리자 패널 -->
   <div id="admin-panel">
     <h2 style="margin-top:0; color:#0f172a;">역사 부착물 표준 디자인 제작기</h2>
 
@@ -199,8 +204,8 @@
     <div class="form-row">
       <label>표준 템플릿 선택:</label>
       <select id="tpl-select" onchange="applyTemplate()">
-        <option value="ban2">자전거·킥보드 운행금지 (경고/빨강)</option>
         <option value="ban1">관계자 외 출입금지 (경고/빨강)</option>
+        <option value="ban2">자전거·킥보드 운행금지 (경고/빨강)</option>
         <option value="toilet">화장실 안내 (방향/청록)</option>
         <option value="elevator">지상 엘리베이터 (방향/청록)</option>
         <option value="custom">직접 픽토그램 검색해서 넣기</option>
@@ -234,15 +239,14 @@
 
     <div class="form-row">
       <label>핵심 제목:</label>
-      <input type="text" id="doc-title" value="자전거·킥보드 운행금지">
+      <input type="text" id="doc-title" value="관계자 외 출입금지">
     </div>
 
     <div class="form-row">
       <label>기본 안내 내용 (종이 포스터 및 모바일에 모두 표시):</label>
-      <textarea id="doc-desc" rows="2">역사 내에서는 개인형 이동장치를 운행하실 수 없습니다.</textarea>
+      <textarea id="doc-desc" rows="2">용무가 있으신 고객은 고객안내센터로 연락주시기 바랍니다.</textarea>
     </div>
 
-    <!-- 모바일 전용 추가 내용 (유튜브 지원) -->
     <div class="form-row">
       <div class="mobile-only-box">
         <label style="color:#15803d; margin-bottom:4px;">
@@ -268,7 +272,7 @@
     </div>
   </div>
 
-  <!-- 2. A4 가로 인쇄 포스터 (예시 1번 테두리 완벽 구현) -->
+  <!-- 2. A4 가로 인쇄 포스터 -->
   <div id="poster-wrapper">
     <div id="print-poster">
 
@@ -277,7 +281,7 @@
         <img src="https://www.ictr.or.kr/main/img/main2025/logo.svg" referrerpolicy="no-referrer" class="official-logo-img" alt="인천교통공사">
       </div>
 
-      <!-- [예시 1번 100% 동일] 우측 테두리 일체형 분할 영문 컬럼 -->
+      <!-- [완벽 수정] 우측 테두리 일체형 분할 영문 컬럼 (튀어나옴 제로) -->
       <div class="right-border-column">
         <div class="right-line-top"></div>
         <div class="right-text-slot">
@@ -294,7 +298,7 @@
       <!-- 중앙 픽토그램 비주얼 -->
       <div class="poster-visual-area" id="p-visual"></div>
 
-      <!-- 종이용 간결한 설명 -->
+      <!-- 종이용 간결한 설명 (우측 여백 100px로 QR 침범 차단) -->
       <div class="poster-desc-area">
         <div id="p-desc" class="poster-desc"></div>
       </div>
@@ -340,6 +344,18 @@
 
   <script>
     var Presets = {
+      ban1: {
+        title: '관계자 외 출입금지',
+        desc: '용무가 있으신 고객은 고객안내센터로 연락주시기 바랍니다.',
+        extra: '- 고압 전기설비 및 기계실이 위치하여 감전 및 추락 위험이 있습니다.\n- 업무상 방문 고객은 고객안내센터(역무실)의 승인을 받아 직원의 안내를 받으시기 바랍니다.',
+        color: '#DC2626',
+        svg: `<svg viewBox="0 0 200 200" width="180" height="180">
+          <circle cx="100" cy="100" r="90" fill="none" stroke="#DC2626" stroke-width="16"/>
+          <line x1="36" y1="36" x2="164" y2="164" stroke="#DC2626" stroke-width="16"/>
+          <circle cx="100" cy="65" r="16" fill="#111"/>
+          <path d="M85 90 C85 85, 115 85, 115 90 L115 135 L108 135 L108 165 L92 165 L92 135 L85 135 Z" fill="#111"/>
+        </svg>`
+      },
       ban2: {
         title: '자전거·킥보드 운행금지',
         desc: '역사 내에서는 개인형 이동장치를 운행하실 수 없습니다.',
@@ -354,18 +370,6 @@
             <path d="M70 140 L105 100 L140 100 M105 100 L120 140 M92 88 L118 88"/>
             <path d="M165 110 L165 155 L150 155 M155 110 L175 110" stroke-width="5"/>
           </g>
-        </svg>`
-      },
-      ban1: {
-        title: '관계자 외 출입금지',
-        desc: '용무가 있으신 고객은 고객안내센터로 연락주시기 바랍니다.',
-        extra: '- 고압 전기설비 및 기계실이 위치하여 감전 및 추락 위험이 있습니다.\n- 업무상 방문 고객은 고객안내센터(역무실)의 승인을 받아 직원의 안내를 받으시기 바랍니다.',
-        color: '#DC2626',
-        svg: `<svg viewBox="0 0 200 200" width="180" height="180">
-          <circle cx="100" cy="100" r="90" fill="none" stroke="#DC2626" stroke-width="16"/>
-          <line x1="36" y1="36" x2="164" y2="164" stroke="#DC2626" stroke-width="16"/>
-          <circle cx="100" cy="65" r="16" fill="#111"/>
-          <path d="M85 90 C85 85, 115 85, 115 90 L115 135 L108 135 L108 165 L92 165 L92 135 L85 135 Z" fill="#111"/>
         </svg>`
       },
       toilet: {
@@ -403,7 +407,7 @@
       }
     };
 
-    var currentCustomVisual = Presets.ban2.svg;
+    var currentCustomVisual = Presets.ban1.svg;
 
     function extractYouTubeId(text) {
       var match = text.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
@@ -498,7 +502,7 @@
         var telBtn = document.getElementById('m-call');
         telBtn.style.backgroundColor = color;
         if (tel) {
-          telBtn.href = 'tel:' + phone[0];
+          telBtn.href = 'tel:' + tel;
         } else {
           telBtn.style.display = 'none';
         }
@@ -507,7 +511,7 @@
       }
     };
 
-    // [B] 포스터 & 초고화질 QR 생성 (스마트 압축 적용)
+    // [B] 포스터 & 초고화질 QR 생성
     function generatePoster() {
       try {
         var color = document.getElementById('color-code').value;
@@ -528,7 +532,6 @@
         document.getElementById('p-station').innerText = stationInput;
         document.getElementById('p-visual').innerHTML = currentCustomVisual;
 
-        // URL 파라미터 조합 (단축 템플릿 ID 우선)
         var params = new URLSearchParams();
         if (tpl !== 'custom' && Presets[tpl]) {
           params.set('id', tpl);
