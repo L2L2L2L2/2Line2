@@ -3,171 +3,279 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>인천교통공사 역사 부착물 모바일 안내</title>
-  <!-- 무료 오픈소스 QR코드 라이브러리 -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <title>역사 부착물 표준 안내 시스템</title>
+  <!-- 사내망 차단 대비: 공인 CDN 라이브러리 로드 -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <style>
-    /* 공통 인천교통공사 가이드 규격 */
-    body { font-family: "맑은 고딕", Malgun Gothic, sans-serif; margin: 0; background: #f4f5f7; }
-    
-    /* 1. 모바일 승객 화면 스타일 */
-    #mobile-view { max-width: 480px; margin: 0 auto; background: #fff; min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    .theme-bar { height: 8px; width: 100%; }
-    .content-box { padding: 30px 20px; text-align: center; }
-    .title { font-size: 26px; font-weight: bold; margin-bottom: 20px; word-break: keep-all; }
-    .icon-area { font-size: 60px; margin: 25px 0; }
-    .desc { font-size: 16px; color: #333; line-height: 1.6; word-break: keep-all; }
-    .footer { padding: 15px; border-top: 1px solid #eee; text-align: center; font-size: 14px; background: #fafafa; }
-    .call-btn { display: inline-block; margin-top: 8px; padding: 6px 14px; background: #0091AA; color: #fff; text-decoration: none; border-radius: 20px; font-weight: bold; }
+    * { box-sizing: border-box; font-family: "맑은 고딕", Malgun Gothic, sans-serif; }
+    body { margin: 0; background: #eaedf1; color: #222; }
 
-    /* 2. 관리자 작성/인쇄 모드 스타일 (화면 분기용) */
-    #admin-view { max-width: 800px; margin: 20px auto; padding: 20px; background: #fff; border-radius: 8px; }
-    .form-group { margin-bottom: 12px; }
-    label { font-weight: bold; display: block; margin-bottom: 4px; }
-    input, select, textarea { width: 100%; padding: 8px; box-sizing: border-box; }
+    /* [1] 작성 관리자 패널 */
+    #admin-panel { max-width: 900px; margin: 20px auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .form-row { margin-bottom: 15px; }
+    label { font-weight: bold; display: block; margin-bottom: 6px; font-size: 14px; }
+    input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 15px; }
+    .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+    button { padding: 12px 20px; border: none; border-radius: 4px; font-size: 15px; font-weight: bold; cursor: pointer; }
+    .btn-primary { background: #0078d4; color: #fff; }
+    .btn-print { background: #107c41; color: #fff; }
+
+    /* [2] A4 가로 인쇄용 포스터 레이아웃 (가이드 규격 계승) */
+    #print-poster {
+      display: none; /* 평소엔 숨김, 생성 시 노출 */
+      width: 297mm; height: 210mm; margin: 30px auto; background: #fff;
+      padding: 15mm 20mm; position: relative; border: 1px solid #ddd;
+    }
+    .poster-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; padding-bottom: 10px; }
+    .logo-text { font-size: 20px; font-weight: bold; color: #0091AA; }
     
-    /* 인쇄 시 A4 가로 설정 */
+    .poster-body { text-align: center; margin-top: 35px; }
+    .poster-title { font-size: 46px; font-weight: 900; line-height: 1.2; word-break: keep-all; margin-bottom: 30px; }
+    .poster-desc { font-size: 24px; line-height: 1.6; color: #333; word-break: keep-all; white-space: pre-line; }
+
+    .poster-footer {
+      position: absolute; bottom: 15mm; left: 20mm; right: 20mm;
+      display: flex; justify-content: space-between; align-items: flex-end;
+      border-top: 1px solid #ccc; padding-top: 15px;
+    }
+    .station-info { font-size: 22px; font-weight: bold; color: #111; }
+    .qr-box { text-align: center; }
+    #poster-qr canvas { border: 1px solid #000; padding: 4px; background: #fff; }
+    .qr-guide { font-size: 12px; color: #555; margin-top: 4px; font-weight: normal; }
+
+    /* [3] 스마트폰 승객 화면 (QR 스캔 시 열리는 화면) */
+    #mobile-view { max-width: 480px; margin: 0 auto; background: #fff; min-height: 100vh; display: none; flex-direction: column; justify-content: space-between; }
+    .m-topbar { height: 10px; width: 100%; }
+    .m-content { padding: 40px 20px; text-align: center; }
+    .m-title { font-size: 28px; font-weight: 900; margin-bottom: 25px; word-break: keep-all; }
+    .m-desc { font-size: 18px; line-height: 1.7; color: #333; white-space: pre-line; word-break: keep-all; text-align: left; background: #f8f9fa; padding: 20px; border-radius: 8px; }
+    .m-footer { padding: 20px; text-align: center; border-top: 1px solid #eee; background: #fafafa; }
+    .tel-btn { display: block; margin-top: 10px; padding: 12px; background: #0091AA; color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; }
+
+    /* [4] 인쇄 전용 CSS (@media print) */
     @media print {
-      body { background: #fff; }
-      #admin-view { display: none; }
-      #print-area { display: block !important; width: 100%; }
+      @page { size: A4 landscape; margin: 0; }
+      body { background: #fff; margin: 0; }
+      #admin-panel, #url-copy-box, .btn-group { display: none !important; }
+      #print-poster { display: block !important; border: none; margin: 0; width: 297mm; height: 210mm; page-break-after: avoid; }
     }
   </style>
 </head>
 <body>
 
-  <!-- (A) 직원용 작성기 (URL 파라미터가 없을 때 표시) -->
-  <div id="admin-view">
-    <h2>역사 안내문 생성 및 인쇄 관리</h2>
-    <div class="form-group">
-      <label>이전 작성물 불러오기 (수정용 QR 링크 입력):</label>
-      <input type="text" id="load-url" placeholder="이전에 복사해둔 링크를 붙여넣으면 내용이 복원됩니다.">
-      <button type="button" onclick="loadPreviousData()" style="margin-top:5px;">불러오기</button>
+  <!-- 1. 작성 화면 -->
+  <div id="admin-panel">
+    <h2 style="margin-top:0;">역사 내 부착물 제작 및 QR 생성기</h2>
+    
+    <div class="form-row" style="background: #f0f4f8; padding: 12px; border-radius: 4px;">
+      <label>기존 포스터 내용 불러오기 (수정용):</label>
+      <div style="display:flex; gap:10px;">
+        <input type="text" id="load-url" placeholder="이전에 복사해둔 링크를 붙여넣으세요.">
+        <button type="button" onclick="loadPreviousData()" style="width:120px; background:#444; color:#fff;">불러오기</button>
+      </div>
     </div>
-    <hr>
-    <div class="form-group">
-      <label>자주 쓰는 양식 템플릿 선택:</label>
+
+    <div class="form-row">
+      <label>표준 템플릿 선택:</label>
       <select id="tpl-select" onchange="applyTemplate()">
-        <option value="">직접 입력</option>
+        <option value="">-- 직접 입력 --</option>
         <option value="time">열차 운행 시간표 변경 안내</option>
-        <option value="transfer">환승 통로 안내</option>
-        <option value="repair">시설물 수리/점검 안내</option>
+        <option value="first">첫차 시간표 안내</option>
+        <option value="transfer">환승 통로 이용 안내</option>
+        <option value="repair">승강기/시설물 점검 중 안내</option>
       </select>
     </div>
-    <div class="form-group">
-      <label>안내 분류 (가이드 기준):</label>
-      <select id="notice-type">
+
+    <div class="form-row">
+      <label>분류 (표준 테마 색상):</label>
+      <select id="color-code">
         <option value="#2563EB">1. 안내/정보 (파란색)</option>
         <option value="#0091AA">2. 방향/동선 (청록색)</option>
         <option value="#16A34A">3. 안전/재난 (녹색)</option>
         <option value="#DC2626">4. 경고/금지 (빨간색)</option>
       </select>
     </div>
-    <div class="form-group">
-      <label>핵심 제목:</label>
-      <input type="text" id="notice-title" value="열차 운행 시간표 변경 안내">
+
+    <div class="form-row">
+      <label>핵심 제목 (가장 굵고 큰 글씨):</label>
+      <input type="text" id="doc-title" value="열차 운행 시간표 변경 안내">
     </div>
-    <div class="form-group">
-      <label>상세 안내 문구:</label>
-      <textarea id="notice-desc" rows="3">임시 열차 증편 운행에 따라 막차 운행 시간이 변경됨을 알려드립니다.</textarea>
+
+    <div class="form-row">
+      <label>상세 내용:</label>
+      <textarea id="doc-desc" rows="4">임시 열차 증편 운행에 따라 막차 운행 시간이 변경됨을 알려드립니다.&#10;※ 기존 열차 운행시간은 변동 없습니다.</textarea>
     </div>
-    <div class="form-group">
-      <label>역명 및 연락처:</label>
-      <input type="text" id="station-name" value="송도달빛축제공원역 (032-451-3139)">
+
+    <div class="form-row">
+      <label>역명 및 전화번호 (하단 고정):</label>
+      <input type="text" id="doc-station" value="송도달빛축제공원역 032-451-3139">
     </div>
-    <button onclick="generateQRAndPrint()" style="padding: 10px 20px; font-size:16px; background:#0078d4; color:#fff; border:none; cursor:pointer;">
-      QR 생성 및 인쇄하기
-    </button>
+
+    <div class="btn-group">
+      <button class="btn-primary" onclick="generatePoster()">1. 포스터 & QR 생성하기</button>
+      <button class="btn-print" onclick="window.print()">2. A4 가로 인쇄하기</button>
+    </div>
+
+    <div id="url-copy-box" style="margin-top:20px; display:none; background:#e8f4fd; padding:12px; border-radius:4px;">
+      <label>추후 수정을 위한 보관 링크 (복사해 두세요):</label>
+      <input type="text" id="export-url" readonly onclick="this.select()">
+    </div>
   </div>
 
-  <!-- (B) 승객용 모바일 화면 (QR 스캔 시 표시) -->
-  <div id="mobile-view" style="display:none;">
-    <div>
-      <div id="m-bar" class="theme-bar"></div>
-      <div class="content-box">
-        <div id="m-title" class="title"></div>
-        <div id="m-icon" class="icon-area">📢</div>
-        <div id="m-desc" class="desc"></div>
+  <!-- 2. 인쇄용 포스터 (화면 미리보기 및 실제 A4 인쇄물) -->
+  <div id="print-poster">
+    <div class="poster-header">
+      <div class="logo-text">인천교통공사</div>
+      <div id="p-category" style="font-size:14px; font-weight:bold; color:#777;">역사 부착물 표준 양식</div>
+    </div>
+    <div class="poster-body">
+      <div id="p-title" class="poster-title"></div>
+      <div id="p-desc" class="poster-desc"></div>
+    </div>
+    <div class="poster-footer">
+      <div id="p-station" class="station-info"></div>
+      <div class="qr-box">
+        <div id="poster-qr"></div>
+        <div class="qr-guide">스마트폰 스캔 시 모바일 안내</div>
       </div>
     </div>
-    <div class="footer">
-      <div id="m-station"></div>
-      <a id="m-call" href="#" class="call-btn">역무실 전화 연결</a>
+  </div>
+
+  <!-- 3. 모바일 승객용 뷰어 -->
+  <div id="mobile-view">
+    <div>
+      <div id="m-bar" class="m-topbar"></div>
+      <div class="m-content">
+        <div id="m-title" class="m-title"></div>
+        <div id="m-desc" class="m-desc"></div>
+      </div>
+    </div>
+    <div class="m-footer">
+      <div id="m-station" style="font-weight:bold; font-size:16px;"></div>
+      <a id="m-call" href="#" class="tel-btn">역무실로 전화하기</a>
     </div>
   </div>
 
   <script>
-    // 1. URL 확인 (승객이 QR을 찍고 들어온 경우)
+    // [A] 페이지 접속 시 모바일 뷰어 분기
     window.onload = function() {
       const hash = window.location.hash.substring(1);
       if (hash) {
-        // 모바일 승객 모드로 전환
-        document.getElementById('admin-view').style.display = 'none';
+        // 승객이 QR코드로 들어온 경우: 관리자창 숨기고 모바일 화면만 표시
+        document.getElementById('admin-panel').style.display = 'none';
+        document.getElementById('print-poster').style.display = 'none';
         document.getElementById('mobile-view').style.display = 'flex';
-        
-        const data = JSON.parse(decodeURIComponent(escape(atob(hash))));
-        document.getElementById('m-bar').style.backgroundColor = data.color;
-        document.getElementById('m-title').innerText = data.title;
-        document.getElementById('m-title').style.color = data.color;
-        document.getElementById('m-desc').innerText = data.desc;
-        document.getElementById('m-station').innerText = data.station;
-        
-        // 전화번호 파싱 (032-... 형태 추출)
-        const phone = data.station.match(/[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}/);
-        if (phone) {
-          document.getElementById('m-call').href = 'tel:' + phone[0];
+
+        try {
+          const data = JSON.parse(decodeURIComponent(escape(atob(hash))));
+          document.getElementById('m-bar').style.backgroundColor = data.c;
+          document.getElementById('m-title').innerText = data.t;
+          document.getElementById('m-title').style.color = data.c;
+          document.getElementById('m-desc').innerText = data.d;
+          document.getElementById('m-station').innerText = data.s;
+
+          // 전화번호 추출 및 통화 링크 연결
+          const phone = data.s.match(/[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}/);
+          if (phone) {
+            document.getElementById('m-call').href = 'tel:' + phone[0];
+          } else {
+            document.getElementById('m-call').style.display = 'none';
+          }
+        } catch(e) {
+          alert('데이터를 읽어오지 못했습니다.');
         }
       }
     };
 
-    // 2. 자주 쓰는 템플릿 자동 채우기
+    // [B] 포스터 및 QR코드 생성 로직
+    function generatePoster() {
+      const color = document.getElementById('color-code').value;
+      const title = document.getElementById('doc-title').value;
+      const desc = document.getElementById('doc-desc').value;
+      const station = document.getElementById('doc-station').value;
+
+      // 1. 인쇄 영역에 텍스트 반영
+      document.getElementById('p-title').innerText = title;
+      document.getElementById('p-title').style.color = color;
+      document.getElementById('p-desc').innerText = desc;
+      document.getElementById('p-station').innerText = station;
+
+      // 2. 모바일용 압축 URL 생성 (Stateless Base64)
+      const payload = { c: color, t: title, d: desc, s: station };
+      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+      const targetUrl = window.location.origin + window.location.pathname + '#' + encoded;
+
+      // 3. QR코드 렌더링 (Canvas 생성)
+      const qrContainer = document.getElementById('poster-qr');
+      qrContainer.innerHTML = ''; // 기존 QR 초기화
+
+      if (typeof QRCode !== 'undefined') {
+        // QRCode 라이브러리를 사용해 110x110px 캔버스 렌더링
+        QRCode.toCanvas(targetUrl, { width: 110, margin: 1 }, function (err, canvas) {
+          if (err) {
+            console.error(err);
+            alert('QR코드 생성 실패');
+            return;
+          }
+          qrContainer.appendChild(canvas);
+        });
+      } else {
+        // 사내망 차단 등으로 JS가 안 불러와졌을 때 안전 Fallback (구글 차단 환경에서도 보통 열리는 오픈 이미지 API)
+        const img = document.createElement('img');
+        img.src = "https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=" + encodeURIComponent(targetUrl);
+        img.width = 110;
+        img.height = 110;
+        qrContainer.appendChild(img);
+      }
+
+      // 4. 인쇄 포스터 노출 및 보관용 링크 제공
+      document.getElementById('print-poster').style.display = 'block';
+      document.getElementById('url-copy-box').style.display = 'block';
+      document.getElementById('export-url').value = targetUrl;
+
+      // 화면을 인쇄 미리보기 위치로 부드럽게 스크롤
+      document.getElementById('print-poster').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // [C] 템플릿 프리셋
     function applyTemplate() {
-      const t = document.getElementById('tpl-select').value;
-      if (t === 'time') {
-        document.getElementById('notice-type').value = '#2563EB';
-        document.getElementById('notice-title').value = '열차 운행 시간표 변경 안내';
-        document.getElementById('notice-desc').value = '임시 열차 증편 운행에 따라 막차 운행 시간이 변경됨을 알려드립니다.\n※ 기존 열차 운행시간은 변경사항 없음';
-      } else if (t === 'transfer') {
-        document.getElementById('notice-type').value = '#0091AA';
-        document.getElementById('notice-title').value = '환승 통로 이용 안내';
-        document.getElementById('notice-desc').value = '해당 방면 환승 통로는 승강장 6-1칸 앞 에스컬레이터를 이용해 주시기 바랍니다.';
-      } else if (t === 'repair') {
-        document.getElementById('notice-type').value = '#2563EB';
-        document.getElementById('notice-title').value = '시설물 점검 중';
-        document.getElementById('notice-desc').value = '현재 승강기 점검 중입니다. 조치 완료 시까지 인근 계단을 이용해 주시기 바랍니다.';
+      const type = document.getElementById('tpl-select').value;
+      if (type === 'time') {
+        document.getElementById('color-code').value = '#2563EB';
+        document.getElementById('doc-title').value = '열차 운행 시간표 변경 안내';
+        document.getElementById('doc-desc').value = '임시 열차 증편 운행에 따라 막차 운행 시간이 변경됨을 알려드립니다.\n※ 기존 열차 운행시간은 변동 없습니다.';
+      } else if (type === 'first') {
+        document.getElementById('color-code').value = '#2563EB';
+        document.getElementById('doc-title').value = '첫차 시간표 안내';
+        document.getElementById('doc-desc').value = '송도달빛축제공원행 05:33 출발\n검단호수공원행 05:40 출발\n상세 시간표는 모바일에서 확인하세요.';
+      } else if (type === 'transfer') {
+        document.getElementById('color-code').value = '#0091AA';
+        document.getElementById('doc-title').value = '환승 통로 안내';
+        document.getElementById('doc-desc').value = '이곳은 환승 통로가 아닙니다.\n승강장 1-1칸 앞 에스컬레이터를 이용해 이동하시기 바랍니다.';
+      } else if (type === 'repair') {
+        document.getElementById('color-code').value = '#2563EB';
+        document.getElementById('doc-title').value = '승강기 점검 중 이용 안내';
+        document.getElementById('doc-desc').value = '현재 엘리베이터 점검 진행 중입니다.\n조치 완료 시까지 인근 계단을 이용해 주시기 바랍니다.\n불편을 드려 죄송합니다.';
       }
     }
 
-    // 3. QR코드 생성 및 데이터 패키징
-    function generateQRAndPrint() {
-      const data = {
-        color: document.getElementById('notice-type').value,
-        title: document.getElementById('notice-title').value,
-        desc: document.getElementById('notice-desc').value,
-        station: document.getElementById('station-name').value
-      };
-      
-      // 데이터를 Base64로 압축하여 모바일 주소 생성
-      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
-      const targetUrl = window.location.origin + window.location.pathname + '#' + encoded;
-      
-      // 수정용 링크 알림
-      prompt("이 링크를 복사해두면 나중에 그대로 불러와서 수정할 수 있습니다:", targetUrl);
-      
-      // 인쇄 화면 호출 또는 QR 이미지 생성 로직 실행
-    }
-
-    // 4. 이전 작성물 복원 (수정 기능)
+    // [D] 이전 링크 복원(수정) 기능
     function loadPreviousData() {
-      const inputUrl = document.getElementById('load-url').value;
-      const hash = inputUrl.split('#')[1];
-      if (hash) {
+      const url = document.getElementById('load-url').value;
+      const hash = url.split('#')[1];
+      if (!hash) {
+        alert('올바른 링크 형식이 아닙니다 (# 뒤의 코드가 필요합니다).');
+        return;
+      }
+      try {
         const data = JSON.parse(decodeURIComponent(escape(atob(hash))));
-        document.getElementById('notice-type').value = data.color;
-        document.getElementById('notice-title').value = data.title;
-        document.getElementById('notice-desc').value = data.desc;
-        document.getElementById('station-name').value = data.station;
-        alert('이전 작성 내용을 불러왔습니다. 수정 후 다시 인쇄하세요.');
+        document.getElementById('color-code').value = data.c;
+        document.getElementById('doc-title').value = data.t;
+        document.getElementById('doc-desc').value = data.d;
+        document.getElementById('doc-station').value = data.s;
+        alert('이전 안내문 내용을 불러왔습니다. 내용 수정 후 [생성] 버튼을 누르세요.');
+      } catch(e) {
+        alert('데이터 복원에 실패했습니다.');
       }
     }
   </script>
