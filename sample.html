@@ -23,6 +23,11 @@
 
     .svgrepo-box { background: #f8fafc; border: 2px dashed #94a3b8; padding: 15px; border-radius: 8px; margin-top: 6px; }
 
+    /* 모바일 전용 입력칸 */
+    .mobile-only-box {
+      background: #f0fdf4; border: 1.5px solid #86efac; padding: 14px; border-radius: 8px; margin-top: 6px;
+    }
+
     /* [2] A4 가로 인쇄 포스터 (PDF 원본 규격) */
     #poster-wrapper { display: none; margin: 30px auto; max-width: 920px; }
     
@@ -41,7 +46,7 @@
 
     /* 좌측 상단 공식 로고 */
     .poster-header { display: flex; align-items: center; min-height: 42px; }
-    .custom-logo-img { max-height: 38px; width: auto; object-fit: contain; }
+    .official-logo-img { max-height: 38px; width: auto; object-fit: contain; }
 
     /* 우측 테두리 세로 영문 */
     .vertical-brand-text {
@@ -65,7 +70,7 @@
       max-height: 190px; max-width: 70%; width: auto; height: auto;
     }
 
-    /* 설명 문구 */
+    /* 설명 문구 (종이용) */
     .poster-desc-area { text-align: center; margin-bottom: 10px; }
     .poster-desc { font-size: 23px; line-height: 1.5; color: #1e293b; font-weight: bold; white-space: pre-line; word-break: keep-all; }
 
@@ -78,9 +83,9 @@
       display: flex; align-items: center; gap: 10px;
       font-size: 23px; font-weight: 900; color: #0f172a;
     }
-    .footer-symbol-img { max-height: 30px; width: auto; }
+    .footer-logo-img { max-height: 30px; width: auto; }
     
-    /* QR코드 영역 (안전 여백 및 고해상도 박스) */
+    /* QR코드 영역 */
     .qr-container {
       position: absolute; right: 0; bottom: 0; text-align: center;
     }
@@ -91,7 +96,6 @@
       display: inline-block;
       line-height: 0;
     }
-    /* 고해상도(250px) 캔버스를 85px 크기로 선명하게 압축 표시 */
     #poster-qr img, #poster-qr canvas {
       width: 85px !important;
       height: 85px !important;
@@ -105,7 +109,25 @@
     .m-title { font-size: 26px; font-weight: 900; margin-bottom: 15px; word-break: keep-all; }
     .m-visual { margin: 20px 0; }
     .m-visual svg, .m-visual img { max-height: 140px; width: auto; }
-    .m-desc { font-size: 17px; line-height: 1.6; color: #334155; white-space: pre-line; word-break: keep-all; text-align: left; background: #f8fafc; padding: 18px; border-radius: 8px; border: 1px solid #e2e8f0; }
+    .m-desc { font-size: 17px; line-height: 1.6; color: #334155; white-space: pre-line; word-break: keep-all; text-align: left; background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; }
+    
+    /* 모바일 추가 안내 & 유튜브 플레이어 박스 */
+    #m-extra-box {
+      margin-top: 14px; padding: 16px; background: #eff6ff; border: 1px solid #bfdbfe;
+      border-radius: 8px; text-align: left;
+    }
+    .m-extra-tag { font-size: 13px; font-weight: bold; color: #1d4ed8; margin-bottom: 8px; display: flex; align-items: center; gap: 4px; }
+    #m-extra-text { font-size: 15px; line-height: 1.65; color: #1e293b; white-space: pre-line; word-break: keep-all; margin-bottom: 10px; }
+    
+    /* 반응형 16:9 유튜브 플레이어 컨테이너 */
+    .video-container {
+      position: relative; width: 100%; padding-bottom: 56.25%; height: 0;
+      margin-top: 10px; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .video-container iframe {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;
+    }
+
     .m-footer { padding: 20px; text-align: center; border-top: 1px solid #e2e8f0; background: #fafafa; }
     .tel-btn { display: block; margin-top: 10px; padding: 14px; color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; }
 
@@ -140,16 +162,6 @@
         <input type="text" id="load-url" placeholder="이전에 복사해둔 링크를 넣으면 내용이 복원됩니다.">
         <button type="button" class="btn-sub" onclick="loadPreviousData()" style="width:120px;">불러오기</button>
       </div>
-    </div>
-
-    <!-- 로고 등록 -->
-    <div class="form-row">
-      <label>공식 로고 설정 (보유 중인 로고 이미지 파일 등록):</label>
-      <div style="display:flex; gap:10px; align-items:center;">
-        <input type="file" id="logo-file-input" accept="image/*" onchange="handleLogoUpload(this)">
-        <button type="button" class="btn-sub" onclick="resetDefaultLogo()" style="width:140px;">기본 CI로 복구</button>
-      </div>
-      <small style="color:#64748b;">* 파일을 등록하지 않아도 올려주신 공식 CI 디자인이 기본 적용됩니다.</small>
     </div>
 
     <div class="form-row">
@@ -194,8 +206,18 @@
     </div>
 
     <div class="form-row">
-      <label>상세 내용:</label>
+      <label>기본 안내 내용 (종이 포스터 및 모바일에 모두 표시):</label>
       <textarea id="doc-desc" rows="2">역사 내에서는 개인형 이동장치를 운행하실 수 없습니다.</textarea>
+    </div>
+
+    <!-- 모바일 전용 추가 내용 (유튜브 지원) -->
+    <div class="form-row">
+      <div class="mobile-only-box">
+        <label style="color:#15803d; margin-bottom:4px;">
+          📱 모바일 전용 추가 상세 안내 (유튜브 링크 넣으면 영상 플레이어로 자동 변환됩니다)
+        </label>
+        <textarea id="doc-extra" rows="3" placeholder="예: 상세 수칙 설명 및 https://youtu.be/... 링크를 넣으면 영상 플레이어가 모바일 화면에 바로 뜹니다."></textarea>
+      </div>
     </div>
 
     <div class="form-row">
@@ -218,15 +240,9 @@
   <div id="poster-wrapper">
     <div id="print-poster">
 
-      <!-- 상단 공식 로고 -->
-      <div class="poster-header" id="p-header-logo">
-        <svg id="default-logo-svg" width="185" height="38" viewBox="0 0 210 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="5" y="18" width="12" height="22" rx="4" fill="#E8501E"/>
-          <rect x="21" y="9" width="12" height="31" rx="4" fill="#70B328"/>
-          <rect x="37" y="0" width="12" height="40" rx="4" fill="#0091DA"/>
-          <text x="60" y="31" font-family="'맑은 고딕', sans-serif" font-size="24" font-weight="900" fill="#000000" letter-spacing="-1.5px">인천교통공사</text>
-        </svg>
-        <img id="custom-logo-img" class="custom-logo-img" style="display:none;" alt="인천교통공사 로고">
+      <!-- 상단 공식 로고 (공식 사이트 SVG 연동) -->
+      <div class="poster-header">
+        <img src="https://www.ictr.or.kr/main/img/main2025/logo.svg" referrerpolicy="no-referrer" class="official-logo-img" alt="인천교통공사">
       </div>
 
       <!-- 우측 테두리 세로 영문 -->
@@ -240,22 +256,15 @@
       <!-- 중앙 픽토그램 비주얼 -->
       <div class="poster-visual-area" id="p-visual"></div>
 
-      <!-- 설명 문구 -->
+      <!-- 종이용 간결한 설명 -->
       <div class="poster-desc-area">
         <div id="p-desc" class="poster-desc"></div>
       </div>
 
-      <!-- 하단 고정: 심볼 + 역명 / QR 우측 -->
+      <!-- 하단 고정: 공식 로고 + 역명 / QR 우측 -->
       <div class="poster-footer">
         <div class="footer-center">
-          <div id="p-footer-logo">
-            <svg id="default-footer-svg" width="34" height="34" viewBox="0 0 55 45" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="2" y="18" width="12" height="22" rx="4" fill="#E8501E"/>
-              <rect x="18" y="9" width="12" height="31" rx="4" fill="#70B328"/>
-              <rect x="34" y="0" width="12" height="40" rx="4" fill="#0091DA"/>
-            </svg>
-            <img id="custom-footer-img" class="footer-symbol-img" style="display:none;" alt="CI">
-          </div>
+          <img src="https://www.ictr.or.kr/main/img/main2025/logo.svg" referrerpolicy="no-referrer" class="footer-logo-img" alt="인천교통공사">
           <span id="p-station"></span>
         </div>
         <div class="qr-container">
@@ -267,21 +276,23 @@
     </div>
   </div>
 
-  <!-- 3. 모바일 승객 전용 화면 -->
+  <!-- 3. 모바일 승객 전용 화면 (유튜브 플레이어 포함) -->
   <div id="mobile-view">
     <div>
-      <div class="m-header" id="m-header-logo">
-        <svg width="150" height="32" viewBox="0 0 210 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="5" y="18" width="12" height="22" rx="4" fill="#E8501E"/>
-          <rect x="21" y="9" width="12" height="31" rx="4" fill="#70B328"/>
-          <rect x="37" y="0" width="12" height="40" rx="4" fill="#0091DA"/>
-          <text x="60" y="31" font-family="'맑은 고딕', sans-serif" font-size="24" font-weight="900" fill="#000000" letter-spacing="-1.5px">인천교통공사</text>
-        </svg>
+      <div class="m-header">
+        <img src="https://www.ictr.or.kr/main/img/main2025/logo.svg" referrerpolicy="no-referrer" style="max-height:30px; width:auto;" alt="인천교통공사">
       </div>
       <div class="m-content">
         <div id="m-title" class="m-title"></div>
         <div class="m-visual" id="m-visual"></div>
         <div id="m-desc" class="m-desc"></div>
+
+        <!-- 추가 안내 & 유튜브 플레이어 영역 -->
+        <div id="m-extra-box" style="display:none;">
+          <div class="m-extra-tag">📌 상세 안내 및 관련 영상</div>
+          <div id="m-extra-text"></div>
+          <div id="m-video-container" style="display:none;" class="video-container"></div>
+        </div>
       </div>
     </div>
     <div class="m-footer">
@@ -295,6 +306,7 @@
       ban2: {
         title: '자전거·킥보드 운행금지',
         desc: '역사 내에서는 개인형 이동장치를 운행하실 수 없습니다.',
+        extra: '- 전동 킥보드, 전동 휠 등 개인형 이동장치(PM) 탑승 전면 금지\n- 접이식 자전거는 완전히 접은 상태로만 휴대 가능합니다.\n- 역사 내 안전사고 발생 시 관련 법령에 따라 과태료 및 배상 책임이 발생할 수 있습니다.',
         color: '#DC2626',
         svg: `<svg viewBox="0 0 220 220" width="190" height="190">
           <circle cx="110" cy="110" r="95" fill="none" stroke="#DC2626" stroke-width="18"/>
@@ -310,6 +322,7 @@
       ban1: {
         title: '관계자 외 출입금지',
         desc: '용무가 있으신 고객은 고객안내센터로 연락주시기 바랍니다.',
+        extra: '- 고압 전기설비 및 기계실이 위치하여 감전 및 추락 위험이 있습니다.\n- 업무상 방문 고객은 고객안내센터(역무실)의 승인을 받아 직원의 안내를 받으시기 바랍니다.',
         color: '#DC2626',
         svg: `<svg viewBox="0 0 200 200" width="180" height="180">
           <circle cx="100" cy="100" r="90" fill="none" stroke="#DC2626" stroke-width="16"/>
@@ -321,6 +334,7 @@
       toilet: {
         title: '화 장 실',
         desc: '화장실은 1번 출구 앞에 있습니다.',
+        extra: '- 1번 출구 에스컬레이터 우측 뒤편 위치\n- 장애인/교통약자 화장실 및 기저귀 교환대 완비\n- 긴급 상황 시 내부 비상벨을 눌러주시면 역무원이 출동합니다.',
         color: '#0091AA',
         svg: `<svg viewBox="0 0 450 200" width="380" height="170">
           <rect x="10" y="10" width="180" height="180" rx="25" fill="#fff" stroke="#111" stroke-width="12"/>
@@ -336,6 +350,7 @@
       elevator: {
         title: '지상 엘리베이터',
         desc: '지상 엘리베이터는 5번 출구 앞에 있습니다.',
+        extra: '- 지상 5번 출구 방면 횡단보도 바로 앞 위치\n- 휠체어, 유모차, 노약자 및 무거운 짐을 소지하신 승객 우선 이용 권장\n- 승강기 고장 신고는 하단 역무실 번호로 즉시 연락 바랍니다.',
         color: '#0091AA',
         svg: `<svg viewBox="0 0 450 200" width="380" height="170">
           <rect x="10" y="10" width="180" height="180" rx="25" fill="#fff" stroke="#111" stroke-width="12"/>
@@ -352,6 +367,12 @@
     };
 
     var currentCustomVisual = Presets.ban2.svg;
+
+    // 유튜브 영상 ID 추출 정규식 함수
+    function extractYouTubeId(text) {
+      var match = text.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+      return match ? match[1] : null;
+    }
 
     function openSvgRepo() {
       var kw = document.getElementById('svg-search-kw').value.trim() || 'warning';
@@ -387,51 +408,28 @@
       }
     }
 
-    function handleLogoUpload(input) {
-      if (input.files && input.files[0]) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-          var src = e.target.result;
-          document.getElementById('default-logo-svg').style.display = 'none';
-          document.getElementById('default-footer-svg').style.display = 'none';
-          var logoImg = document.getElementById('custom-logo-img');
-          logoImg.src = src; logoImg.style.display = 'block';
-          var footerImg = document.getElementById('custom-footer-img');
-          footerImg.src = src; footerImg.style.display = 'block';
-        };
-        reader.readAsDataURL(input.files[0]);
-      }
-    }
-
-    function resetDefaultLogo() {
-      document.getElementById('default-logo-svg').style.display = 'block';
-      document.getElementById('default-footer-svg').style.display = 'block';
-      document.getElementById('custom-logo-img').style.display = 'none';
-      document.getElementById('custom-footer-img').style.display = 'none';
-      document.getElementById('logo-file-input').value = '';
-    }
-
     // [A] QR 접속 감지 (모바일 승객 모드)
     window.onload = function() {
       var params = new URLSearchParams(window.location.search);
-      // 1. 단축 템플릿 ID로 접속한 경우
       if (params.has('id') || params.has('t')) {
         document.getElementById('admin-panel').style.display = 'none';
         document.getElementById('poster-wrapper').style.display = 'none';
         var mobileView = document.getElementById('mobile-view');
         mobileView.style.display = 'flex';
 
-        var title, desc, color, svg;
+        var title, desc, extra, color, svg;
         var tplId = params.get('id');
 
         if (tplId && Presets[tplId]) {
           title = Presets[tplId].title;
           desc = Presets[tplId].desc;
+          extra = params.has('m') ? params.get('m') : Presets[tplId].extra;
           color = Presets[tplId].color;
           svg = Presets[tplId].svg;
         } else {
           title = params.get('t') || '';
           desc = params.get('d') || '';
+          extra = params.get('m') || '';
           color = params.get('c') || '#0091AA';
           svg = '';
         }
@@ -445,6 +443,23 @@
         document.getElementById('m-station').innerText = station + (tel ? '  ' + tel : '');
         document.getElementById('m-visual').innerHTML = svg;
 
+        // 추가 내용 및 유튜브 영상 렌더링
+        if (extra && extra.trim() !== '') {
+          var ytid = extractYouTubeId(extra);
+          var cleanText = extra.replace(/(https?:\/\/[^\s]+)/g, '').trim();
+
+          document.getElementById('m-extra-text').innerText = cleanText || '아래 안내 영상을 확인해 주세요.';
+          
+          if (ytid) {
+            var videoBox = document.getElementById('m-video-container');
+            videoBox.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + ytid + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+            videoBox.style.display = 'block';
+          }
+          document.getElementById('m-extra-box').style.display = 'block';
+        } else {
+          document.getElementById('m-extra-box').style.display = 'none';
+        }
+
         var telBtn = document.getElementById('m-call');
         telBtn.style.backgroundColor = color;
         if (tel) {
@@ -457,21 +472,21 @@
       }
     };
 
-    // [B] 초고화질 QR코드 생성 로직 (100% 인식 보장)
+    // [B] 포스터 & 초고화질 QR 생성
     function generatePoster() {
       try {
         var color = document.getElementById('color-code').value;
         var title = document.getElementById('doc-title').value;
         var desc = document.getElementById('doc-desc').value;
+        var extra = document.getElementById('doc-extra').value.trim();
         var stationInput = document.getElementById('doc-station').value;
         var tpl = document.getElementById('tpl-select').value;
 
-        // 역명과 전화번호 분리
         var telMatch = stationInput.match(/[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}/);
         var tel = telMatch ? telMatch[0] : '';
         var station = stationInput.replace(tel, '').trim();
 
-        // 1. 포스터 텍스트 반영
+        // 포스터 텍스트 반영
         var pTitle = document.getElementById('p-title');
         pTitle.innerText = title;
         pTitle.style.color = color;
@@ -479,7 +494,7 @@
         document.getElementById('p-station').innerText = stationInput;
         document.getElementById('p-visual').innerHTML = currentCustomVisual;
 
-        // 2. [초단축 파라미터 조합] -> QR 점 개수를 최소화하여 굵고 선명하게 만듦
+        // URL 파라미터 조합
         var params = new URLSearchParams();
         if (tpl !== 'custom' && Presets[tpl]) {
           params.set('id', tpl);
@@ -490,24 +505,24 @@
         }
         params.set('st', station);
         if (tel) params.set('tel', tel);
+        if (extra !== '') params.set('m', extra);
 
         var currentUrl = window.location.origin + window.location.pathname;
         var targetUrl = currentUrl + '?' + params.toString();
 
-        // 3. [초고해상도 250px 캔버스 생성 + 100% 인식 레벨]
+        // 250px 고해상도 QR 생성
         var qrContainer = document.getElementById('poster-qr');
         qrContainer.innerHTML = '';
 
         new QRCode(qrContainer, {
           text: targetUrl,
-          width: 250,        // 250px 초고해상도로 점이 뭉개지지 않게 렌더링
+          width: 250,
           height: 250,
           colorDark: "#000000",
           colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.L // 저밀도 & 넓은 블록으로 인식 속도 극대화
+          correctLevel: QRCode.CorrectLevel.L
         });
 
-        // 4. 화면 노출
         var wrapper = document.getElementById('poster-wrapper');
         wrapper.style.display = 'block';
         document.getElementById('url-copy-box').style.display = 'block';
@@ -518,19 +533,18 @@
       }
     }
 
-    // [C] 템플릿 변경
     function applyTemplate() {
       var type = document.getElementById('tpl-select').value;
       if (Presets[type]) {
         document.getElementById('color-code').value = Presets[type].color;
         document.getElementById('doc-title').value = Presets[type].title;
         document.getElementById('doc-desc').value = Presets[type].desc;
+        document.getElementById('doc-extra').value = Presets[type].extra;
         currentCustomVisual = Presets[type].svg;
       }
       document.getElementById('p-visual').innerHTML = currentCustomVisual;
     }
 
-    // [D] 이전 데이터 복원
     function loadPreviousData() {
       var inputUrl = document.getElementById('load-url').value;
       try {
@@ -549,10 +563,13 @@
           document.getElementById('doc-title').value = params.get('t') || '';
           document.getElementById('doc-desc').value = params.get('d') || '';
         }
+        if (params.has('m')) {
+          document.getElementById('doc-extra').value = params.get('m');
+        }
         var st = params.get('st') || '';
         var tel = params.get('tel') || '';
         document.getElementById('doc-station').value = st + (tel ? '  ' + tel : '');
-        alert('이전 작성 내용을 불러왔습니다.');
+        alert('이전 작성 내용을 성공적으로 불러왔습니다.');
       } catch(e) {
         alert('데이터 복원에 실패했습니다.');
       }
