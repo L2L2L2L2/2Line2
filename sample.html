@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>인천교통공사 역사 부착물 제작 시스템</title>
-  <!-- 고성능 표준 QR 라이브러리 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     * { box-sizing: border-box; font-family: "맑은 고딕", "Malgun Gothic", sans-serif; }
@@ -22,13 +21,9 @@
     .btn-sub { background: #475569; color: #fff; padding: 8px 14px; font-size: 13px; }
 
     .svgrepo-box { background: #f8fafc; border: 2px dashed #94a3b8; padding: 15px; border-radius: 8px; margin-top: 6px; }
+    .mobile-only-box { background: #f0fdf4; border: 1.5px solid #86efac; padding: 14px; border-radius: 8px; margin-top: 6px; }
 
-    /* 모바일 전용 입력칸 */
-    .mobile-only-box {
-      background: #f0fdf4; border: 1.5px solid #86efac; padding: 14px; border-radius: 8px; margin-top: 6px;
-    }
-
-    /* [2] A4 가로 인쇄 포스터 (PDF 원본 규격) */
+    /* [2] A4 가로 인쇄 포스터 (예시 이미지 100% 동일 규격) */
     #poster-wrapper { display: none; margin: 30px auto; max-width: 920px; }
     
     #print-poster {
@@ -36,7 +31,11 @@
       aspect-ratio: 297 / 210;
       background: #fff;
       position: relative;
-      border: 8px solid #9EA4AA;
+      /* 상단, 좌측, 하단 테두리 선 (회색 9px) */
+      border-top: 9px solid #9EA4AA;
+      border-left: 9px solid #9EA4AA;
+      border-bottom: 9px solid #9EA4AA;
+      border-right: none; /* 우측은 분할 라인으로 별도 처리 */
       padding: 30px 45px 25px 45px;
       box-shadow: 0 8px 25px rgba(0,0,0,0.15);
       display: flex;
@@ -44,25 +43,57 @@
       justify-content: space-between;
     }
 
+    /* --- [예시 1번 이미지 완벽 재현: 우측 테두리 일체형 영문] --- */
+    .right-border-column {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 9px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    /* 상단에서 내려오는 실선 */
+    .right-line-top {
+      width: 9px;
+      flex: 1;
+      background: #9EA4AA;
+    }
+    /* 영문 텍스트 감싸는 홈 영역 (상하 12px 여백) */
+    .right-text-slot {
+      padding: 12px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+    }
+    /* 예시와 100% 동일한 대소문자 & 굵기 & 회전 각도 */
+    .right-brand-text {
+      transform: rotate(90deg);
+      white-space: nowrap;
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 800; /* 선 굵기와 일치하는 볼드체 */
+      font-size: 14.5px;
+      color: #9EA4AA;   /* 테두리 회색과 일치 */
+      letter-spacing: 0.3px;
+      text-transform: none !important; /* 대문자 강제 해제 */
+    }
+    /* 하단 모서리에서 올라오는 짧은 실선 (예시 1번 길이 반영) */
+    .right-line-bottom {
+      width: 9px;
+      height: 52px;
+      background: #9EA4AA;
+    }
+
     /* 좌측 상단 공식 로고 */
     .poster-header { display: flex; align-items: center; min-height: 42px; }
     .official-logo-img { max-height: 38px; width: auto; object-fit: contain; }
 
-    /* 우측 테두리 세로 영문 */
-    .vertical-brand-text {
-      position: absolute; right: 10px; top: 50%;
-      transform: translateY(-50%) rotate(90deg);
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 11px; font-weight: bold; color: #9EA4AA;
-      letter-spacing: 2px; text-transform: uppercase;
-      white-space: nowrap; pointer-events: none;
-    }
-
-    /* 상단 제목 */
+    /* 본문 영역 */
     .poster-title-area { text-align: center; margin-top: 10px; }
     .poster-title { font-size: 50px; font-weight: 900; margin: 0; letter-spacing: -2px; }
 
-    /* 중앙 픽토그램 */
     .poster-visual-area {
       flex: 1; display: flex; justify-content: center; align-items: center; margin: 15px 0; min-height: 180px;
     }
@@ -70,7 +101,6 @@
       max-height: 190px; max-width: 70%; width: auto; height: auto;
     }
 
-    /* 설명 문구 (종이용) */
     .poster-desc-area { text-align: center; margin-bottom: 10px; }
     .poster-desc { font-size: 23px; line-height: 1.5; color: #1e293b; font-weight: bold; white-space: pre-line; word-break: keep-all; }
 
@@ -111,7 +141,6 @@
     .m-visual svg, .m-visual img { max-height: 140px; width: auto; }
     .m-desc { font-size: 17px; line-height: 1.6; color: #334155; white-space: pre-line; word-break: keep-all; text-align: left; background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; }
     
-    /* 모바일 추가 안내 & 유튜브 플레이어 박스 */
     #m-extra-box {
       margin-top: 14px; padding: 16px; background: #eff6ff; border: 1px solid #bfdbfe;
       border-radius: 8px; text-align: left;
@@ -119,7 +148,6 @@
     .m-extra-tag { font-size: 13px; font-weight: bold; color: #1d4ed8; margin-bottom: 8px; display: flex; align-items: center; gap: 4px; }
     #m-extra-text { font-size: 15px; line-height: 1.65; color: #1e293b; white-space: pre-line; word-break: keep-all; margin-bottom: 10px; }
     
-    /* 반응형 16:9 유튜브 플레이어 컨테이너 */
     .video-container {
       position: relative; width: 100%; padding-bottom: 56.25%; height: 0;
       margin-top: 10px; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -139,10 +167,14 @@
       #poster-wrapper { display: block !important; margin: 0 !important; max-width: none !important; width: 297mm !important; height: 210mm !important; }
       #print-poster {
         width: 297mm !important; height: 210mm !important;
-        border: 8px solid #9EA4AA !important;
+        border-top: 9px solid #9EA4AA !important;
+        border-left: 9px solid #9EA4AA !important;
+        border-bottom: 9px solid #9EA4AA !important;
         box-shadow: none !important; padding: 15mm 20mm !important;
         page-break-after: avoid;
       }
+      .right-border-column { width: 9px !important; }
+      .right-line-top, .right-line-bottom { width: 9px !important; }
       .poster-title { font-size: 48px !important; }
       .poster-desc { font-size: 23px !important; }
       .footer-center { font-size: 23px !important; }
@@ -152,7 +184,7 @@
 </head>
 <body>
 
-  <!-- 1. 작성 관리자 패널 -->
+  <!-- 작성자 패널 -->
   <div id="admin-panel">
     <h2 style="margin-top:0; color:#0f172a;">역사 부착물 표준 디자인 제작기</h2>
 
@@ -236,17 +268,23 @@
     </div>
   </div>
 
-  <!-- 2. A4 가로 인쇄 포스터 -->
+  <!-- 2. A4 가로 인쇄 포스터 (예시 1번 테두리 완벽 구현) -->
   <div id="poster-wrapper">
     <div id="print-poster">
 
-      <!-- 상단 공식 로고 (공식 사이트 SVG 연동) -->
+      <!-- 상단 공식 로고 -->
       <div class="poster-header">
         <img src="https://www.ictr.or.kr/main/img/main2025/logo.svg" referrerpolicy="no-referrer" class="official-logo-img" alt="인천교통공사">
       </div>
 
-      <!-- 우측 테두리 세로 영문 -->
-      <div class="vertical-brand-text">Incheon Transit Corporation</div>
+      <!-- [예시 1번 100% 동일] 우측 테두리 일체형 분할 영문 컬럼 -->
+      <div class="right-border-column">
+        <div class="right-line-top"></div>
+        <div class="right-text-slot">
+          <span class="right-brand-text">Incheon Transit Corporation</span>
+        </div>
+        <div class="right-line-bottom"></div>
+      </div>
 
       <!-- 상단 핵심 제목 -->
       <div class="poster-title-area">
@@ -276,7 +314,7 @@
     </div>
   </div>
 
-  <!-- 3. 모바일 승객 전용 화면 (유튜브 플레이어 포함) -->
+  <!-- 3. 모바일 승객 전용 화면 -->
   <div id="mobile-view">
     <div>
       <div class="m-header">
@@ -287,7 +325,6 @@
         <div class="m-visual" id="m-visual"></div>
         <div id="m-desc" class="m-desc"></div>
 
-        <!-- 추가 안내 & 유튜브 플레이어 영역 -->
         <div id="m-extra-box" style="display:none;">
           <div class="m-extra-tag">📌 상세 안내 및 관련 영상</div>
           <div id="m-extra-text"></div>
@@ -368,7 +405,6 @@
 
     var currentCustomVisual = Presets.ban2.svg;
 
-    // 유튜브 영상 ID 추출 정규식 함수
     function extractYouTubeId(text) {
       var match = text.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
       return match ? match[1] : null;
@@ -443,7 +479,6 @@
         document.getElementById('m-station').innerText = station + (tel ? '  ' + tel : '');
         document.getElementById('m-visual').innerHTML = svg;
 
-        // 추가 내용 및 유튜브 영상 렌더링
         if (extra && extra.trim() !== '') {
           var ytid = extractYouTubeId(extra);
           var cleanText = extra.replace(/(https?:\/\/[^\s]+)/g, '').trim();
@@ -463,7 +498,7 @@
         var telBtn = document.getElementById('m-call');
         telBtn.style.backgroundColor = color;
         if (tel) {
-          telBtn.href = 'tel:' + tel;
+          telBtn.href = 'tel:' + phone[0];
         } else {
           telBtn.style.display = 'none';
         }
@@ -472,7 +507,7 @@
       }
     };
 
-    // [B] 포스터 & 초고화질 QR 생성
+    // [B] 포스터 & 초고화질 QR 생성 (스마트 압축 적용)
     function generatePoster() {
       try {
         var color = document.getElementById('color-code').value;
@@ -486,7 +521,6 @@
         var tel = telMatch ? telMatch[0] : '';
         var station = stationInput.replace(tel, '').trim();
 
-        // 포스터 텍스트 반영
         var pTitle = document.getElementById('p-title');
         pTitle.innerText = title;
         pTitle.style.color = color;
@@ -494,7 +528,7 @@
         document.getElementById('p-station').innerText = stationInput;
         document.getElementById('p-visual').innerHTML = currentCustomVisual;
 
-        // URL 파라미터 조합
+        // URL 파라미터 조합 (단축 템플릿 ID 우선)
         var params = new URLSearchParams();
         if (tpl !== 'custom' && Presets[tpl]) {
           params.set('id', tpl);
@@ -510,7 +544,6 @@
         var currentUrl = window.location.origin + window.location.pathname;
         var targetUrl = currentUrl + '?' + params.toString();
 
-        // 250px 고해상도 QR 생성
         var qrContainer = document.getElementById('poster-qr');
         qrContainer.innerHTML = '';
 
