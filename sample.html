@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>인천교통공사 역사 부착물 제작 시스템</title>
-  <!-- 사내망/외부망 모두 호환되는 QR 라이브러리 -->
+  <!-- QR 라이브러리 -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <style>
     * { box-sizing: border-box; font-family: "맑은 고딕", Malgun Gothic, sans-serif; }
     body { margin: 0; background: #eaedf1; color: #222; }
 
-    /* [1] 작업자 입력 패널 */
+    /* [1] 작성 패널 */
     #admin-panel { max-width: 900px; margin: 20px auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     .form-row { margin-bottom: 14px; }
     label { font-weight: bold; display: block; margin-bottom: 6px; font-size: 14px; }
@@ -20,14 +20,14 @@
     .btn-primary { background: #0078d4; color: #fff; }
     .btn-print { background: #107c41; color: #fff; }
 
-    /* [2] PDF 표준 A4 가로 인쇄 포스터 (가이드 9~24p 완벽 재현) */
+    /* [2] A4 가로 인쇄 포스터 (예시 이미지 100% 동일 규격) */
     #print-poster {
       display: none;
       width: 297mm; height: 210mm;
       margin: 30px auto; background: #fff;
       position: relative;
-      /* PDF 디자인의 핵심: 굵은 외곽 테두리 프레임 (기본 파랑 #2563EB) */
-      border: 10px solid #2563EB;
+      /* 핵심: 테두리는 알록달록하지 않고, 항상 단정한 '표준 회색'으로 고정 */
+      border: 6px solid #A6AEB6;
       padding: 12mm 18mm;
       box-shadow: 0 4px 15px rgba(0,0,0,0.15);
     }
@@ -35,54 +35,52 @@
     /* 좌측 상단 로고 */
     .poster-header { display: flex; align-items: center; gap: 8px; }
     .ci-symbol { display: inline-flex; gap: 2px; align-items: flex-end; }
-    .ci-dot-orange { width: 9px; height: 16px; background: #E94E1B; border-radius: 2px; }
-    .ci-dot-green { width: 9px; height: 22px; background: #71B329; border-radius: 2px; }
-    .ci-dot-blue { width: 9px; height: 28px; background: #008CD7; border-radius: 2px; }
-    .ci-logo-text { font-size: 20px; font-weight: 900; color: #111; letter-spacing: -1px; }
+    .ci-dot-orange { width: 8px; height: 15px; background: #E94E1B; border-radius: 2px; }
+    .ci-dot-green { width: 8px; height: 20px; background: #71B329; border-radius: 2px; }
+    .ci-dot-blue { width: 8px; height: 26px; background: #008CD7; border-radius: 2px; }
+    .ci-logo-text { font-size: 19px; font-weight: 900; color: #111; letter-spacing: -1px; }
 
     /* 우측 테두리 세로 영문 텍스트 (Incheon Transit Corporation) */
     .vertical-brand-text {
-      position: absolute; right: 6px; top: 50%;
+      position: absolute; right: 8px; top: 50%;
       transform: translateY(-50%) rotate(90deg);
-      font-size: 12px; font-weight: bold; color: #94A3B8;
-      letter-spacing: 2px; text-transform: uppercase;
+      font-size: 11px; font-weight: bold; color: #A6AEB6;
+      letter-spacing: 1.5px; text-transform: uppercase;
       pointer-events: none;
     }
 
-    /* 중앙 본문 영역 (가이드 비율 30% / 40% / 15%) */
+    /* 중앙 본문 (제목 글자만 선택한 색상으로 반영) */
     .poster-body { text-align: center; margin-top: 15mm; }
-    .poster-title { font-size: 46px; font-weight: 900; margin: 0 0 25px 0; letter-spacing: -1.5px; }
-    .poster-desc { font-size: 23px; line-height: 1.6; color: #222; font-weight: bold; white-space: pre-line; word-break: keep-all; }
+    .poster-title { font-size: 48px; font-weight: 900; margin: 0 0 25px 0; letter-spacing: -1.5px; }
+    .poster-desc { font-size: 22px; line-height: 1.6; color: #222; font-weight: bold; white-space: pre-line; word-break: keep-all; }
 
-    /* 하단 고정 영역: CI·역명(중앙 정렬) + QR코드(우측 정렬) */
+    /* 하단 고정 영역: CI·역명(가운데 정렬) + QR(우측) */
     .poster-footer {
       position: absolute; bottom: 10mm; left: 18mm; right: 18mm;
       display: flex; justify-content: center; align-items: center;
-      position: absolute;
     }
     .footer-center {
       display: flex; align-items: center; gap: 8px;
-      font-size: 24px; font-weight: 900; color: #111;
+      font-size: 22px; font-weight: 900; color: #111;
     }
-    /* 우측 하단 QR 배치 */
     .qr-container {
       position: absolute; right: 0; bottom: -2mm; text-align: center;
     }
     #poster-qr canvas, #poster-qr img {
       border: 1px solid #ddd; padding: 2px; background: #fff; width: 75px; height: 75px;
     }
-    .qr-label { font-size: 10px; color: #555; margin-top: 2px; font-weight: bold; }
+    .qr-label { font-size: 10px; color: #666; margin-top: 2px; font-weight: bold; }
 
-    /* [3] 모바일 승객 화면 (QR 스캔 시 열리는 화면) */
-    #mobile-view { max-width: 480px; margin: 0 auto; background: #fff; min-height: 100vh; display: none; flex-direction: column; justify-content: space-between; border-left: 6px solid #2563EB; }
+    /* [3] 모바일 승객 화면 */
+    #mobile-view { max-width: 480px; margin: 0 auto; background: #fff; min-height: 100vh; display: none; flex-direction: column; justify-content: space-between; border-left: 6px solid #A6AEB6; }
     .m-header { padding: 18px 20px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid #eee; }
     .m-content { padding: 35px 20px; text-align: center; }
     .m-title { font-size: 26px; font-weight: 900; margin-bottom: 20px; word-break: keep-all; }
     .m-desc { font-size: 17px; line-height: 1.7; color: #333; white-space: pre-line; word-break: keep-all; text-align: left; background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; }
     .m-footer { padding: 20px; text-align: center; border-top: 1px solid #eee; background: #fafafa; }
-    .tel-btn { display: block; margin-top: 10px; padding: 14px; background: #2563EB; color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; }
+    .tel-btn { display: block; margin-top: 10px; padding: 14px; color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; }
 
-    /* [4] 인쇄 출력 전용 스타일 (테두리 강제 출력) */
+    /* [4] 인쇄 출력 전용 CSS (회색 테두리 칼같이 인쇄) */
     @media print {
       @page { size: A4 landscape; margin: 0; }
       html, body { width: 297mm; height: 210mm; background: #fff; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -92,8 +90,7 @@
         margin: 0 !important;
         width: 297mm !important;
         height: 210mm !important;
-        /* 인쇄 시에도 테두리 프레임 두께 10px 완벽 유지 */
-        border: 10px solid #2563EB !important;
+        border: 6px solid #A6AEB6 !important; /* 인쇄 시 회색 테두리 유지 */
         box-shadow: none !important;
         page-break-after: avoid;
       }
@@ -102,7 +99,7 @@
 </head>
 <body>
 
-  <!-- 1. 작성 관리자 패널 -->
+  <!-- 작성 관리자 패널 -->
   <div id="admin-panel">
     <h2 style="margin-top:0;">역사 부착물 표준 디자인 제작기</h2>
     
@@ -118,36 +115,37 @@
       <label>표준 템플릿 선택:</label>
       <select id="tpl-select" onchange="applyTemplate()">
         <option value="">-- 직접 입력 --</option>
+        <option value="ban1">관계자 외 출입금지 (경고)</option>
+        <option value="ban2">자전거·킥보드 운행금지 (경고)</option>
         <option value="time">열차 운행 시간표 변경 안내</option>
         <option value="first">첫차 시간표 안내</option>
         <option value="transfer">환승 통로 안내</option>
-        <option value="repair">승강기/시설물 점검 중 안내</option>
       </select>
     </div>
 
     <div class="form-row">
-      <label>분류 및 테두리 색상 (가이드 규격):</label>
-      <select id="color-code" onchange="updatePreviewColor()">
+      <label>제목 글자 색상 (분류 기준):</label>
+      <select id="color-code">
+        <option value="#DC2626">4. 경고/금지 (빨간색 - R:220 G:38 B:38)</option>
         <option value="#2563EB">1. 안내/정보 (파란색 - R:37 G:99 B:235)</option>
         <option value="#0091AA">2. 방향/동선 (청록색 - R:0 G:145 B:170)</option>
         <option value="#16A34A">3. 안전/재난 (녹색 - R:22 G:163 B:74)</option>
-        <option value="#DC2626">4. 경고/금지 (빨간색 - R:220 G:38 B:38)</option>
       </select>
     </div>
 
     <div class="form-row">
       <label>핵심 제목:</label>
-      <input type="text" id="doc-title" value="열차 운행 시간표 변경 안내">
+      <input type="text" id="doc-title" value="관계자 외 출입금지">
     </div>
 
     <div class="form-row">
       <label>상세 내용:</label>
-      <textarea id="doc-desc" rows="4">임시 열차 증편 운행에 따라 막차 운행 시간이 변경됨을 알려드립니다.&#10;※ 기존 열차 운행시간은 변경사항 없음</textarea>
+      <textarea id="doc-desc" rows="4">용무가 있으신 고객은 고객안내센터로 연락주시기 바랍니다.</textarea>
     </div>
 
     <div class="form-row">
-      <label>역명 및 전화번호 (하단 중앙 배치):</label>
-      <input type="text" id="doc-station" value="송도달빛축제공원역  032-451-3139">
+      <label>역명 및 전화번호 (하단 중앙):</label>
+      <input type="text" id="doc-station" value="간석오거리역  032-451-3123">
     </div>
 
     <div class="btn-group">
@@ -161,9 +159,8 @@
     </div>
   </div>
 
-  <!-- 2. PPT 예시 완벽 재현 A4 가로 인쇄 포스터 -->
+  <!-- 인쇄 포스터 (테두리는 회색 고정!) -->
   <div id="print-poster">
-    <!-- 좌측 상단 로고 -->
     <div class="poster-header">
       <div class="ci-symbol">
         <div class="ci-dot-orange"></div>
@@ -176,13 +173,13 @@
     <!-- 우측 세로 영문 텍스트 -->
     <div class="vertical-brand-text">Incheon Transit Corporation</div>
 
-    <!-- 본문 내용 -->
+    <!-- 본문 내용 (글자색만 선택한 색상으로 적용) -->
     <div class="poster-body">
       <div id="p-title" class="poster-title"></div>
       <div id="p-desc" class="poster-desc"></div>
     </div>
 
-    <!-- 하단 영역 (역명 중앙 정렬 + QR 우측) -->
+    <!-- 하단 영역 (역명 중앙 + QR 우측) -->
     <div class="poster-footer">
       <div class="footer-center">
         <div class="ci-symbol" style="transform: scale(0.85);">
@@ -199,7 +196,7 @@
     </div>
   </div>
 
-  <!-- 3. 모바일 승객용 뷰어 -->
+  <!-- 모바일 승객용 뷰어 -->
   <div id="mobile-view">
     <div>
       <div class="m-header">
@@ -222,7 +219,7 @@
   </div>
 
   <script>
-    // [A] 승객 QR 접속 감지
+    // [A] QR 접속 감지
     window.onload = function() {
       const hash = window.location.hash.substring(1);
       if (hash) {
@@ -233,7 +230,6 @@
 
         try {
           const data = JSON.parse(decodeURIComponent(escape(atob(hash))));
-          mobileView.style.borderLeftColor = data.c;
           document.getElementById('m-title').innerText = data.t;
           document.getElementById('m-title').style.color = data.c;
           document.getElementById('m-desc').innerText = data.d;
@@ -253,17 +249,14 @@
       }
     };
 
-    // [B] 포스터 및 QR코드 생성
+    // [B] 포스터 및 QR코드 생성 (테두리는 회색 유지, 제목만 색상 적용)
     function generatePoster() {
       const color = document.getElementById('color-code').value;
       const title = document.getElementById('doc-title').value;
       const desc = document.getElementById('doc-desc').value;
       const station = document.getElementById('doc-station').value;
 
-      // 1. 포스터 테두리 및 텍스트 색상 적용
-      const poster = document.getElementById('print-poster');
-      poster.style.borderColor = color;
-      
+      // 제목 글자색만 분류 컬러 적용 (테두리는 CSS의 #A6AEB6 회색 유지)
       const pTitle = document.getElementById('p-title');
       pTitle.innerText = title;
       pTitle.style.color = color;
@@ -271,12 +264,12 @@
       document.getElementById('p-desc').innerText = desc;
       document.getElementById('p-station').innerText = station;
 
-      // 2. URL 생성
+      // URL 압축 생성
       const payload = { c: color, t: title, d: desc, s: station };
       const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
       const targetUrl = window.location.origin + window.location.pathname + '#' + encoded;
 
-      // 3. QR코드 렌더링
+      // QR코드 렌더링
       const qrContainer = document.getElementById('poster-qr');
       qrContainer.innerHTML = '';
 
@@ -289,7 +282,7 @@
         fallbackQR(qrContainer, targetUrl);
       }
 
-      // 4. 화면 노출
+      const poster = document.getElementById('print-poster');
       poster.style.display = 'block';
       document.getElementById('url-copy-box').style.display = 'block';
       document.getElementById('export-url').value = targetUrl;
@@ -298,29 +291,38 @@
 
     function fallbackQR(container, url) {
       const img = document.createElement('img');
-      img.src = "https://api.qrserver.com/v1/create-qr-code/?size=75x75&margin=0&data=" + encodeURIComponent(url);
+      img.src = "https://api.qrserver.com/v1/create-qr-code/?size=75x75&margin=0&data=" + encodeURIComponent(targetUrl);
       container.appendChild(img);
     }
 
-    // [C] 템플릿 변경
+    // [C] 템플릿 프리셋
     function applyTemplate() {
       const type = document.getElementById('tpl-select').value;
-      if (type === 'time') {
+      if (type === 'ban1') {
+        document.getElementById('color-code').value = '#DC2626';
+        document.getElementById('doc-title').value = '관계자 외 출입금지';
+        document.getElementById('doc-desc').value = '용무가 있으신 고객은 고객안내센터로 연락주시기 바랍니다.';
+        document.getElementById('doc-station').value = '간석오거리역  032-451-3123';
+      } else if (type === 'ban2') {
+        document.getElementById('color-code').value = '#DC2626';
+        document.getElementById('doc-title').value = '자전거·킥보드 운행금지';
+        document.getElementById('doc-desc').value = '역사 내에서는 개인형 이동장치를 운행하실 수 없습니다.';
+        document.getElementById('doc-station').value = '간석오거리역  032-451-3123';
+      } else if (type === 'time') {
         document.getElementById('color-code').value = '#2563EB';
         document.getElementById('doc-title').value = '열차 운행 시간표 변경 안내';
         document.getElementById('doc-desc').value = '임시 열차 증편 운행에 따라 막차 운행 시간이 변경됨을 알려드립니다.\n※ 기존 열차 운행시간은 변경사항 없음';
+        document.getElementById('doc-station').value = '송도달빛축제공원역  032-451-3139';
       } else if (type === 'first') {
         document.getElementById('color-code').value = '#2563EB';
         document.getElementById('doc-title').value = '첫차 시간표 안내';
         document.getElementById('doc-desc').value = '송도달빛축제공원행 05:33 출발\n검단호수공원행 05:40 출발\n\n정확한 상세 시간표는 QR코드를 스캔해 확인하세요.';
+        document.getElementById('doc-station').value = '인천터미널역  032-451-3139';
       } else if (type === 'transfer') {
         document.getElementById('color-code').value = '#0091AA';
         document.getElementById('doc-title').value = '1호선 환승 통로 안내';
         document.getElementById('doc-desc').value = '이 곳은 1호선 환승 통로가 아닙니다.\n승강장을 통해 이동해 주시기 바랍니다.';
-      } else if (type === 'repair') {
-        document.getElementById('color-code').value = '#2563EB';
-        document.getElementById('doc-title').value = '시설물 점검 중';
-        document.getElementById('doc-desc').value = '현재 시설물 점검 및 수리 중입니다.\n이용에 불편을 드려 대단히 죄송합니다.';
+        document.getElementById('doc-station').value = '인천시청역  032-451-3124';
       }
     }
 
