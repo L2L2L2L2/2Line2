@@ -7,26 +7,31 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     * { box-sizing: border-box; font-family: "맑은 고딕", "Malgun Gothic", sans-serif; }
-    body { margin: 0; background: #e2e8f0; color: #1e293b; padding-bottom: 50px; }
+    body { margin: 0; background: #e2e8f0; color: #1e293b; padding-bottom: 60px; }
 
     /* [1] 작성자 패널 */
-    #admin-panel { max-width: 900px; margin: 25px auto; background: #fff; padding: 25px 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+    #admin-panel { max-width: 920px; margin: 25px auto; background: #fff; padding: 25px 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
     .form-row { margin-bottom: 14px; }
     label { font-weight: bold; display: block; margin-bottom: 6px; font-size: 14px; }
     input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 15px; outline: none; }
     .btn-group { display: flex; gap: 12px; margin-top: 25px; }
-    button { padding: 13px 24px; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; }
+    button { padding: 13px 22px; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; }
     .btn-primary { background: #0284c7; color: #fff; }
     .btn-print { background: #059669; color: #fff; }
+    .btn-sub { background: #475569; color: #fff; padding: 8px 14px; font-size: 13px; }
 
-    /* [2] A4 가로 인쇄 포스터 (PDF 원본 비율 및 테두리 완벽 일치) */
+    /* svgrepo 연동 박스 */
+    .svgrepo-box { background: #f8fafc; border: 2px dashed #94a3b8; padding: 15px; border-radius: 8px; margin-top: 6px; }
+
+    /* [2] A4 가로 인쇄 포스터 (PDF 16p 원본 일체형 프레임) */
     #poster-wrapper { display: none; margin: 30px auto; max-width: 920px; }
+    
     #print-poster {
       width: 100%;
       aspect-ratio: 297 / 210;
       background: #fff;
       position: relative;
-      /* 끊어지지 않는 완벽한 일체형 회색 테두리 */
+      /* PDF와 동일한 견고한 일체형 회색 테두리 */
       border: 8px solid #9EA4AA;
       padding: 30px 45px 25px 45px;
       box-shadow: 0 8px 25px rgba(0,0,0,0.15);
@@ -35,49 +40,50 @@
       justify-content: space-between;
     }
 
-    /* 좌측 상단 로고: 테두리 선 위에 걸치는 흰색 패딩 오버레이 */
+    /* 좌측 상단 공식 로고 */
     .poster-header {
-      position: absolute; top: -14px; left: 25px;
-      background: #fff; padding: 0 10px;
-      display: flex; align-items: center; gap: 8px; z-index: 10;
+      display: flex; align-items: center; min-height: 42px;
     }
+    .custom-logo-img { max-height: 38px; width: auto; object-fit: contain; }
 
-    /* 우측 테두리 세로 영문: 테두리 선 정중앙에 완벽히 올라타는 오버레이 */
+    /* 우측 테두리 세로 영문 텍스트 (Incheon Transit Corporation) */
     .vertical-brand-text {
-      position: absolute; right: -18px; top: 50%;
+      position: absolute; right: 10px; top: 50%;
       transform: translateY(-50%) rotate(90deg);
-      background: #fff; padding: 0 10px;
       font-family: Arial, Helvetica, sans-serif;
       font-size: 11px; font-weight: bold; color: #9EA4AA;
       letter-spacing: 2px; text-transform: uppercase;
-      white-space: nowrap; z-index: 10;
+      white-space: nowrap; pointer-events: none;
     }
 
-    /* 상단 제목 (가이드 30%) */
-    .poster-title-area { text-align: center; margin-top: 15px; }
-    .poster-title { font-size: 46px; font-weight: 900; margin: 0; letter-spacing: -1.5px; }
+    /* 상단 제목 */
+    .poster-title-area { text-align: center; margin-top: 10px; }
+    .poster-title { font-size: 50px; font-weight: 900; margin: 0; letter-spacing: -2px; }
 
     /* 중앙 픽토그램/비주얼 영역 (가이드 35~40%) */
     .poster-visual-area {
-      flex: 1; display: flex; justify-content: center; align-items: center; margin: 10px 0;
+      flex: 1; display: flex; justify-content: center; align-items: center; margin: 15px 0; min-height: 180px;
     }
-    .poster-visual-area svg { max-height: 180px; width: auto; }
+    .poster-visual-area svg, .poster-visual-area img {
+      max-height: 190px; max-width: 70%; width: auto; height: auto;
+    }
 
-    /* 설명 문구 (가이드 15%) */
+    /* 설명 문구 */
     .poster-desc-area { text-align: center; margin-bottom: 10px; }
-    .poster-desc { font-size: 21px; line-height: 1.5; color: #1e293b; font-weight: bold; white-space: pre-line; word-break: keep-all; }
+    .poster-desc { font-size: 23px; line-height: 1.5; color: #1e293b; font-weight: bold; white-space: pre-line; word-break: keep-all; }
 
-    /* 하단 영역: 역명 중앙 / QR 우측 */
+    /* 하단 고정 영역: 심볼 + 역명 중앙 / QR 우측 */
     .poster-footer {
       display: flex; justify-content: center; align-items: center;
       position: relative; min-height: 60px;
     }
     .footer-center {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 22px; font-weight: 900; color: #0f172a;
+      display: flex; align-items: center; gap: 10px;
+      font-size: 23px; font-weight: 900; color: #0f172a;
     }
+    .footer-symbol-img { max-height: 30px; width: auto; }
     .qr-container {
-      position: absolute; right: 0; bottom: 0; text-align: center;
+      position: absolute; right: 0; bottom: -5px; text-align: center;
     }
     #poster-qr { background: #fff; display: inline-block; line-height: 0; }
     #poster-qr img, #poster-qr canvas { border: 1px solid #cbd5e1; padding: 2px; background: #fff; }
@@ -89,7 +95,7 @@
     .m-content { padding: 30px 20px; text-align: center; }
     .m-title { font-size: 26px; font-weight: 900; margin-bottom: 15px; word-break: keep-all; }
     .m-visual { margin: 20px 0; }
-    .m-visual svg { max-height: 140px; width: auto; }
+    .m-visual svg, .m-visual img { max-height: 140px; width: auto; }
     .m-desc { font-size: 17px; line-height: 1.6; color: #334155; white-space: pre-line; word-break: keep-all; text-align: left; background: #f8fafc; padding: 18px; border-radius: 8px; border: 1px solid #e2e8f0; }
     .m-footer { padding: 20px; text-align: center; border-top: 1px solid #e2e8f0; background: #fafafa; }
     .tel-btn { display: block; margin-top: 10px; padding: 14px; color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; }
@@ -106,18 +112,15 @@
         box-shadow: none !important; padding: 15mm 20mm !important;
         page-break-after: avoid;
       }
-      .poster-header { top: -6mm !important; left: 10mm !important; }
-      .vertical-brand-text { right: -6mm !important; }
-      .poster-title { font-size: 46px !important; }
-      .poster-visual-area svg { max-height: 70mm !important; }
-      .poster-desc { font-size: 22px !important; }
-      .footer-center { font-size: 22px !important; }
+      .poster-title { font-size: 48px !important; }
+      .poster-desc { font-size: 23px !important; }
+      .footer-center { font-size: 23px !important; }
     }
   </style>
 </head>
 <body>
 
-  <!-- 작성자 패널 -->
+  <!-- 1. 작성 관리자 패널 -->
   <div id="admin-panel">
     <h2 style="margin-top:0; color:#0f172a;">역사 부착물 표준 디자인 제작기</h2>
 
@@ -125,30 +128,47 @@
       <label>이전 작성물 불러오기 (수정용 QR 링크):</label>
       <div style="display:flex; gap:10px;">
         <input type="text" id="load-url" placeholder="이전에 복사해둔 링크를 넣으면 내용이 복원됩니다.">
-        <button type="button" onclick="loadPreviousData()" style="width:120px; background:#475569; color:#fff;">불러오기</button>
+        <button type="button" class="btn-sub" onclick="loadPreviousData()" style="width:120px;">불러오기</button>
       </div>
     </div>
 
+    <!-- 로고 파일 직접 업로드 지원 -->
     <div class="form-row">
-      <label>표준 템플릿 선택 (선택 시 픽토그램 자동 적용):</label>
+      <label>공식 로고 설정 (보유 중인 로고 이미지 파일 등록):</label>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <input type="file" id="logo-file-input" accept="image/*" onchange="handleLogoUpload(this)">
+        <button type="button" class="btn-sub" onclick="resetDefaultLogo()" style="width:140px;">기본 CI로 복구</button>
+      </div>
+      <small style="color:#64748b;">* 파일을 등록하지 않아도 올려주신 공식 CI 디자인이 기본 적용됩니다.</small>
+    </div>
+
+    <div class="form-row">
+      <label>표준 템플릿 선택:</label>
       <select id="tpl-select" onchange="applyTemplate()">
         <option value="ban2">자전거·킥보드 운행금지 (경고/빨강)</option>
         <option value="ban1">관계자 외 출입금지 (경고/빨강)</option>
         <option value="toilet">화장실 안내 (방향/청록)</option>
-        <option value="elevator">지상 엘리베이터 안내 (방향/청록)</option>
-        <option value="time">열차 운행 시간표 변경 안내 (안내/파랑)</option>
+        <option value="elevator">지상 엘리베이터 (방향/청록)</option>
+        <option value="custom">직접 픽토그램 검색해서 넣기</option>
       </select>
     </div>
 
+    <!-- svgrepo.com 검색 및 삽입 섹션 -->
     <div class="form-row">
-      <label>중앙 픽토그램 그래픽 종류:</label>
-      <select id="visual-type">
-        <option value="bike_ban">자전거·킥보드 금지 마크 (PDF 19p)</option>
-        <option value="enter_ban">출입금지 마크 (PDF 18p)</option>
-        <option value="toilet_dir">화장실 + 30M 화살표 (PDF 16p)</option>
-        <option value="elev_dir">엘리베이터 + 30M 화살표 (PDF 14p)</option>
-        <option value="none">비주얼 없음 (텍스트 전용)</option>
-      </select>
+      <label>중앙 픽토그램 (svgrepo.com 연동 검색):</label>
+      <div class="svgrepo-box">
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+          <input type="text" id="svg-search-kw" placeholder="영어 검색어 입력 (예: bicycle, elevator, toilet, no entry, phone)">
+          <button type="button" class="btn-sub" onclick="openSvgRepo()" style="background:#0284c7; width:180px;">svgrepo에서 찾기 ↗</button>
+        </div>
+        <small style="color:#475569; display:block; margin-bottom:8px;">
+          * 사이트에서 마음에 드는 아이콘의 <b>[Copy SVG]</b>를 누른 뒤 아래에 붙여넣기(Ctrl+V) 하세요:
+        </small>
+        <textarea id="svg-input-area" rows="3" placeholder="<svg ...> 코드를 여기에 붙여넣거나 다운로드한 .svg 파일을 아래에서 선택하세요." oninput="updateVisualFromInput()"></textarea>
+        <div style="margin-top:8px;">
+          <input type="file" id="svg-file-input" accept=".svg,image/*" onchange="handleSvgUpload(this)">
+        </div>
+      </div>
     </div>
 
     <div class="form-row">
@@ -187,47 +207,49 @@
     </div>
   </div>
 
-  <!-- A4 가로 인쇄 포스터 (PDF 원본 완벽 재현) -->
+  <!-- 2. A4 가로 인쇄 포스터 (PDF 원본 완벽 일체형 테두리) -->
   <div id="poster-wrapper">
     <div id="print-poster">
 
-      <!-- 상단 공식 로고 (테두리 선 위에 걸치는 오버레이) -->
-      <div class="poster-header">
-        <svg width="170" height="32" viewBox="0 0 190 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- 공식 심볼: 주황/초록/파랑 3색 사각 큐브 모티브 (8p 규격) -->
-          <g transform="translate(0, 2)">
-            <polygon points="4,2 14,2 11,15 1,15" fill="#E84E0F"/>
-            <polygon points="17,2 27,2 24,15 14,15" fill="#6EB329"/>
-            <polygon points="9,18 24,18 21,29 6,29" fill="#0090D4"/>
-          </g>
-          <text x="36" y="24" font-family="'맑은 고딕', 'Malgun Gothic', sans-serif" font-size="21" font-weight="900" fill="#000000" letter-spacing="-1.5px">인천교통공사</text>
+      <!-- 상단 공식 로고 영역 -->
+      <div class="poster-header" id="p-header-logo">
+        <!-- 기본 공식 CI (3색 둥근 막대 + 공식 한글 로고타입) -->
+        <svg id="default-logo-svg" width="185" height="38" viewBox="0 0 210 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="5" y="18" width="12" height="22" rx="4" fill="#E8501E"/>
+          <rect x="21" y="9" width="12" height="31" rx="4" fill="#70B328"/>
+          <rect x="37" y="0" width="12" height="40" rx="4" fill="#0091DA"/>
+          <text x="60" y="31" font-family="'맑은 고딕', sans-serif" font-size="24" font-weight="900" fill="#000000" letter-spacing="-1.5px">인천교통공사</text>
         </svg>
+        <img id="custom-logo-img" class="custom-logo-img" style="display:none;" alt="인천교통공사 로고">
       </div>
 
-      <!-- 우측 세로 워터마크 (테두리 선 위에 걸치는 오버레이) -->
+      <!-- 우측 테두리 세로 영문 (PDF 16p 동일) -->
       <div class="vertical-brand-text">Incheon Transit Corporation</div>
 
-      <!-- 상단 핵심 제목 (가이드 30%) -->
+      <!-- 상단 핵심 제목 -->
       <div class="poster-title-area">
         <div id="p-title" class="poster-title"></div>
       </div>
 
-      <!-- 중앙 픽토그램 비주얼 (가이드 35~40%) -->
+      <!-- 중앙 픽토그램 비주얼 -->
       <div class="poster-visual-area" id="p-visual"></div>
 
-      <!-- 설명 문구 (가이드 15%) -->
+      <!-- 설명 문구 -->
       <div class="poster-desc-area">
         <div id="p-desc" class="poster-desc"></div>
       </div>
 
-      <!-- 하단 고정 영역: 심볼 + 역명 / QR 우측 -->
+      <!-- 하단 고정: 심볼 + 역명 / QR 우측 -->
       <div class="poster-footer">
         <div class="footer-center">
-          <svg width="28" height="28" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <polygon points="4,2 14,2 11,15 1,15" fill="#E84E0F"/>
-            <polygon points="17,2 27,2 24,15 14,15" fill="#6EB329"/>
-            <polygon points="9,18 24,18 21,29 6,29" fill="#0090D4"/>
-          </svg>
+          <div id="p-footer-logo">
+            <svg id="default-footer-svg" width="34" height="34" viewBox="0 0 55 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="18" width="12" height="22" rx="4" fill="#E8501E"/>
+              <rect x="18" y="9" width="12" height="31" rx="4" fill="#70B328"/>
+              <rect x="34" y="0" width="12" height="40" rx="4" fill="#0091DA"/>
+            </svg>
+            <img id="custom-footer-img" class="footer-symbol-img" style="display:none;" alt="CI">
+          </div>
           <span id="p-station"></span>
         </div>
         <div class="qr-container">
@@ -239,17 +261,15 @@
     </div>
   </div>
 
-  <!-- 모바일 승객 전용 화면 -->
+  <!-- 3. 모바일 승객 전용 화면 -->
   <div id="mobile-view">
     <div>
-      <div class="m-header">
-        <svg width="150" height="28" viewBox="0 0 190 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <g transform="translate(0, 2)">
-            <polygon points="4,2 14,2 11,15 1,15" fill="#E84E0F"/>
-            <polygon points="17,2 27,2 24,15 14,15" fill="#6EB329"/>
-            <polygon points="9,18 24,18 21,29 6,29" fill="#0090D4"/>
-          </g>
-          <text x="36" y="24" font-family="'맑은 고딕', sans-serif" font-size="21" font-weight="900" fill="#000000" letter-spacing="-1.5px">인천교통공사</text>
+      <div class="m-header" id="m-header-logo">
+        <svg width="150" height="32" viewBox="0 0 210 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="5" y="18" width="12" height="22" rx="4" fill="#E8501E"/>
+          <rect x="21" y="9" width="12" height="31" rx="4" fill="#70B328"/>
+          <rect x="37" y="0" width="12" height="40" rx="4" fill="#0091DA"/>
+          <text x="60" y="31" font-family="'맑은 고딕', sans-serif" font-size="24" font-weight="900" fill="#000000" letter-spacing="-1.5px">인천교통공사</text>
         </svg>
       </div>
       <div class="m-content">
@@ -265,48 +285,38 @@
   </div>
 
   <script>
-    // [픽토그램 SVG 딕셔너리 (PDF 예시 100% 동일 벡터)]
-    var Pictograms = {
-      // 1. 자전거·킥보드 금지 마크 (PDF 19p)
-      bike_ban: `
-        <svg viewBox="0 0 200 200" width="180" height="180">
-          <circle cx="100" cy="100" r="90" fill="none" stroke="#DC2626" stroke-width="16"/>
-          <line x1="36" y1="36" x2="164" y2="164" stroke="#DC2626" stroke-width="16"/>
-          <!-- 자전거 & 킥보드 실루엣 -->
-          <g fill="#111">
-            <circle cx="65" cy="130" r="22" fill="none" stroke="#111" stroke-width="6"/>
-            <circle cx="135" cy="130" r="22" fill="none" stroke="#111" stroke-width="6"/>
-            <path d="M65 130 L95 95 L125 95 M95 95 L110 130 M85 85 L105 85" fill="none" stroke="#111" stroke-width="6" stroke-linecap="round"/>
-            <!-- 킥보드 핸들/데크 -->
-            <path d="M150 105 L150 145 L135 145 M142 105 L158 105" fill="none" stroke="#111" stroke-width="5" stroke-linecap="round"/>
+    // [기본 고화질 벡터 픽토그램 프리셋]
+    var Presets = {
+      ban2: `
+        <svg viewBox="0 0 220 220" width="190" height="190">
+          <circle cx="110" cy="110" r="95" fill="none" stroke="#DC2626" stroke-width="18"/>
+          <line x1="43" y1="43" x2="177" y2="177" stroke="#DC2626" stroke-width="18"/>
+          <g fill="none" stroke="#111" stroke-width="6" stroke-linecap="round">
+            <circle cx="70" cy="140" r="24"/>
+            <circle cx="150" cy="140" r="24"/>
+            <path d="M70 140 L105 100 L140 100 M105 100 L120 140 M92 88 L118 88"/>
+            <path d="M165 110 L165 155 L150 155 M155 110 L175 110" stroke-width="5"/>
           </g>
         </svg>`,
-      // 2. 관계자 외 출입금지 마크 (PDF 18p)
-      enter_ban: `
+      ban1: `
         <svg viewBox="0 0 200 200" width="180" height="180">
           <circle cx="100" cy="100" r="90" fill="none" stroke="#DC2626" stroke-width="16"/>
           <line x1="36" y1="36" x2="164" y2="164" stroke="#DC2626" stroke-width="16"/>
           <circle cx="100" cy="65" r="16" fill="#111"/>
           <path d="M85 90 C85 85, 115 85, 115 90 L115 135 L108 135 L108 165 L92 165 L92 135 L85 135 Z" fill="#111"/>
         </svg>`,
-      // 3. 화장실 + 30M 화살표 (PDF 16p)
-      toilet_dir: `
+      toilet: `
         <svg viewBox="0 0 450 200" width="380" height="170">
-          <!-- 화장실 픽토그램 박스 -->
           <rect x="10" y="10" width="180" height="180" rx="25" fill="#fff" stroke="#111" stroke-width="12"/>
           <line x1="100" y1="25" x2="100" y2="175" stroke="#111" stroke-width="4"/>
-          <!-- 남성 -->
           <circle cx="60" cy="55" r="14" fill="#111"/>
           <path d="M48 76 L72 76 L72 120 L66 120 L66 160 L54 160 L54 120 L48 120 Z" fill="#111"/>
-          <!-- 여성 -->
           <circle cx="140" cy="55" r="14" fill="#111"/>
           <path d="M130 76 L150 76 L160 125 L144 125 L144 160 L136 160 L136 125 L120 125 Z" fill="#111"/>
-          <!-- 30M 화살표 -->
           <polygon points="215,65 330,65 330,20 440,100 330,180 330,135 215,135" fill="#111"/>
           <text x="310" y="112" font-family="Arial, sans-serif" font-size="44" font-weight="900" fill="#fff" text-anchor="middle">30M</text>
         </svg>`,
-      // 4. 엘리베이터 + 30M 화살표 (PDF 14p)
-      elev_dir: `
+      elevator: `
         <svg viewBox="0 0 450 200" width="380" height="170">
           <rect x="10" y="10" width="180" height="180" rx="25" fill="#fff" stroke="#111" stroke-width="12"/>
           <polygon points="80,35 70,50 90,50" fill="#111"/>
@@ -317,11 +327,80 @@
           <path d="M115 92 L135 92 L140 135 L128 135 L128 155 L122 155 L122 135 L110 135 Z" fill="#111"/>
           <polygon points="215,65 330,65 330,20 440,100 330,180 330,135 215,135" fill="#111"/>
           <text x="310" y="112" font-family="Arial, sans-serif" font-size="44" font-weight="900" fill="#fff" text-anchor="middle">30M</text>
-        </svg>`,
-      none: ''
+        </svg>`
     };
 
-    // [A] QR 스캔 접속 확인
+    var currentCustomVisual = Presets.ban2;
+
+    // [A] svgrepo 검색 열기
+    function openSvgRepo() {
+      var kw = document.getElementById('svg-search-kw').value.trim() || 'warning';
+      var url = 'https://www.svgrepo.com/vectors/' + encodeURIComponent(kw) + '/';
+      window.open(url, '_blank');
+    }
+
+    // [B] 붙여넣은 SVG 또는 텍스트 반영
+    function updateVisualFromInput() {
+      var val = document.getElementById('svg-input-area').value.trim();
+      if (val) {
+        currentCustomVisual = val;
+        document.getElementById('p-visual').innerHTML = val;
+      }
+    }
+
+    // [C] SVG 파일 업로드
+    function handleSvgUpload(input) {
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var content = e.target.result;
+          if (input.files[0].name.endsWith('.svg')) {
+            document.getElementById('svg-input-area').value = content;
+            currentCustomVisual = content;
+          } else {
+            // 일반 이미지인 경우 img 태그화
+            currentCustomVisual = '<img src="' + content + '" style="max-height:190px;">';
+          }
+          document.getElementById('p-visual').innerHTML = currentCustomVisual;
+        };
+        if (input.files[0].name.endsWith('.svg')) {
+          reader.readAsText(input.files[0]);
+        } else {
+          reader.readAsDataURL(input.files[0]);
+        }
+      }
+    }
+
+    // [D] 공식 로고 이미지 파일 등록
+    function handleLogoUpload(input) {
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var src = e.target.result;
+          document.getElementById('default-logo-svg').style.display = 'none';
+          document.getElementById('default-footer-svg').style.display = 'none';
+          
+          var logoImg = document.getElementById('custom-logo-img');
+          logoImg.src = src;
+          logoImg.style.display = 'block';
+
+          var footerImg = document.getElementById('custom-footer-img');
+          footerImg.src = src;
+          footerImg.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function resetDefaultLogo() {
+      document.getElementById('default-logo-svg').style.display = 'block';
+      document.getElementById('default-footer-svg').style.display = 'block';
+      document.getElementById('custom-logo-img').style.display = 'none';
+      document.getElementById('custom-footer-img').style.display = 'none';
+      document.getElementById('logo-file-input').value = '';
+    }
+
+    // [E] QR 접속 확인 (승객 모드)
     window.onload = function() {
       var params = new URLSearchParams(window.location.search);
       if (params.has('t')) {
@@ -334,13 +413,13 @@
         var desc = params.get('d');
         var station = params.get('s');
         var color = params.get('c') || '#DC2626';
-        var visual = params.get('v') || 'none';
+        var tpl = params.get('tpl') || 'ban2';
 
         document.getElementById('m-title').innerText = title;
         document.getElementById('m-title').style.color = color;
         document.getElementById('m-desc').innerText = desc;
         document.getElementById('m-station').innerText = station;
-        document.getElementById('m-visual').innerHTML = Pictograms[visual] || '';
+        document.getElementById('m-visual').innerHTML = Presets[tpl] || '';
 
         var telBtn = document.getElementById('m-call');
         telBtn.style.backgroundColor = color;
@@ -350,38 +429,38 @@
         } else {
           telBtn.style.display = 'none';
         }
+      } else {
+        // 기본 템플릿 로드
+        applyTemplate();
       }
     };
 
-    // [B] 포스터 및 QR 생성 로직
+    // [F] 포스터 및 QR 생성
     function generatePoster() {
       try {
         var color = document.getElementById('color-code').value;
         var title = document.getElementById('doc-title').value;
         var desc = document.getElementById('doc-desc').value;
         var station = document.getElementById('doc-station').value;
-        var visual = document.getElementById('visual-type').value;
+        var tpl = document.getElementById('tpl-select').value;
 
-        // 1. 텍스트 및 비주얼 반영
         var pTitle = document.getElementById('p-title');
         pTitle.innerText = title;
         pTitle.style.color = color;
         document.getElementById('p-desc').innerText = desc;
         document.getElementById('p-station').innerText = station;
-        document.getElementById('p-visual').innerHTML = Pictograms[visual] || '';
+        document.getElementById('p-visual').innerHTML = currentCustomVisual;
 
-        // 2. 파라미터 조합 (QR 인식률 최적화)
         var params = new URLSearchParams();
         params.set('t', title);
         params.set('d', desc);
         params.set('s', station);
         params.set('c', color);
-        params.set('v', visual);
+        params.set('tpl', tpl);
 
         var currentUrl = window.location.origin + window.location.pathname;
         var targetUrl = currentUrl + '?' + params.toString();
 
-        // 3. QR코드 렌더링
         var qrContainer = document.getElementById('poster-qr');
         qrContainer.innerHTML = '';
         new QRCode(qrContainer, {
@@ -393,7 +472,6 @@
           correctLevel: QRCode.CorrectLevel.M
         });
 
-        // 4. 화면 표시
         var wrapper = document.getElementById('poster-wrapper');
         wrapper.style.display = 'block';
         document.getElementById('url-copy-box').style.display = 'block';
@@ -404,43 +482,38 @@
       }
     }
 
-    // [C] 템플릿 변경
+    // [G] 템플릿 변경
     function applyTemplate() {
       var type = document.getElementById('tpl-select').value;
       if (type === 'ban2') {
         document.getElementById('color-code').value = '#DC2626';
-        document.getElementById('visual-type').value = 'bike_ban';
         document.getElementById('doc-title').value = '자전거·킥보드 운행금지';
         document.getElementById('doc-desc').value = '역사 내에서는 개인형 이동장치를 운행하실 수 없습니다.';
         document.getElementById('doc-station').value = '간석오거리역  032-451-3123';
+        currentCustomVisual = Presets.ban2;
       } else if (type === 'ban1') {
         document.getElementById('color-code').value = '#DC2626';
-        document.getElementById('visual-type').value = 'enter_ban';
         document.getElementById('doc-title').value = '관계자 외 출입금지';
         document.getElementById('doc-desc').value = '용무가 있으신 고객은 고객안내센터로 연락주시기 바랍니다.';
         document.getElementById('doc-station').value = '간석오거리역  032-451-3123';
+        currentCustomVisual = Presets.ban1;
       } else if (type === 'toilet') {
         document.getElementById('color-code').value = '#0091AA';
-        document.getElementById('visual-type').value = 'toilet_dir';
         document.getElementById('doc-title').value = '화 장 실';
         document.getElementById('doc-desc').value = '화장실은 1번 출구 앞에 있습니다.';
         document.getElementById('doc-station').value = '간석오거리역  032-451-3123';
+        currentCustomVisual = Presets.toilet;
       } else if (type === 'elevator') {
         document.getElementById('color-code').value = '#0091AA';
-        document.getElementById('visual-type').value = 'elev_dir';
         document.getElementById('doc-title').value = '지상 엘리베이터';
         document.getElementById('doc-desc').value = '지상 엘리베이터는 5번 출구 앞에 있습니다.';
         document.getElementById('doc-station').value = '간석오거리역  032-451-3123';
-      } else if (type === 'time') {
-        document.getElementById('color-code').value = '#2563EB';
-        document.getElementById('visual-type').value = 'none';
-        document.getElementById('doc-title').value = '열차 운행 시간표 변경 안내';
-        document.getElementById('doc-desc').value = '임시 열차 증편 운행에 따라 막차 운행 시간이 변경됨을 알려드립니다.\n※ 기존 열차 운행시간은 변경사항 없음';
-        document.getElementById('doc-station').value = '송도달빛축제공원역  032-451-3139';
+        currentCustomVisual = Presets.elevator;
       }
+      document.getElementById('p-visual').innerHTML = currentCustomVisual;
     }
 
-    // [D] 이전 데이터 복원
+    // [H] 이전 데이터 복원
     function loadPreviousData() {
       var inputUrl = document.getElementById('load-url').value;
       try {
@@ -451,10 +524,13 @@
         }
         var params = new URLSearchParams(queryStr);
         document.getElementById('color-code').value = params.get('c') || '#DC2626';
-        document.getElementById('visual-type').value = params.get('v') || 'none';
         document.getElementById('doc-title').value = params.get('t') || '';
         document.getElementById('doc-desc').value = params.get('d') || '';
         document.getElementById('doc-station').value = params.get('s') || '';
+        var tpl = params.get('tpl') || 'ban2';
+        document.getElementById('tpl-select').value = tpl;
+        if (Presets[tpl]) currentCustomVisual = Presets[tpl];
+        document.getElementById('p-visual').innerHTML = currentCustomVisual;
         alert('이전 작성 내용을 성공적으로 불러왔습니다.');
       } catch(e) {
         alert('데이터 복원에 실패했습니다.');
